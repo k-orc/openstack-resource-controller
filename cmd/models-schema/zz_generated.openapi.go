@@ -6233,6 +6233,40 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolMemberSpec(ref c
 							Format:      "",
 						},
 					},
+					"monitorAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorAddress is an alternate IP address used for health monitoring the member. If not specified, the member's address is monitored.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"monitorPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorPort is an alternate port used for health monitoring the member. If not specified, the member's protocolPort is monitored.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the member.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 				Required: []string{"address", "protocolPort"},
 			},
@@ -6317,6 +6351,40 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolMemberStatus(ref
 							Format:      "",
 						},
 					},
+					"monitorAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorAddress is the alternate IP address used for health monitoring.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"monitorPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorPort is the alternate port used for health monitoring.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the member.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -6394,28 +6462,28 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolResourceSpec(ref
 					},
 					"tlsEnabled": {
 						SchemaProps: spec.SchemaProps{
-							Description: "tlsEnabled enables backend re-encryption when set to true. Requires TERMINATED_HTTPS or HTTPS protocol on the listener.",
+							Description: "tlsEnabled enables backend re-encryption when set to true.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
-					"tlsContainerRef": {
+					"tlsContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "tlsContainerRef is a reference to a secret containing a PKCS12 format certificate/key bundle for backend re-encryption.",
+							Description: "tlsContainerURL is the URL of a Barbican secret or container with the PKCS12 client certificate/key bundle for backend re-encryption.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"caTLSContainerRef": {
+					"caTLSContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "caTLSContainerRef is a reference to a secret containing the CA certificate for backend re-encryption.",
+							Description: "caTLSContainerURL is the URL of a Barbican secret with the CA certificate used to verify the members.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"crlContainerRef": {
+					"crlContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "crlContainerRef is a reference to a secret containing the CA revocation list for backend re-encryption.",
+							Description: "crlContainerURL is the URL of a Barbican secret with the CA revocation list used to verify the members.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6657,23 +6725,23 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolResourceStatus(r
 							Format:      "",
 						},
 					},
-					"tlsContainerRef": {
+					"tlsContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "tlsContainerRef is the reference to the TLS container.",
+							Description: "tlsContainerURL is the URL of the client certificate bundle.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"caTLSContainerRef": {
+					"caTLSContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "caTLSContainerRef is the reference to the CA TLS container.",
+							Description: "caTLSContainerURL is the URL of the CA certificate.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"crlContainerRef": {
+					"crlContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "crlContainerRef is the reference to the CRL container.",
+							Description: "crlContainerURL is the URL of the CA revocation list.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7723,6 +7791,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceSpec(r
 									},
 								},
 							},
+						},
+					},
+					"defaultPoolRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultPoolRef is a reference to the LBPool that receives the traffic not handled by an L7 policy. Use it with a pool created on the load balancer (loadBalancerRef); a pool created with listenerRef becomes the listener's default pool by itself.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"insertHeaders": {

@@ -33,3 +33,4 @@ assertAll:
     - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-b' && m.address == '10.0.2.11' && m.protocolPort == 8080)"
     - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-a' && m.weight == 10)"
     - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-b' && m.backup == true)"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-a' && m.monitorPort == 9090 && m.tags == ['member-tag'])"

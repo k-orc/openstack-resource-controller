@@ -21,16 +21,19 @@ package v1alpha1
 // LBPoolMemberStatusApplyConfiguration represents a declarative configuration of the LBPoolMemberStatus type for use
 // with apply.
 type LBPoolMemberStatusApplyConfiguration struct {
-	ID                 *string `json:"id,omitempty"`
-	Name               *string `json:"name,omitempty"`
-	Address            *string `json:"address,omitempty"`
-	ProtocolPort       *int32  `json:"protocolPort,omitempty"`
-	SubnetID           *string `json:"subnetID,omitempty"`
-	Weight             *int32  `json:"weight,omitempty"`
-	Backup             *bool   `json:"backup,omitempty"`
-	AdminStateUp       *bool   `json:"adminStateUp,omitempty"`
-	ProvisioningStatus *string `json:"provisioningStatus,omitempty"`
-	OperatingStatus    *string `json:"operatingStatus,omitempty"`
+	ID                 *string  `json:"id,omitempty"`
+	Name               *string  `json:"name,omitempty"`
+	Address            *string  `json:"address,omitempty"`
+	ProtocolPort       *int32   `json:"protocolPort,omitempty"`
+	SubnetID           *string  `json:"subnetID,omitempty"`
+	Weight             *int32   `json:"weight,omitempty"`
+	Backup             *bool    `json:"backup,omitempty"`
+	AdminStateUp       *bool    `json:"adminStateUp,omitempty"`
+	ProvisioningStatus *string  `json:"provisioningStatus,omitempty"`
+	OperatingStatus    *string  `json:"operatingStatus,omitempty"`
+	MonitorAddress     *string  `json:"monitorAddress,omitempty"`
+	MonitorPort        *int32   `json:"monitorPort,omitempty"`
+	Tags               []string `json:"tags,omitempty"`
 }
 
 // LBPoolMemberStatusApplyConfiguration constructs a declarative configuration of the LBPoolMemberStatus type for use with
@@ -116,5 +119,31 @@ func (b *LBPoolMemberStatusApplyConfiguration) WithProvisioningStatus(value stri
 // If called multiple times, the OperatingStatus field is set to the value of the last call.
 func (b *LBPoolMemberStatusApplyConfiguration) WithOperatingStatus(value string) *LBPoolMemberStatusApplyConfiguration {
 	b.OperatingStatus = &value
+	return b
+}
+
+// WithMonitorAddress sets the MonitorAddress field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MonitorAddress field is set to the value of the last call.
+func (b *LBPoolMemberStatusApplyConfiguration) WithMonitorAddress(value string) *LBPoolMemberStatusApplyConfiguration {
+	b.MonitorAddress = &value
+	return b
+}
+
+// WithMonitorPort sets the MonitorPort field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MonitorPort field is set to the value of the last call.
+func (b *LBPoolMemberStatusApplyConfiguration) WithMonitorPort(value int32) *LBPoolMemberStatusApplyConfiguration {
+	b.MonitorPort = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *LBPoolMemberStatusApplyConfiguration) WithTags(values ...string) *LBPoolMemberStatusApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
 	return b
 }

@@ -269,6 +269,15 @@ spec:
                     format: int32
                     minimum: -1
                     type: integer
+                  defaultPoolRef:
+                    description: |-
+                      defaultPoolRef is a reference to the LBPool that receives the traffic not
+                      handled by an L7 policy. Use it with a pool created on the load balancer
+                      (loadBalancerRef); a pool created with listenerRef becomes the listener's
+                      default pool by itself.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
                   defaultTLSContainerURL:
                     description: |-
                       defaultTLSContainerURL is the URL of a Barbican secret or container with the

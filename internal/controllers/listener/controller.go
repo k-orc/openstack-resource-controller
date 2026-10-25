@@ -65,6 +65,18 @@ var loadBalancerDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.
 	finalizer, externalObjectFieldOwner,
 )
 
+var defaultPoolDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ListenerList, *orcv1alpha1.LBPool](
+	"spec.resource.defaultPoolRef",
+	func(listener *orcv1alpha1.Listener) []string {
+		resource := listener.Spec.Resource
+		if resource == nil || resource.DefaultPoolRef == nil {
+			return nil
+		}
+		return []string{string(*resource.DefaultPoolRef)}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
 var loadBalancerImportDependency = dependency.NewDependency[*orcv1alpha1.ListenerList, *orcv1alpha1.LoadBalancer](
 	"spec.import.filter.loadBalancerRef",
 	func(listener *orcv1alpha1.Listener) []string {
@@ -95,6 +107,11 @@ func (c *listenerReconcilerConstructor) SetupWithManager(ctx context.Context, mg
 		return err
 	}
 
+	defaultPoolWatchEventHandler, err := defaultPoolDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.LoadBalancer{}, loadBalancerWatchEventHandler,
@@ -104,11 +121,15 @@ func (c *listenerReconcilerConstructor) SetupWithManager(ctx context.Context, mg
 		Watches(&orcv1alpha1.LoadBalancer{}, loadBalancerImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.LoadBalancer{})),
 		).
+		Watches(&orcv1alpha1.LBPool{}, defaultPoolWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.LBPool{})),
+		).
 		For(&orcv1alpha1.Listener{})
 
 	if err := errors.Join(
 		loadBalancerDependency.AddToManager(ctx, mgr),
 		loadBalancerImportDependency.AddToManager(ctx, mgr),
+		defaultPoolDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

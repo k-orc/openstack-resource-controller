@@ -2600,6 +2600,9 @@ _Appears in:_
 | `weight` _integer_ | weight is the relative portion of traffic this member should receive.<br />A member with weight 10 receives 5x the traffic of a member with weight 2.<br />Default is 1. |  | Maximum: 256 <br />Minimum: 0 <br />Optional: \{\} <br /> |
 | `backup` _boolean_ | backup indicates whether this is a backup member. Backup members only<br />receive traffic when all non-backup members are down. |  | Optional: \{\} <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the member (up=true, down=false). |  | Optional: \{\} <br /> |
+| `monitorAddress` _[IPvAny](#ipvany)_ | monitorAddress is an alternate IP address used for health monitoring the<br />member. If not specified, the member's address is monitored. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `monitorPort` _integer_ | monitorPort is an alternate port used for health monitoring the member.<br />If not specified, the member's protocolPort is monitored. |  | Maximum: 65535 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+| `tags` _[LBPoolTag](#lbpooltag) array_ | tags is a list of tags which will be applied to the member. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### LBPoolMemberStatus
@@ -2625,6 +2628,9 @@ _Appears in:_
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the member. |  | Optional: \{\} <br /> |
 | `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the member. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
 | `operatingStatus` _string_ | operatingStatus is the operating status of the member. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `monitorAddress` _string_ | monitorAddress is the alternate IP address used for health monitoring. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `monitorPort` _integer_ | monitorPort is the alternate port used for health monitoring. |  | Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the member. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
 
 
 #### LBPoolProtocol
@@ -2673,12 +2679,12 @@ _Appears in:_
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the pool, which is up (true)<br />or down (false). |  | Optional: \{\} <br /> |
 | `sessionPersistence` _[LBPoolSessionPersistence](#lbpoolsessionpersistence)_ | sessionPersistence is the session persistence configuration for the pool. |  | Optional: \{\} <br /> |
-| `tlsEnabled` _boolean_ | tlsEnabled enables backend re-encryption when set to true. Requires<br />TERMINATED_HTTPS or HTTPS protocol on the listener. |  | Optional: \{\} <br /> |
-| `tlsContainerRef` _string_ | tlsContainerRef is a reference to a secret containing a PKCS12 format<br />certificate/key bundle for backend re-encryption. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
-| `caTLSContainerRef` _string_ | caTLSContainerRef is a reference to a secret containing the CA<br />certificate for backend re-encryption. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
-| `crlContainerRef` _string_ | crlContainerRef is a reference to a secret containing the CA<br />revocation list for backend re-encryption. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `tlsEnabled` _boolean_ | tlsEnabled enables backend re-encryption when set to true. |  | Optional: \{\} <br /> |
+| `tlsContainerURL` _string_ | tlsContainerURL is the URL of a Barbican secret or container with the<br />PKCS12 client certificate/key bundle for backend re-encryption. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `caTLSContainerURL` _string_ | caTLSContainerURL is the URL of a Barbican secret with the CA<br />certificate used to verify the members. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `crlContainerURL` _string_ | crlContainerURL is the URL of a Barbican secret with the CA<br />revocation list used to verify the members. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `tlsCiphers` _string_ | tlsCiphers is a colon-separated list of ciphers for backend TLS connections. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
-| `tlsVersions` _string array_ | tlsVersions is a list of TLS protocol versions to be used for backend<br />TLS connections. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `tlsVersions` _[LBPoolTLSVersion](#lbpooltlsversion) array_ | tlsVersions is a list of TLS protocol versions to be used for backend<br />TLS connections. |  | Enum: [SSLv3 TLSv1 TLSv1.1 TLSv1.2 TLSv1.3] <br />MaxItems: 10 <br />Optional: \{\} <br /> |
 | `alpnProtocols` _string array_ | alpnProtocols is a list of ALPN protocols for backend TLS connections.<br />Available protocols: h2, http/1.0, http/1.1. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
 | `tags` _[LBPoolTag](#lbpooltag) array_ | tags is a list of tags which will be applied to the pool. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `members` _[LBPoolMemberSpec](#lbpoolmemberspec) array_ | members is a list of backend members for this pool. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
@@ -2711,9 +2717,9 @@ _Appears in:_
 | `members` _[LBPoolMemberStatus](#lbpoolmemberstatus) array_ | members is the list of members in this pool with their details. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
 | `sessionPersistence` _[LBPoolSessionPersistence](#lbpoolsessionpersistence)_ | sessionPersistence is the session persistence configuration. |  | Optional: \{\} <br /> |
 | `tlsEnabled` _boolean_ | tlsEnabled indicates whether backend re-encryption is enabled. |  | Optional: \{\} <br /> |
-| `tlsContainerRef` _string_ | tlsContainerRef is the reference to the TLS container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `caTLSContainerRef` _string_ | caTLSContainerRef is the reference to the CA TLS container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `crlContainerRef` _string_ | crlContainerRef is the reference to the CRL container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `tlsContainerURL` _string_ | tlsContainerURL is the URL of the client certificate bundle. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `caTLSContainerURL` _string_ | caTLSContainerURL is the URL of the CA certificate. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `crlContainerURL` _string_ | crlContainerURL is the URL of the CA revocation list. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `tlsCiphers` _string_ | tlsCiphers is the list of TLS ciphers for backend connections. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
 | `tlsVersions` _string array_ | tlsVersions is the list of TLS versions for backend connections. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
 | `alpnProtocols` _string array_ | alpnProtocols is the list of ALPN protocols for backend connections. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
@@ -2797,6 +2803,20 @@ _Appears in:_
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
+#### LBPoolTLSVersion
+
+_Underlying type:_ _string_
+
+LBPoolTLSVersion is a TLS protocol version.
+
+_Validation:_
+- Enum: [SSLv3 TLSv1 TLSv1.1 TLSv1.2 TLSv1.3]
+
+_Appears in:_
+- [LBPoolResourceSpec](#lbpoolresourcespec)
+
+
+
 #### LBPoolTag
 
 _Underlying type:_ _string_
@@ -2809,6 +2829,7 @@ _Validation:_
 
 _Appears in:_
 - [LBPoolFilter](#lbpoolfilter)
+- [LBPoolMemberSpec](#lbpoolmemberspec)
 - [LBPoolResourceSpec](#lbpoolresourcespec)
 
 
@@ -3123,6 +3144,7 @@ _Appears in:_
 | `connectionLimit` _integer_ | connectionLimit is the maximum number of connections permitted for this listener.<br />Default value is -1 which represents infinite connections. |  | Minimum: -1 <br />Optional: \{\} <br /> |
 | `defaultTLSContainerURL` _string_ | defaultTLSContainerURL is the URL of a Barbican secret or container with the<br />PKCS12 certificate/key bundle for TERMINATED_HTTPS listeners. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `sniContainerURLs` _string array_ | sniContainerURLs are the URLs of Barbican secrets or containers with the<br />PKCS12 certificate/key bundles for TERMINATED_HTTPS listeners using SNI. |  | MaxItems: 25 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
+| `defaultPoolRef` _[KubernetesNameRef](#kubernetesnameref)_ | defaultPoolRef is a reference to the LBPool that receives the traffic not<br />handled by an L7 policy. Use it with a pool created on the load balancer<br />(loadBalancerRef); a pool created with listenerRef becomes the listener's<br />default pool by itself. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `insertHeaders` _object (keys:string, values:string)_ | insertHeaders is a dictionary of optional headers to insert into the request<br />before it is sent to the backend member. |  | Optional: \{\} <br /> |
 | `timeoutClientData` _integer_ | timeoutClientData is the frontend client inactivity timeout in milliseconds. |  | Minimum: 0 <br />Optional: \{\} <br /> |
 | `timeoutMemberConnect` _integer_ | timeoutMemberConnect is the backend member connection timeout in milliseconds. |  | Minimum: 0 <br />Optional: \{\} <br /> |
