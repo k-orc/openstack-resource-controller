@@ -68,6 +68,10 @@ nameReference:
     path: spec/resource/keypairRef
   kind: KeyPair
 - fieldSpecs:
+  - kind: Listener
+    path: spec/resource/defaultPoolRef
+  kind: LBPool
+- fieldSpecs:
   - kind: LBPool
     path: spec/import/filter/listenerRef
   - kind: LBPool

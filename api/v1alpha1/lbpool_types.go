@@ -67,6 +67,10 @@ type LBPoolSessionPersistence struct {
 	CookieName *string `json:"cookieName,omitempty"`
 }
 
+// LBPoolTLSVersion is a TLS protocol version.
+// +kubebuilder:validation:Enum=SSLv3;TLSv1;TLSv1.1;TLSv1.2;TLSv1.3
+type LBPoolTLSVersion string
+
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=255
 type LBPoolTag string
@@ -109,6 +113,24 @@ type LBPoolMemberSpec struct {
 	// adminStateUp is the administrative state of the member (up=true, down=false).
 	// +optional
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
+
+	// monitorAddress is an alternate IP address used for health monitoring the
+	// member. If not specified, the member's address is monitored.
+	// +optional
+	MonitorAddress *IPvAny `json:"monitorAddress,omitempty"`
+
+	// monitorPort is an alternate port used for health monitoring the member.
+	// If not specified, the member's protocolPort is monitored.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	// +optional
+	MonitorPort *int32 `json:"monitorPort,omitempty"`
+
+	// tags is a list of tags which will be applied to the member.
+	// +kubebuilder:validation:MaxItems:=64
+	// +listType=set
+	// +optional
+	Tags []LBPoolTag `json:"tags,omitempty"`
 }
 
 // LBPoolMemberStatus represents the observed state of a pool member.
@@ -158,6 +180,22 @@ type LBPoolMemberStatus struct {
 	// +kubebuilder:validation:MaxLength=64
 	// +optional
 	OperatingStatus string `json:"operatingStatus,omitempty"`
+
+	// monitorAddress is the alternate IP address used for health monitoring.
+	// +kubebuilder:validation:MaxLength=64
+	// +optional
+	MonitorAddress string `json:"monitorAddress,omitempty"`
+
+	// monitorPort is the alternate port used for health monitoring.
+	// +optional
+	MonitorPort int32 `json:"monitorPort,omitempty"`
+
+	// tags is the list of tags on the member.
+	// +listType=atomic
+	// +optional
+	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:items:MaxLength=255
+	Tags []string `json:"tags,omitempty"`
 }
 
 // LBPoolResourceSpec contains the desired state of the resource.
@@ -177,7 +215,6 @@ type LBPoolResourceSpec struct {
 	// lbAlgorithm is the load balancing algorithm used to distribute traffic
 	// to the pool's members.
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="lbAlgorithm is immutable"
 	LBAlgorithm LBPoolLBAlgorithm `json:"lbAlgorithm,omitempty"`
 
 	// protocol is the protocol used by the pool and its members for traffic.
@@ -215,31 +252,27 @@ type LBPoolResourceSpec struct {
 	// +optional
 	SessionPersistence *LBPoolSessionPersistence `json:"sessionPersistence,omitempty"`
 
-	// tlsEnabled enables backend re-encryption when set to true. Requires
-	// TERMINATED_HTTPS or HTTPS protocol on the listener.
+	// tlsEnabled enables backend re-encryption when set to true.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="tlsEnabled is immutable"
 	TLSEnabled *bool `json:"tlsEnabled,omitempty"`
 
-	// tlsContainerRef is a reference to a secret containing a PKCS12 format
-	// certificate/key bundle for backend re-encryption.
+	// tlsContainerURL is the URL of a Barbican secret or container with the
+	// PKCS12 client certificate/key bundle for backend re-encryption.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	TLSContainerRef *string `json:"tlsContainerRef,omitempty"`
+	TLSContainerURL *string `json:"tlsContainerURL,omitempty"`
 
-	// caTLSContainerRef is a reference to a secret containing the CA
-	// certificate for backend re-encryption.
+	// caTLSContainerURL is the URL of a Barbican secret with the CA
+	// certificate used to verify the members.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="caTLSContainerRef is immutable"
-	CATLSContainerRef *string `json:"caTLSContainerRef,omitempty"`
+	CATLSContainerURL *string `json:"caTLSContainerURL,omitempty"`
 
-	// crlContainerRef is a reference to a secret containing the CA
-	// revocation list for backend re-encryption.
+	// crlContainerURL is the URL of a Barbican secret with the CA
+	// revocation list used to verify the members.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="crlContainerRef is immutable"
-	CRLContainerRef *string `json:"crlContainerRef,omitempty"`
+	CRLContainerURL *string `json:"crlContainerURL,omitempty"`
 
 	// tlsCiphers is a colon-separated list of ciphers for backend TLS connections.
 	// +kubebuilder:validation:MaxLength=2048
@@ -251,8 +284,7 @@ type LBPoolResourceSpec struct {
 	// +listType=set
 	// +optional
 	// +kubebuilder:validation:MaxItems:=10
-	// +kubebuilder:validation:items:MaxLength=32
-	TLSVersions []string `json:"tlsVersions,omitempty"`
+	TLSVersions []LBPoolTLSVersion `json:"tlsVersions,omitempty"`
 
 	// alpnProtocols is a list of ALPN protocols for backend TLS connections.
 	// Available protocols: h2, http/1.0, http/1.1.
@@ -416,20 +448,20 @@ type LBPoolResourceStatus struct {
 	// +optional
 	TLSEnabled *bool `json:"tlsEnabled,omitempty"`
 
-	// tlsContainerRef is the reference to the TLS container.
+	// tlsContainerURL is the URL of the client certificate bundle.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	TLSContainerRef string `json:"tlsContainerRef,omitempty"`
+	TLSContainerURL string `json:"tlsContainerURL,omitempty"`
 
-	// caTLSContainerRef is the reference to the CA TLS container.
+	// caTLSContainerURL is the URL of the CA certificate.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	CATLSContainerRef string `json:"caTLSContainerRef,omitempty"`
+	CATLSContainerURL string `json:"caTLSContainerURL,omitempty"`
 
-	// crlContainerRef is the reference to the CRL container.
+	// crlContainerURL is the URL of the CA revocation list.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	CRLContainerRef string `json:"crlContainerRef,omitempty"`
+	CRLContainerURL string `json:"crlContainerURL,omitempty"`
 
 	// tlsCiphers is the list of TLS ciphers for backend connections.
 	// +kubebuilder:validation:MaxLength=2048

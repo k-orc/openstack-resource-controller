@@ -34,6 +34,7 @@ type ListenerResourceSpecApplyConfiguration struct {
 	ConnectionLimit         *int32                                    `json:"connectionLimit,omitempty"`
 	DefaultTLSContainerURL  *string                                   `json:"defaultTLSContainerURL,omitempty"`
 	SNIContainerURLs        []string                                  `json:"sniContainerURLs,omitempty"`
+	DefaultPoolRef          *apiv1alpha1.KubernetesNameRef            `json:"defaultPoolRef,omitempty"`
 	InsertHeaders           map[string]string                         `json:"insertHeaders,omitempty"`
 	TimeoutClientData       *int32                                    `json:"timeoutClientData,omitempty"`
 	TimeoutMemberConnect    *int32                                    `json:"timeoutMemberConnect,omitempty"`
@@ -127,6 +128,14 @@ func (b *ListenerResourceSpecApplyConfiguration) WithSNIContainerURLs(values ...
 	for i := range values {
 		b.SNIContainerURLs = append(b.SNIContainerURLs, values[i])
 	}
+	return b
+}
+
+// WithDefaultPoolRef sets the DefaultPoolRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultPoolRef field is set to the value of the last call.
+func (b *ListenerResourceSpecApplyConfiguration) WithDefaultPoolRef(value apiv1alpha1.KubernetesNameRef) *ListenerResourceSpecApplyConfiguration {
+	b.DefaultPoolRef = &value
 	return b
 }
 

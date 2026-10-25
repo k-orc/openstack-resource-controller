@@ -185,6 +185,19 @@ func (actuator listenerActuator) CreateResource(ctx context.Context, obj orcObje
 		loadBalancerID = ptr.Deref(loadBalancer.Status.ID, "")
 	}
 
+	var defaultPoolID string
+	if resource.DefaultPoolRef != nil {
+		defaultPool, defaultPoolDepRS := defaultPoolDependency.RequireDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.LBPool) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(defaultPoolDepRS)
+		if defaultPool != nil {
+			defaultPoolID = ptr.Deref(defaultPool.Status.ID, "")
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -193,6 +206,7 @@ func (actuator listenerActuator) CreateResource(ctx context.Context, obj orcObje
 		Name:                    getResourceName(obj),
 		Description:             ptr.Deref(resource.Description, ""),
 		LoadbalancerID:          loadBalancerID,
+		DefaultPoolID:           defaultPoolID,
 		Protocol:                listeners.Protocol(resource.Protocol),
 		ProtocolPort:            int(resource.ProtocolPort),
 		AdminStateUp:            resource.AdminStateUp,
@@ -279,6 +293,20 @@ func (actuator listenerActuator) updateResource(ctx context.Context, obj orcObje
 	handleTLSUpdate(&updateOpts, resource, osResource)
 	handleHSTSUpdate(&updateOpts, resource, osResource)
 	handleTagsUpdate(&updateOpts, resource, osResource)
+
+	// A pool created with listenerRef sets the default pool itself, so only update it when it's set.
+	if resource.DefaultPoolRef != nil {
+		defaultPool, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.DefaultPoolRef, "LBPool",
+			func(dep *orcv1alpha1.LBPool) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return rs
+		}
+		if defaultPoolID := ptr.Deref(defaultPool.Status.ID, ""); defaultPoolID != osResource.DefaultPoolID {
+			updateOpts.DefaultPoolID = &defaultPoolID
+		}
+	}
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -464,8 +492,19 @@ func tlsVersions(versions []orcv1alpha1.ListenerTLSVersion) []listeners.TLSVersi
 
 func (actuator listenerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.reconcileDependencyGuards,
 		actuator.updateResource,
 	}, nil
+}
+
+// reconcileDependencyGuards adds the deletion guards to the listener's dependencies. CreateResource
+// adds them before creating; this also covers an adopted listener.
+func (actuator listenerActuator) reconcileDependencyGuards(ctx context.Context, obj orcObjectPT, _ *osResourceT) progress.ReconcileStatus {
+	var reconcileStatus progress.ReconcileStatus
+	_, rs := loadBalancerDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	_, rs = defaultPoolDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	return reconcileStatus.WithReconcileStatus(rs)
 }
 
 type listenerHelperFactory struct{}

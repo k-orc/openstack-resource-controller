@@ -248,24 +248,18 @@ spec:
                     maxItems: 10
                     type: array
                     x-kubernetes-list-type: set
-                  caTLSContainerRef:
+                  caTLSContainerURL:
                     description: |-
-                      caTLSContainerRef is a reference to a secret containing the CA
-                      certificate for backend re-encryption.
+                      caTLSContainerURL is the URL of a Barbican secret with the CA
+                      certificate used to verify the members.
                     maxLength: 255
                     type: string
-                    x-kubernetes-validations:
-                    - message: caTLSContainerRef is immutable
-                      rule: self == oldSelf
-                  crlContainerRef:
+                  crlContainerURL:
                     description: |-
-                      crlContainerRef is a reference to a secret containing the CA
-                      revocation list for backend re-encryption.
+                      crlContainerURL is the URL of a Barbican secret with the CA
+                      revocation list used to verify the members.
                     maxLength: 255
                     type: string
-                    x-kubernetes-validations:
-                    - message: crlContainerRef is immutable
-                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -282,9 +276,6 @@ spec:
                     - SOURCE_IP
                     - SOURCE_IP_PORT
                     type: string
-                    x-kubernetes-validations:
-                    - message: lbAlgorithm is immutable
-                      rule: self == oldSelf
                   listenerRef:
                     description: |-
                       listenerRef is a reference to the ORC Listener which this pool is
@@ -326,6 +317,21 @@ spec:
                             backup indicates whether this is a backup member. Backup members only
                             receive traffic when all non-backup members are down.
                           type: boolean
+                        monitorAddress:
+                          description: |-
+                            monitorAddress is an alternate IP address used for health monitoring the
+                            member. If not specified, the member's address is monitored.
+                          maxLength: 45
+                          minLength: 1
+                          type: string
+                        monitorPort:
+                          description: |-
+                            monitorPort is an alternate port used for health monitoring the member.
+                            If not specified, the member's protocolPort is monitored.
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
                         name:
                           description: name is a human-readable name for the member.
                           maxLength: 255
@@ -343,6 +349,16 @@ spec:
                           maxLength: 253
                           minLength: 1
                           type: string
+                        tags:
+                          description: tags is a list of tags which will be applied
+                            to the member.
+                          items:
+                            maxLength: 255
+                            minLength: 1
+                            type: string
+                          maxItems: 64
+                          type: array
+                          x-kubernetes-list-type: set
                         weight:
                           description: |-
                             weight is the relative portion of traffic this member should receive.
@@ -426,26 +442,28 @@ spec:
                       backend TLS connections.
                     maxLength: 2048
                     type: string
-                  tlsContainerRef:
+                  tlsContainerURL:
                     description: |-
-                      tlsContainerRef is a reference to a secret containing a PKCS12 format
-                      certificate/key bundle for backend re-encryption.
+                      tlsContainerURL is the URL of a Barbican secret or container with the
+                      PKCS12 client certificate/key bundle for backend re-encryption.
                     maxLength: 255
                     type: string
                   tlsEnabled:
-                    description: |-
-                      tlsEnabled enables backend re-encryption when set to true. Requires
-                      TERMINATED_HTTPS or HTTPS protocol on the listener.
+                    description: tlsEnabled enables backend re-encryption when set
+                      to true.
                     type: boolean
-                    x-kubernetes-validations:
-                    - message: tlsEnabled is immutable
-                      rule: self == oldSelf
                   tlsVersions:
                     description: |-
                       tlsVersions is a list of TLS protocol versions to be used for backend
                       TLS connections.
                     items:
-                      maxLength: 32
+                      description: LBPoolTLSVersion is a TLS protocol version.
+                      enum:
+                      - SSLv3
+                      - TLSv1
+                      - TLSv1.1
+                      - TLSv1.2
+                      - TLSv1.3
                       type: string
                     maxItems: 10
                     type: array
@@ -590,13 +608,12 @@ spec:
                     maxItems: 10
                     type: array
                     x-kubernetes-list-type: atomic
-                  caTLSContainerRef:
-                    description: caTLSContainerRef is the reference to the CA TLS
-                      container.
+                  caTLSContainerURL:
+                    description: caTLSContainerURL is the URL of the CA certificate.
                     maxLength: 1024
                     type: string
-                  crlContainerRef:
-                    description: crlContainerRef is the reference to the CRL container.
+                  crlContainerURL:
+                    description: crlContainerURL is the URL of the CA revocation list.
                     maxLength: 1024
                     type: string
                   description:
@@ -655,6 +672,16 @@ spec:
                             OpenStack.
                           maxLength: 1024
                           type: string
+                        monitorAddress:
+                          description: monitorAddress is the alternate IP address
+                            used for health monitoring.
+                          maxLength: 64
+                          type: string
+                        monitorPort:
+                          description: monitorPort is the alternate port used for
+                            health monitoring.
+                          format: int32
+                          type: integer
                         name:
                           description: name is the human-readable name for the member.
                           maxLength: 255
@@ -679,6 +706,14 @@ spec:
                             is on.
                           maxLength: 1024
                           type: string
+                        tags:
+                          description: tags is the list of tags on the member.
+                          items:
+                            maxLength: 255
+                            type: string
+                          maxItems: 64
+                          type: array
+                          x-kubernetes-list-type: atomic
                         weight:
                           description: weight is the weight of the member for load
                             balancing.
@@ -743,8 +778,9 @@ spec:
                       connections.
                     maxLength: 2048
                     type: string
-                  tlsContainerRef:
-                    description: tlsContainerRef is the reference to the TLS container.
+                  tlsContainerURL:
+                    description: tlsContainerURL is the URL of the client certificate
+                      bundle.
                     maxLength: 1024
                     type: string
                   tlsEnabled:

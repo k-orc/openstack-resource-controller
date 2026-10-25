@@ -80,6 +80,7 @@ kubectl delete -f $ORC_RELEASE
 | limit                       |         |         |     ✔    |
 | load balancer               |         |         |     ◐    |
 | load balancer listener      |         |         |     ◐    |
+| load balancer pool          |         |         |     ◐    |
 | network                     |         |    ◐    |     ◐    |
 | port                        |         |    ◐    |     ◐    |
 | project                     |         |    ◐    |     ◐    |

@@ -1754,6 +1754,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: backup
       type:
         scalar: boolean
+    - name: monitorAddress
+      type:
+        scalar: string
+    - name: monitorPort
+      type:
+        scalar: numeric
     - name: name
       type:
         scalar: string
@@ -1763,6 +1769,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: subnetRef
       type:
         scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: weight
       type:
         scalar: numeric
@@ -1781,6 +1793,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: monitorAddress
+      type:
+        scalar: string
+    - name: monitorPort
+      type:
+        scalar: numeric
     - name: name
       type:
         scalar: string
@@ -1796,6 +1814,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: subnetID
       type:
         scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
     - name: weight
       type:
         scalar: numeric
@@ -1811,10 +1835,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: caTLSContainerRef
+    - name: caTLSContainerURL
       type:
         scalar: string
-    - name: crlContainerRef
+    - name: crlContainerURL
       type:
         scalar: string
     - name: description
@@ -1856,7 +1880,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: tlsCiphers
       type:
         scalar: string
-    - name: tlsContainerRef
+    - name: tlsContainerURL
       type:
         scalar: string
     - name: tlsEnabled
@@ -1880,10 +1904,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
-    - name: caTLSContainerRef
+    - name: caTLSContainerURL
       type:
         scalar: string
-    - name: crlContainerRef
+    - name: crlContainerURL
       type:
         scalar: string
     - name: description
@@ -1940,7 +1964,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: tlsCiphers
       type:
         scalar: string
-    - name: tlsContainerRef
+    - name: tlsContainerURL
       type:
         scalar: string
     - name: tlsEnabled
@@ -2271,6 +2295,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: connectionLimit
       type:
         scalar: numeric
+    - name: defaultPoolRef
+      type:
+        scalar: string
     - name: defaultTLSContainerURL
       type:
         scalar: string

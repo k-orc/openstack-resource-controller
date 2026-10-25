@@ -35,9 +35,9 @@ type LBPoolResourceStatusApplyConfiguration struct {
 	Members            []LBPoolMemberStatusApplyConfiguration      `json:"members,omitempty"`
 	SessionPersistence *LBPoolSessionPersistenceApplyConfiguration `json:"sessionPersistence,omitempty"`
 	TLSEnabled         *bool                                       `json:"tlsEnabled,omitempty"`
-	TLSContainerRef    *string                                     `json:"tlsContainerRef,omitempty"`
-	CATLSContainerRef  *string                                     `json:"caTLSContainerRef,omitempty"`
-	CRLContainerRef    *string                                     `json:"crlContainerRef,omitempty"`
+	TLSContainerURL    *string                                     `json:"tlsContainerURL,omitempty"`
+	CATLSContainerURL  *string                                     `json:"caTLSContainerURL,omitempty"`
+	CRLContainerURL    *string                                     `json:"crlContainerURL,omitempty"`
 	TLSCiphers         *string                                     `json:"tlsCiphers,omitempty"`
 	TLSVersions        []string                                    `json:"tlsVersions,omitempty"`
 	ALPNProtocols      []string                                    `json:"alpnProtocols,omitempty"`
@@ -171,27 +171,27 @@ func (b *LBPoolResourceStatusApplyConfiguration) WithTLSEnabled(value bool) *LBP
 	return b
 }
 
-// WithTLSContainerRef sets the TLSContainerRef field in the declarative configuration to the given value
+// WithTLSContainerURL sets the TLSContainerURL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the TLSContainerRef field is set to the value of the last call.
-func (b *LBPoolResourceStatusApplyConfiguration) WithTLSContainerRef(value string) *LBPoolResourceStatusApplyConfiguration {
-	b.TLSContainerRef = &value
+// If called multiple times, the TLSContainerURL field is set to the value of the last call.
+func (b *LBPoolResourceStatusApplyConfiguration) WithTLSContainerURL(value string) *LBPoolResourceStatusApplyConfiguration {
+	b.TLSContainerURL = &value
 	return b
 }
 
-// WithCATLSContainerRef sets the CATLSContainerRef field in the declarative configuration to the given value
+// WithCATLSContainerURL sets the CATLSContainerURL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the CATLSContainerRef field is set to the value of the last call.
-func (b *LBPoolResourceStatusApplyConfiguration) WithCATLSContainerRef(value string) *LBPoolResourceStatusApplyConfiguration {
-	b.CATLSContainerRef = &value
+// If called multiple times, the CATLSContainerURL field is set to the value of the last call.
+func (b *LBPoolResourceStatusApplyConfiguration) WithCATLSContainerURL(value string) *LBPoolResourceStatusApplyConfiguration {
+	b.CATLSContainerURL = &value
 	return b
 }
 
-// WithCRLContainerRef sets the CRLContainerRef field in the declarative configuration to the given value
+// WithCRLContainerURL sets the CRLContainerURL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the CRLContainerRef field is set to the value of the last call.
-func (b *LBPoolResourceStatusApplyConfiguration) WithCRLContainerRef(value string) *LBPoolResourceStatusApplyConfiguration {
-	b.CRLContainerRef = &value
+// If called multiple times, the CRLContainerURL field is set to the value of the last call.
+func (b *LBPoolResourceStatusApplyConfiguration) WithCRLContainerURL(value string) *LBPoolResourceStatusApplyConfiguration {
+	b.CRLContainerURL = &value
 	return b
 }
 

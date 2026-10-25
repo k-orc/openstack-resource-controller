@@ -15,6 +15,9 @@ spec:
         address: 10.0.2.10
         protocolPort: 8080
         weight: 10
+        monitorPort: 9090
+        tags:
+          - "member-tag"
       - name: member-b
         address: 10.0.2.11
         protocolPort: 8080

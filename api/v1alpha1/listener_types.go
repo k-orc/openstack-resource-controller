@@ -120,6 +120,14 @@ type ListenerResourceSpec struct {
 	// +kubebuilder:validation:items:MaxLength=255
 	SNIContainerURLs []string `json:"sniContainerURLs,omitempty"`
 
+	// defaultPoolRef is a reference to the LBPool that receives the traffic not
+	// handled by an L7 policy. Use it with a pool created on the load balancer
+	// (loadBalancerRef); a pool created with listenerRef becomes the listener's
+	// default pool by itself.
+	// +optional
+	// +orc:kustomize:ref=LBPool
+	DefaultPoolRef *KubernetesNameRef `json:"defaultPoolRef,omitempty"`
+
 	// insertHeaders is a dictionary of optional headers to insert into the request
 	// before it is sent to the backend member.
 	// +optional

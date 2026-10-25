@@ -214,27 +214,24 @@ func TestHandleSessionPersistenceUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleTLSContainerRefUpdate(t *testing.T) {
+func TestHandleLBAlgorithmUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
-		newValue      *string
+		newValue      orcv1alpha1.LBPoolLBAlgorithm
 		existingValue string
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: ptr.To("ref"), existingValue: "ref", expectChange: false},
-		{name: "Different", newValue: ptr.To("new-ref"), existingValue: "ref", expectChange: true},
-		{name: "Add ref", newValue: ptr.To("ref"), existingValue: "", expectChange: true},
-		{name: "Remove ref", newValue: nil, existingValue: "ref", expectChange: true},
-		{name: "Both empty", newValue: nil, existingValue: "", expectChange: false},
+		{name: "Identical", newValue: orcv1alpha1.LBPoolLBAlgorithmRoundRobin, existingValue: "ROUND_ROBIN", expectChange: false},
+		{name: "Different", newValue: orcv1alpha1.LBPoolLBAlgorithmLeastConnections, existingValue: "ROUND_ROBIN", expectChange: true},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.LBPoolResourceSpec{TLSContainerRef: tt.newValue}
-			osResource := &osResourceT{TLSContainerRef: tt.existingValue}
+			resource := &orcv1alpha1.LBPoolResourceSpec{LBAlgorithm: tt.newValue}
+			osResource := &osResourceT{LBMethod: tt.existingValue}
 
 			updateOpts := pools.UpdateOpts{}
-			handleTLSContainerRefUpdate(&updateOpts, resource, osResource)
+			handleLBAlgorithmUpdate(&updateOpts, resource, osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
@@ -244,88 +241,31 @@ func TestHandleTLSContainerRefUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleTLSCiphersUpdate(t *testing.T) {
+func TestHandleTLSUpdate(t *testing.T) {
 	testCases := []struct {
-		name          string
-		newValue      *string
-		existingValue string
-		expectChange  bool
+		name         string
+		resource     orcv1alpha1.LBPoolResourceSpec
+		osResource   osResourceT
+		expectChange bool
 	}{
-		{name: "Identical", newValue: ptr.To("AES256:AES128"), existingValue: "AES256:AES128", expectChange: false},
-		{name: "Different", newValue: ptr.To("AES256"), existingValue: "AES128", expectChange: true},
-		{name: "Add ciphers", newValue: ptr.To("AES256"), existingValue: "", expectChange: true},
-		{name: "Remove ciphers", newValue: nil, existingValue: "AES256", expectChange: true},
-		{name: "Both empty", newValue: nil, existingValue: "", expectChange: false},
+		{name: "Nothing set", expectChange: false},
+		{name: "Unset settings keep the Octavia defaults", osResource: osResourceT{TLSCiphers: "AES256", TLSVersions: []string{"TLSv1.2", "TLSv1.3"}, ALPNProtocols: []string{"h2"}}, expectChange: false},
+		{name: "TLS enabled", resource: orcv1alpha1.LBPoolResourceSpec{TLSEnabled: ptr.To(true)}, expectChange: true},
+		{name: "TLS enabled identical", resource: orcv1alpha1.LBPoolResourceSpec{TLSEnabled: ptr.To(true)}, osResource: osResourceT{TLSEnabled: true}, expectChange: false},
+		{name: "Container identical", resource: orcv1alpha1.LBPoolResourceSpec{TLSContainerURL: ptr.To("ref")}, osResource: osResourceT{TLSContainerRef: "ref"}, expectChange: false},
+		{name: "Container different", resource: orcv1alpha1.LBPoolResourceSpec{TLSContainerURL: ptr.To("new-ref")}, osResource: osResourceT{TLSContainerRef: "ref"}, expectChange: true},
+		{name: "CA container added", resource: orcv1alpha1.LBPoolResourceSpec{CATLSContainerURL: ptr.To("ca")}, expectChange: true},
+		{name: "CRL container different", resource: orcv1alpha1.LBPoolResourceSpec{CRLContainerURL: ptr.To("crl2")}, osResource: osResourceT{CRLContainerRef: "crl"}, expectChange: true},
+		{name: "Ciphers different", resource: orcv1alpha1.LBPoolResourceSpec{TLSCiphers: ptr.To("AES256")}, osResource: osResourceT{TLSCiphers: "AES128"}, expectChange: true},
+		{name: "Versions in another order", resource: orcv1alpha1.LBPoolResourceSpec{TLSVersions: []orcv1alpha1.LBPoolTLSVersion{"TLSv1.3", "TLSv1.2"}}, osResource: osResourceT{TLSVersions: []string{"TLSv1.2", "TLSv1.3"}}, expectChange: false},
+		{name: "Versions different", resource: orcv1alpha1.LBPoolResourceSpec{TLSVersions: []orcv1alpha1.LBPoolTLSVersion{"TLSv1.3"}}, osResource: osResourceT{TLSVersions: []string{"TLSv1.2"}}, expectChange: true},
+		{name: "ALPN different", resource: orcv1alpha1.LBPoolResourceSpec{ALPNProtocols: []string{"h2"}}, osResource: osResourceT{ALPNProtocols: []string{"http/1.1"}}, expectChange: true},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.LBPoolResourceSpec{TLSCiphers: tt.newValue}
-			osResource := &osResourceT{TLSCiphers: tt.existingValue}
-
 			updateOpts := pools.UpdateOpts{}
-			handleTLSCiphersUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-	}
-}
-
-func TestHandleTLSVersionsUpdate(t *testing.T) {
-	testCases := []struct {
-		name          string
-		newValue      []string
-		existingValue []string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: []string{"TLSv1.2", "TLSv1.3"}, existingValue: []string{"TLSv1.2", "TLSv1.3"}, expectChange: false},
-		{name: "Different", newValue: []string{"TLSv1.3"}, existingValue: []string{"TLSv1.2"}, expectChange: true},
-		{name: "Add versions", newValue: []string{"TLSv1.2"}, existingValue: nil, expectChange: true},
-		{name: "Remove versions", newValue: nil, existingValue: []string{"TLSv1.2"}, expectChange: true},
-		{name: "Both empty", newValue: nil, existingValue: nil, expectChange: false},
-		{name: "Different order", newValue: []string{"TLSv1.3", "TLSv1.2"}, existingValue: []string{"TLSv1.2", "TLSv1.3"}, expectChange: true},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.LBPoolResourceSpec{TLSVersions: tt.newValue}
-			osResource := &osResourceT{TLSVersions: tt.existingValue}
-
-			updateOpts := pools.UpdateOpts{}
-			handleTLSVersionsUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-	}
-}
-
-func TestHandleALPNProtocolsUpdate(t *testing.T) {
-	testCases := []struct {
-		name          string
-		newValue      []string
-		existingValue []string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: []string{"h2", "http/1.1"}, existingValue: []string{"h2", "http/1.1"}, expectChange: false},
-		{name: "Different", newValue: []string{"h2"}, existingValue: []string{"http/1.1"}, expectChange: true},
-		{name: "Add protocols", newValue: []string{"h2"}, existingValue: nil, expectChange: true},
-		{name: "Remove protocols", newValue: nil, existingValue: []string{"h2"}, expectChange: true},
-		{name: "Both empty", newValue: nil, existingValue: nil, expectChange: false},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.LBPoolResourceSpec{ALPNProtocols: tt.newValue}
-			osResource := &osResourceT{ALPNProtocols: tt.existingValue}
-
-			updateOpts := pools.UpdateOpts{}
-			handleALPNProtocolsUpdate(&updateOpts, resource, osResource)
+			handleTLSUpdate(&updateOpts, &tt.resource, &tt.osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {

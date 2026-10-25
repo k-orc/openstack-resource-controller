@@ -77,15 +77,15 @@ func (lbpoolStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 	}
 
 	if osResource.TLSContainerRef != "" {
-		resourceStatus.WithTLSContainerRef(osResource.TLSContainerRef)
+		resourceStatus.WithTLSContainerURL(osResource.TLSContainerRef)
 	}
 
 	if osResource.CATLSContainerRef != "" {
-		resourceStatus.WithCATLSContainerRef(osResource.CATLSContainerRef)
+		resourceStatus.WithCATLSContainerURL(osResource.CATLSContainerRef)
 	}
 
 	if osResource.CRLContainerRef != "" {
-		resourceStatus.WithCRLContainerRef(osResource.CRLContainerRef)
+		resourceStatus.WithCRLContainerURL(osResource.CRLContainerRef)
 	}
 
 	if osResource.TLSCiphers != "" {
@@ -140,6 +140,15 @@ func (lbpoolStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		}
 		if member.SubnetID != "" {
 			memberStatus.WithSubnetID(member.SubnetID)
+		}
+		if member.MonitorAddress != "" {
+			memberStatus.WithMonitorAddress(member.MonitorAddress)
+		}
+		if member.MonitorPort != 0 {
+			memberStatus.WithMonitorPort(int32(member.MonitorPort))
+		}
+		if len(member.Tags) > 0 {
+			memberStatus.WithTags(member.Tags...)
 		}
 		resourceStatus.WithMembers(memberStatus)
 	}

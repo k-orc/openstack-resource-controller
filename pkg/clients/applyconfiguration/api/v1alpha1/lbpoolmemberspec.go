@@ -25,13 +25,16 @@ import (
 // LBPoolMemberSpecApplyConfiguration represents a declarative configuration of the LBPoolMemberSpec type for use
 // with apply.
 type LBPoolMemberSpecApplyConfiguration struct {
-	Name         *string                        `json:"name,omitempty"`
-	Address      *apiv1alpha1.IPvAny            `json:"address,omitempty"`
-	ProtocolPort *int32                         `json:"protocolPort,omitempty"`
-	SubnetRef    *apiv1alpha1.KubernetesNameRef `json:"subnetRef,omitempty"`
-	Weight       *int32                         `json:"weight,omitempty"`
-	Backup       *bool                          `json:"backup,omitempty"`
-	AdminStateUp *bool                          `json:"adminStateUp,omitempty"`
+	Name           *string                        `json:"name,omitempty"`
+	Address        *apiv1alpha1.IPvAny            `json:"address,omitempty"`
+	ProtocolPort   *int32                         `json:"protocolPort,omitempty"`
+	SubnetRef      *apiv1alpha1.KubernetesNameRef `json:"subnetRef,omitempty"`
+	Weight         *int32                         `json:"weight,omitempty"`
+	Backup         *bool                          `json:"backup,omitempty"`
+	AdminStateUp   *bool                          `json:"adminStateUp,omitempty"`
+	MonitorAddress *apiv1alpha1.IPvAny            `json:"monitorAddress,omitempty"`
+	MonitorPort    *int32                         `json:"monitorPort,omitempty"`
+	Tags           []apiv1alpha1.LBPoolTag        `json:"tags,omitempty"`
 }
 
 // LBPoolMemberSpecApplyConfiguration constructs a declarative configuration of the LBPoolMemberSpec type for use with
@@ -93,5 +96,31 @@ func (b *LBPoolMemberSpecApplyConfiguration) WithBackup(value bool) *LBPoolMembe
 // If called multiple times, the AdminStateUp field is set to the value of the last call.
 func (b *LBPoolMemberSpecApplyConfiguration) WithAdminStateUp(value bool) *LBPoolMemberSpecApplyConfiguration {
 	b.AdminStateUp = &value
+	return b
+}
+
+// WithMonitorAddress sets the MonitorAddress field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MonitorAddress field is set to the value of the last call.
+func (b *LBPoolMemberSpecApplyConfiguration) WithMonitorAddress(value apiv1alpha1.IPvAny) *LBPoolMemberSpecApplyConfiguration {
+	b.MonitorAddress = &value
+	return b
+}
+
+// WithMonitorPort sets the MonitorPort field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MonitorPort field is set to the value of the last call.
+func (b *LBPoolMemberSpecApplyConfiguration) WithMonitorPort(value int32) *LBPoolMemberSpecApplyConfiguration {
+	b.MonitorPort = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *LBPoolMemberSpecApplyConfiguration) WithTags(values ...apiv1alpha1.LBPoolTag) *LBPoolMemberSpecApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
 	return b
 }
