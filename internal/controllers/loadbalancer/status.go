@@ -59,19 +59,26 @@ func (loadbalancerStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.L
 func (loadbalancerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.LoadBalancerResourceStatus().
 		WithName(osResource.Name).
-		WithDescription(osResource.Description).
 		WithVIPSubnetID(osResource.VipSubnetID).
 		WithVIPNetworkID(osResource.VipNetworkID).
 		WithVIPPortID(osResource.VipPortID).
 		WithVIPAddress(osResource.VipAddress).
-		WithFlavorID(osResource.FlavorID).
 		WithProjectID(osResource.ProjectID).
 		WithAdminStateUp(osResource.AdminStateUp).
 		WithProvider(osResource.Provider).
-		WithAvailabilityZone(osResource.AvailabilityZone).
 		WithProvisioningStatus(osResource.ProvisioningStatus).
 		WithOperatingStatus(osResource.OperatingStatus).
 		WithTags(osResource.Tags...)
+
+	if osResource.Description != "" {
+		resourceStatus.WithDescription(osResource.Description)
+	}
+	if osResource.FlavorID != "" {
+		resourceStatus.WithFlavorID(osResource.FlavorID)
+	}
+	if osResource.AvailabilityZone != "" {
+		resourceStatus.WithAvailabilityZone(osResource.AvailabilityZone)
+	}
 
 	statusApply.WithResource(resourceStatus)
 }

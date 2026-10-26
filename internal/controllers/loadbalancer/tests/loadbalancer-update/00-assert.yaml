@@ -12,7 +12,7 @@ resourceRefs:
       name: loadbalancer-update
       ref: subnet
 assertAll:
-    - celExpr: "loadbalancer.status.resource.description == ''"
+    - celExpr: "!has(loadbalancer.status.resource.description)"
     - celExpr: "loadbalancer.status.resource.vipSubnetID == subnet.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -23,6 +23,7 @@ status:
   resource:
     name: loadbalancer-update
     provisioningStatus: ACTIVE
+    operatingStatus: ONLINE
   conditions:
     - type: Available
       status: "True"

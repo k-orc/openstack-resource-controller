@@ -56,8 +56,7 @@ metadata:
   name: loadbalancer-create-full
 spec:
   cloudCredentialsRef:
-    # using openstack-admin to create the LB in another project
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -66,9 +65,22 @@ spec:
     vipSubnetRef: loadbalancer-create-full
     vipNetworkRef: loadbalancer-create-full
     vipPortRef: loadbalancer-create-full
-    projectRef: loadbalancer-create-full
     adminStateUp: true
     provider: amphora
     tags:
       - tag1
       - tag2
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-create-full-project
+spec:
+  cloudCredentialsRef:
+    # projectRef needs admin credentials to create the LB in another project
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: loadbalancer-create-full
+    projectRef: loadbalancer-create-full

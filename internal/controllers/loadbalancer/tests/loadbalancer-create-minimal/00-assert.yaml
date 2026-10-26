@@ -6,8 +6,8 @@ metadata:
 status:
   resource:
     name: loadbalancer-create-minimal
-    description: ""
     provisioningStatus: ACTIVE
+    operatingStatus: ONLINE
     adminStateUp: true
   conditions:
   - type: Available
@@ -34,3 +34,11 @@ assertAll:
     - celExpr: "loadbalancer.status.id != ''"
     - celExpr: "loadbalancer.status.resource.vipSubnetID == subnet.status.id"
     - celExpr: "loadbalancer.status.resource.vipAddress != ''"
+    - celExpr: "loadbalancer.status.resource.vipNetworkID == subnet.status.resource.networkID"
+    - celExpr: "loadbalancer.status.resource.vipPortID != ''"
+    - celExpr: "loadbalancer.status.resource.projectID != ''"
+    # The default provider depends on the cloud (amphora on devstack)
+    - celExpr: "loadbalancer.status.resource.provider != ''"
+    - celExpr: "!has(loadbalancer.status.resource.description)"
+    - celExpr: "!has(loadbalancer.status.resource.flavorID)"
+    - celExpr: "!has(loadbalancer.status.resource.tags)"

@@ -8,7 +8,7 @@ resourceRefs:
       name: loadbalancer-update
       ref: loadbalancer
 assertAll:
-    - celExpr: "loadbalancer.status.resource.description == ''"
+    - celExpr: "!has(loadbalancer.status.resource.description)"
     - celExpr: "!has(loadbalancer.status.resource.tags)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
