@@ -96,18 +96,13 @@ spec:
                           of the load balancer.
                         type: boolean
                       availabilityZone:
-                        description: availabilityZone is the availability zone in
-                          which to create the load balancer.
+                        description: availabilityZone filters by the Octavia availability
+                          zone of the load balancer.
                         maxLength: 255
                         type: string
                       description:
                         description: description of the existing resource
                         maxLength: 255
-                        minLength: 1
-                        type: string
-                      flavorRef:
-                        description: flavorRef filters by the Flavor of the load balancer.
-                        maxLength: 253
                         minLength: 1
                         type: string
                       name:
@@ -250,8 +245,9 @@ spec:
                       balancer, which is up (true) or down (false)
                     type: boolean
                   availabilityZone:
-                    description: availabilityZone is the availability zone in which
-                      to create the load balancer.
+                    description: |-
+                      availabilityZone is the name of an Octavia availability zone, which the
+                      cloud operator creates. It is not a compute availability zone.
                     maxLength: 255
                     type: string
                     x-kubernetes-validations:
@@ -263,15 +259,6 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
-                  flavorRef:
-                    description: flavorRef is a reference to the ORC Compute Flavor
-                      which this resource is associated with.
-                    maxLength: 253
-                    minLength: 1
-                    type: string
-                    x-kubernetes-validations:
-                    - message: flavorRef is immutable
-                      rule: self == oldSelf
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -475,8 +462,8 @@ spec:
                       which is up (true) or down (false).
                     type: boolean
                   availabilityZone:
-                    description: availabilityZone is the availability zone where the
-                      load balancer is located.
+                    description: availabilityZone is the Octavia availability zone
+                      of the load balancer.
                     maxLength: 1024
                     type: string
                   description:
@@ -485,8 +472,8 @@ spec:
                     maxLength: 1024
                     type: string
                   flavorID:
-                    description: flavorID is the ID of the Compute Flavor to which
-                      the resource is associated.
+                    description: flavorID is the ID of the Octavia flavor of the load
+                      balancer.
                     maxLength: 1024
                     type: string
                   name:

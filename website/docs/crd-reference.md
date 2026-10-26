@@ -2667,11 +2667,10 @@ _Appears in:_
 | `vipSubnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipSubnetRef filters by the subnet on which the load balancer's address is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `vipNetworkRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipNetworkRef filters by the network on which the load balancer's address is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `vipPortRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipPortRef filters by the neutron port used for the VIP. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the load balancer. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `availabilityZone` _string_ | availabilityZone filters by the Octavia availability zone of the load balancer. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `provider` _string_ | provider filters by the name of the load balancer provider. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `vipAddress` _[IPvAny](#ipvany)_ | vipAddress filters by the IP address of the load balancer's VIP. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `adminStateUp` _boolean_ | adminStateUp filters by the administrative state of the load balancer. |  | Optional: \{\} <br /> |
-| `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef filters by the Flavor of the load balancer. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tags` _[LoadBalancerTag](#loadbalancertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tagsAny` _[LoadBalancerTag](#loadbalancertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `notTags` _[LoadBalancerTag](#loadbalancertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
@@ -2716,10 +2715,9 @@ _Appears in:_
 | `vipSubnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipSubnetRef is the subnet on which to allocate the load balancer's address. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `vipNetworkRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipNetworkRef is the network on which to allocate the load balancer's address. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `vipPortRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipPortRef is a reference to a neutron port to use for the VIP. If the port<br />has more than one subnet you must specify either vipSubnetRef or vipAddress<br />to clarify which address should be used for the VIP. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef is a reference to the ORC Compute Flavor which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the load balancer, which is up (true) or down (false) |  | Optional: \{\} <br /> |
-| `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the load balancer. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `availabilityZone` _string_ | availabilityZone is the name of an Octavia availability zone, which the<br />cloud operator creates. It is not a compute availability zone. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `provider` _string_ | provider is the name of the load balancer provider. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `vipAddress` _[IPvAny](#ipvany)_ | vipAddress is the specific IP address to use for the VIP (optional).<br />If not specified, one is allocated automatically from the subnet. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tags` _[LoadBalancerTag](#loadbalancertag) array_ | tags is a list of tags which will be applied to the load balancer. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
@@ -2743,11 +2741,11 @@ _Appears in:_
 | `vipSubnetID` _string_ | vipSubnetID is the ID of the Subnet to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `vipNetworkID` _string_ | vipNetworkID is the ID of the Network to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `vipPortID` _string_ | vipPortID is the ID of the Port to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `flavorID` _string_ | flavorID is the ID of the Compute Flavor to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `flavorID` _string_ | flavorID is the ID of the Octavia flavor of the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the ID of the Project to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the load balancer,<br />which is up (true) or down (false). |  | Optional: \{\} <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
-| `availabilityZone` _string_ | availabilityZone is the availability zone where the load balancer is located. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `availabilityZone` _string_ | availabilityZone is the Octavia availability zone of the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the load balancer. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `operatingStatus` _string_ | operatingStatus is the operating status of the load balancer. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `provider` _string_ | provider is the name of the load balancer provider. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |

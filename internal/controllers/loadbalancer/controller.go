@@ -93,18 +93,6 @@ var portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadBala
 	finalizer, externalObjectFieldOwner,
 )
 
-var flavorDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Flavor](
-	"spec.resource.flavorRef",
-	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
-		resource := loadbalancer.Spec.Resource
-		if resource == nil || resource.FlavorRef == nil {
-			return nil
-		}
-		return []string{string(*resource.FlavorRef)}
-	},
-	finalizer, externalObjectFieldOwner,
-)
-
 var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Project](
 	"spec.resource.projectRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
@@ -150,17 +138,6 @@ var vipSubnetImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalanc
 	},
 )
 
-var flavorImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Flavor](
-	"spec.import.filter.flavorRef",
-	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
-		resource := loadbalancer.Spec.Import
-		if resource == nil || resource.Filter == nil || resource.Filter.FlavorRef == nil {
-			return nil
-		}
-		return []string{string(*resource.Filter.FlavorRef)}
-	},
-)
-
 var vipPortImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Port](
 	"spec.import.filter.vipPortRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
@@ -192,11 +169,6 @@ func (c *loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context
 		return err
 	}
 
-	flavorWatchEventHandler, err := flavorDependency.WatchEventHandler(log, k8sClient)
-	if err != nil {
-		return err
-	}
-
 	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -222,11 +194,6 @@ func (c *loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context
 		return err
 	}
 
-	flavorImportWatchEventHandler, err := flavorImportDependency.WatchEventHandler(log, k8sClient)
-	if err != nil {
-		return err
-	}
-
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.Subnet{}, subnetWatchEventHandler,
@@ -237,9 +204,6 @@ func (c *loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context
 		).
 		Watches(&orcv1alpha1.Port{}, portWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
-		).
-		Watches(&orcv1alpha1.Flavor{}, flavorWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
 		).
 		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
@@ -260,23 +224,17 @@ func (c *loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context
 		Watches(&orcv1alpha1.Port{}, vipPortImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		).
-		// A second watch is necessary because we need a different handler that omits deletion guards
-		Watches(&orcv1alpha1.Flavor{}, flavorImportWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
-		).
 		For(&orcv1alpha1.LoadBalancer{})
 
 	if err := errors.Join(
 		subnetDependency.AddToManager(ctx, mgr),
 		networkDependency.AddToManager(ctx, mgr),
 		portDependency.AddToManager(ctx, mgr),
-		flavorDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
 		vipNetworkImportDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
 		vipSubnetImportDependency.AddToManager(ctx, mgr),
 		vipPortImportDependency.AddToManager(ctx, mgr),
-		flavorImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

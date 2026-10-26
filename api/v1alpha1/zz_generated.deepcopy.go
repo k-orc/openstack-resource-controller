@@ -3507,11 +3507,6 @@ func (in *LoadBalancerFilter) DeepCopyInto(out *LoadBalancerFilter) {
 		*out = new(bool)
 		**out = **in
 	}
-	if in.FlavorRef != nil {
-		in, out := &in.FlavorRef, &out.FlavorRef
-		*out = new(KubernetesNameRef)
-		**out = **in
-	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
 		*out = make([]LoadBalancerTag, len(*in))
@@ -3626,11 +3621,6 @@ func (in *LoadBalancerResourceSpec) DeepCopyInto(out *LoadBalancerResourceSpec) 
 	}
 	if in.VIPPortRef != nil {
 		in, out := &in.VIPPortRef, &out.VIPPortRef
-		*out = new(KubernetesNameRef)
-		**out = **in
-	}
-	if in.FlavorRef != nil {
-		in, out := &in.FlavorRef, &out.FlavorRef
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}

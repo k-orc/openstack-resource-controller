@@ -35,7 +35,6 @@ type LoadBalancerFilterApplyConfiguration struct {
 	Provider         *string                        `json:"provider,omitempty"`
 	VIPAddress       *apiv1alpha1.IPvAny            `json:"vipAddress,omitempty"`
 	AdminStateUp     *bool                          `json:"adminStateUp,omitempty"`
-	FlavorRef        *apiv1alpha1.KubernetesNameRef `json:"flavorRef,omitempty"`
 	Tags             []apiv1alpha1.LoadBalancerTag  `json:"tags,omitempty"`
 	TagsAny          []apiv1alpha1.LoadBalancerTag  `json:"tagsAny,omitempty"`
 	NotTags          []apiv1alpha1.LoadBalancerTag  `json:"notTags,omitempty"`
@@ -125,14 +124,6 @@ func (b *LoadBalancerFilterApplyConfiguration) WithVIPAddress(value apiv1alpha1.
 // If called multiple times, the AdminStateUp field is set to the value of the last call.
 func (b *LoadBalancerFilterApplyConfiguration) WithAdminStateUp(value bool) *LoadBalancerFilterApplyConfiguration {
 	b.AdminStateUp = &value
-	return b
-}
-
-// WithFlavorRef sets the FlavorRef field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the FlavorRef field is set to the value of the last call.
-func (b *LoadBalancerFilterApplyConfiguration) WithFlavorRef(value apiv1alpha1.KubernetesNameRef) *LoadBalancerFilterApplyConfiguration {
-	b.FlavorRef = &value
 	return b
 }
 

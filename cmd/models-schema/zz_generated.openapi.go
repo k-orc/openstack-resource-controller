@@ -6409,7 +6409,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerFilter(ref
 					},
 					"availabilityZone": {
 						SchemaProps: spec.SchemaProps{
-							Description: "availabilityZone is the availability zone in which to create the load balancer.",
+							Description: "availabilityZone filters by the Octavia availability zone of the load balancer.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6432,13 +6432,6 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerFilter(ref
 						SchemaProps: spec.SchemaProps{
 							Description: "adminStateUp filters by the administrative state of the load balancer.",
 							Type:        []string{"boolean"},
-							Format:      "",
-						},
-					},
-					"flavorRef": {
-						SchemaProps: spec.SchemaProps{
-							Description: "flavorRef filters by the Flavor of the load balancer.",
-							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
@@ -6649,13 +6642,6 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceSp
 							Format:      "",
 						},
 					},
-					"flavorRef": {
-						SchemaProps: spec.SchemaProps{
-							Description: "flavorRef is a reference to the ORC Compute Flavor which this resource is associated with.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
@@ -6672,7 +6658,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceSp
 					},
 					"availabilityZone": {
 						SchemaProps: spec.SchemaProps{
-							Description: "availabilityZone is the availability zone in which to create the load balancer.",
+							Description: "availabilityZone is the name of an Octavia availability zone, which the cloud operator creates. It is not a compute availability zone.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6761,7 +6747,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceSt
 					},
 					"flavorID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "flavorID is the ID of the Compute Flavor to which the resource is associated.",
+							Description: "flavorID is the ID of the Octavia flavor of the load balancer.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6802,7 +6788,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceSt
 					},
 					"availabilityZone": {
 						SchemaProps: spec.SchemaProps{
-							Description: "availabilityZone is the availability zone where the load balancer is located.",
+							Description: "availabilityZone is the Octavia availability zone of the load balancer.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

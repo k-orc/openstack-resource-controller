@@ -116,16 +116,6 @@ func (actuator loadbalancerActuator) ListOSResourcesForAdoption(ctx context.Cont
 		vipPortID = ptr.Deref(port.Status.ID, "")
 	}
 
-	var flavorID string
-	if resourceSpec.FlavorRef != nil {
-		flavor, rs1 := dependency.FetchDependency[*orcv1alpha1.Flavor](
-			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.FlavorRef, "Flavor",
-			orcv1alpha1.IsAvailable,
-		)
-		rs = rs.WithReconcileStatus(rs1)
-		flavorID = ptr.Deref(flavor.Status.ID, "")
-	}
-
 	var projectID string
 	if resourceSpec.ProjectRef != nil {
 		project, rs1 := dependency.FetchDependency[*orcv1alpha1.Project](
@@ -145,7 +135,6 @@ func (actuator loadbalancerActuator) ListOSResourcesForAdoption(ctx context.Cont
 		VipSubnetID:      vipSubnetID,
 		VipNetworkID:     vipNetworkID,
 		VipPortID:        vipPortID,
-		FlavorID:         flavorID,
 		ProjectID:        projectID,
 		AvailabilityZone: resourceSpec.AvailabilityZone,
 		Provider:         resourceSpec.Provider,
@@ -186,13 +175,6 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	flavor, rs := dependency.FetchDependency[*orcv1alpha1.Flavor, orcv1alpha1.Flavor](
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.FlavorRef, "Flavor",
-		func(n *orcv1alpha1.Flavor) bool { return orcv1alpha1.IsAvailable(n) && n.Status.ID != nil },
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
-
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -204,7 +186,6 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 		Provider:         filter.Provider,
 		VipAddress:       string(ptr.Deref(filter.VIPAddress, "")),
 		AdminStateUp:     filter.AdminStateUp,
-		FlavorID:         ptr.Deref(flavor.Status.ID, ""),
 		VipNetworkID:     ptr.Deref(vipNetwork.Status.ID, ""),
 		ProjectID:        ptr.Deref(project.Status.ID, ""),
 		VipSubnetID:      ptr.Deref(vipSubnet.Status.ID, ""),
@@ -272,19 +253,6 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		}
 	}
 
-	var flavorID string
-	if resource.FlavorRef != nil {
-		flavor, flavorDepRS := flavorDependency.RequireDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Flavor) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
-		)
-		reconcileStatus = reconcileStatus.WithReconcileStatus(flavorDepRS)
-		if flavor != nil {
-			flavorID = ptr.Deref(flavor.Status.ID, "")
-		}
-	}
-
 	var projectID string
 	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.RequireDependency(
@@ -314,7 +282,6 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		VipSubnetID:      vipSubnetID,
 		VipNetworkID:     vipNetworkID,
 		VipPortID:        vipPortID,
-		FlavorID:         flavorID,
 		ProjectID:        projectID,
 		AdminStateUp:     resource.AdminStateUp,
 		AvailabilityZone: resource.AvailabilityZone,

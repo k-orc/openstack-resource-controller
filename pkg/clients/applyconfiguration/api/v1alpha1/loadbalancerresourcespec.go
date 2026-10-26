@@ -30,7 +30,6 @@ type LoadBalancerResourceSpecApplyConfiguration struct {
 	VIPSubnetRef     *apiv1alpha1.KubernetesNameRef `json:"vipSubnetRef,omitempty"`
 	VIPNetworkRef    *apiv1alpha1.KubernetesNameRef `json:"vipNetworkRef,omitempty"`
 	VIPPortRef       *apiv1alpha1.KubernetesNameRef `json:"vipPortRef,omitempty"`
-	FlavorRef        *apiv1alpha1.KubernetesNameRef `json:"flavorRef,omitempty"`
 	ProjectRef       *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
 	AdminStateUp     *bool                          `json:"adminStateUp,omitempty"`
 	AvailabilityZone *string                        `json:"availabilityZone,omitempty"`
@@ -82,14 +81,6 @@ func (b *LoadBalancerResourceSpecApplyConfiguration) WithVIPNetworkRef(value api
 // If called multiple times, the VIPPortRef field is set to the value of the last call.
 func (b *LoadBalancerResourceSpecApplyConfiguration) WithVIPPortRef(value apiv1alpha1.KubernetesNameRef) *LoadBalancerResourceSpecApplyConfiguration {
 	b.VIPPortRef = &value
-	return b
-}
-
-// WithFlavorRef sets the FlavorRef field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the FlavorRef field is set to the value of the last call.
-func (b *LoadBalancerResourceSpecApplyConfiguration) WithFlavorRef(value apiv1alpha1.KubernetesNameRef) *LoadBalancerResourceSpecApplyConfiguration {
-	b.FlavorRef = &value
 	return b
 }
 

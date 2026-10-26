@@ -130,9 +130,6 @@ var _ = Describe("ORC LoadBalancer API validations", func() {
 		Entry("vipPortRef", "vipPortRef", func(r *applyconfigv1alpha1.LoadBalancerResourceSpecApplyConfiguration, v string) {
 			r.WithVIPPortRef(orcv1alpha1.KubernetesNameRef("port-" + v))
 		}),
-		Entry("flavorRef", "flavorRef", func(r *applyconfigv1alpha1.LoadBalancerResourceSpecApplyConfiguration, v string) {
-			r.WithFlavorRef(orcv1alpha1.KubernetesNameRef("flavor-" + v))
-		}),
 		Entry("projectRef", "projectRef", func(r *applyconfigv1alpha1.LoadBalancerResourceSpecApplyConfiguration, v string) {
 			r.WithProjectRef(orcv1alpha1.KubernetesNameRef("project-" + v))
 		}),

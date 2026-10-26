@@ -63,12 +63,6 @@ type LoadBalancerResourceSpec struct {
 	// +orc:kustomize:ref=Port
 	VIPPortRef *KubernetesNameRef `json:"vipPortRef,omitempty"`
 
-	// flavorRef is a reference to the ORC Compute Flavor which this resource is associated with.
-	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="flavorRef is immutable"
-	// +orc:kustomize:ref=Flavor
-	FlavorRef *KubernetesNameRef `json:"flavorRef,omitempty"`
-
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
@@ -79,7 +73,8 @@ type LoadBalancerResourceSpec struct {
 	// +optional
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
-	// availabilityZone is the availability zone in which to create the load balancer.
+	// availabilityZone is the name of an Octavia availability zone, which the
+	// cloud operator creates. It is not a compute availability zone.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZone is immutable"
@@ -138,7 +133,7 @@ type LoadBalancerFilter struct {
 	// +orc:kustomize:ref=Port
 	VIPPortRef *KubernetesNameRef `json:"vipPortRef,omitempty"`
 
-	// availabilityZone is the availability zone in which to create the load balancer.
+	// availabilityZone filters by the Octavia availability zone of the load balancer.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
@@ -155,11 +150,6 @@ type LoadBalancerFilter struct {
 	// adminStateUp filters by the administrative state of the load balancer.
 	// +optional
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
-
-	// flavorRef filters by the Flavor of the load balancer.
-	// +optional
-	// +orc:kustomize:ref=Flavor
-	FlavorRef *KubernetesNameRef `json:"flavorRef,omitempty"`
 
 	// tags is a list of tags to filter by. If specified, the resource must
 	// have all of the tags specified to be included in the result.
@@ -218,7 +208,7 @@ type LoadBalancerResourceStatus struct {
 	// +optional
 	VIPPortID string `json:"vipPortID,omitempty"`
 
-	// flavorID is the ID of the Compute Flavor to which the resource is associated.
+	// flavorID is the ID of the Octavia flavor of the load balancer.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	FlavorID string `json:"flavorID,omitempty"`
@@ -240,7 +230,7 @@ type LoadBalancerResourceStatus struct {
 	// +kubebuilder:validation:items:MaxLength=255
 	Tags []string `json:"tags,omitempty"`
 
-	// availabilityZone is the availability zone where the load balancer is located.
+	// availabilityZone is the Octavia availability zone of the load balancer.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	AvailabilityZone string `json:"availabilityZone,omitempty"`

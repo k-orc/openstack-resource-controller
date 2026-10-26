@@ -1839,9 +1839,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
-    - name: flavorRef
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string
@@ -1906,9 +1903,6 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
     - name: description
-      type:
-        scalar: string
-    - name: flavorRef
       type:
         scalar: string
     - name: name
