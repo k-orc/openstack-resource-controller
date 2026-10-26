@@ -49,6 +49,8 @@ nameReference:
   kind: Domain
 - fieldSpecs:
   - kind: LoadBalancer
+    path: spec/import/filter/flavorRef
+  - kind: LoadBalancer
     path: spec/resource/flavorRef
   - kind: Server
     path: spec/resource/flavorRef

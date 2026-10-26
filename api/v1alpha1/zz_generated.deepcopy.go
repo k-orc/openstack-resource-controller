@@ -3497,6 +3497,21 @@ func (in *LoadBalancerFilter) DeepCopyInto(out *LoadBalancerFilter) {
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}
+	if in.VIPAddress != nil {
+		in, out := &in.VIPAddress, &out.VIPAddress
+		*out = new(IPvAny)
+		**out = **in
+	}
+	if in.AdminStateUp != nil {
+		in, out := &in.AdminStateUp, &out.AdminStateUp
+		*out = new(bool)
+		**out = **in
+	}
+	if in.FlavorRef != nil {
+		in, out := &in.FlavorRef, &out.FlavorRef
+		*out = new(KubernetesNameRef)
+		**out = **in
+	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
 		*out = make([]LoadBalancerTag, len(*in))

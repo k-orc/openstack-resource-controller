@@ -149,9 +149,17 @@ type LoadBalancerFilter struct {
 	Provider string `json:"provider,omitempty"`
 
 	// vipAddress filters by the IP address of the load balancer's VIP.
-	// +kubebuilder:validation:MaxLength=64
 	// +optional
-	VIPAddress string `json:"vipAddress,omitempty"`
+	VIPAddress *IPvAny `json:"vipAddress,omitempty"`
+
+	// adminStateUp filters by the administrative state of the load balancer.
+	// +optional
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
+
+	// flavorRef filters by the Flavor of the load balancer.
+	// +optional
+	// +orc:kustomize:ref=Flavor
+	FlavorRef *KubernetesNameRef `json:"flavorRef,omitempty"`
 
 	// tags is a list of tags to filter by. If specified, the resource must
 	// have all of the tags specified to be included in the result.
@@ -237,14 +245,14 @@ type LoadBalancerResourceStatus struct {
 	// +optional
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
-	// provisioningStatus is the provisioning status of the load balancer.
-	// This value is ACTIVE, PENDING_CREATE or ERROR.
+	// provisioningStatus is the provisioning status of the load balancer. See
+	// https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ProvisioningStatus string `json:"provisioningStatus,omitempty"`
 
-	// operatingStatus is the operating status of the load balancer,
-	// such as ONLINE or OFFLINE.
+	// operatingStatus is the operating status of the load balancer. See
+	// https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	OperatingStatus string `json:"operatingStatus,omitempty"`

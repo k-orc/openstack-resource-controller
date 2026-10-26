@@ -83,26 +83,73 @@ func (actuator loadbalancerActuator) ListOSResourcesForAdoption(ctx context.Cont
 		return nil, false
 	}
 
-	// Resolve the project ID from ProjectRef if set. Without the project
-	// ID, adoption with admin-scoped credentials could match a load
-	// balancer in the wrong project.
+	// Load balancer names aren't unique, so match everything set at creation.
+	var rs progress.ReconcileStatus
+
+	var vipSubnetID string
+	if resourceSpec.VIPSubnetRef != nil {
+		subnet, rs1 := dependency.FetchDependency[*orcv1alpha1.Subnet](
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.VIPSubnetRef, "Subnet",
+			orcv1alpha1.IsAvailable,
+		)
+		rs = rs.WithReconcileStatus(rs1)
+		vipSubnetID = ptr.Deref(subnet.Status.ID, "")
+	}
+
+	var vipNetworkID string
+	if resourceSpec.VIPNetworkRef != nil {
+		network, rs1 := dependency.FetchDependency[*orcv1alpha1.Network](
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.VIPNetworkRef, "Network",
+			orcv1alpha1.IsAvailable,
+		)
+		rs = rs.WithReconcileStatus(rs1)
+		vipNetworkID = ptr.Deref(network.Status.ID, "")
+	}
+
+	var vipPortID string
+	if resourceSpec.VIPPortRef != nil {
+		port, rs1 := dependency.FetchDependency[*orcv1alpha1.Port](
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.VIPPortRef, "Port",
+			orcv1alpha1.IsAvailable,
+		)
+		rs = rs.WithReconcileStatus(rs1)
+		vipPortID = ptr.Deref(port.Status.ID, "")
+	}
+
+	var flavorID string
+	if resourceSpec.FlavorRef != nil {
+		flavor, rs1 := dependency.FetchDependency[*orcv1alpha1.Flavor](
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.FlavorRef, "Flavor",
+			orcv1alpha1.IsAvailable,
+		)
+		rs = rs.WithReconcileStatus(rs1)
+		flavorID = ptr.Deref(flavor.Status.ID, "")
+	}
+
 	var projectID string
 	if resourceSpec.ProjectRef != nil {
-		project, rs := dependency.FetchDependency(
+		project, rs1 := dependency.FetchDependency[*orcv1alpha1.Project](
 			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
-			func(dep *orcv1alpha1.Project) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			orcv1alpha1.IsAvailable,
 		)
-		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
-			return nil, false
-		}
+		rs = rs.WithReconcileStatus(rs1)
 		projectID = ptr.Deref(project.Status.ID, "")
 	}
 
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, false
+	}
+
 	listOpts := loadbalancers.ListOpts{
-		Name:      getResourceName(orcObject),
-		ProjectID: projectID,
+		Name:             getResourceName(orcObject),
+		VipSubnetID:      vipSubnetID,
+		VipNetworkID:     vipNetworkID,
+		VipPortID:        vipPortID,
+		FlavorID:         flavorID,
+		ProjectID:        projectID,
+		AvailabilityZone: resourceSpec.AvailabilityZone,
+		Provider:         resourceSpec.Provider,
+		VipAddress:       string(ptr.Deref(resourceSpec.VIPAddress, "")),
 	}
 
 	return actuator.osClient.ListLoadBalancers(ctx, listOpts), true
@@ -139,6 +186,13 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
+	flavor, rs := dependency.FetchDependency[*orcv1alpha1.Flavor, orcv1alpha1.Flavor](
+		ctx, actuator.k8sClient, obj.Namespace,
+		filter.FlavorRef, "Flavor",
+		func(n *orcv1alpha1.Flavor) bool { return orcv1alpha1.IsAvailable(n) && n.Status.ID != nil },
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -148,7 +202,9 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 		Description:      ptr.Deref(filter.Description, ""),
 		AvailabilityZone: filter.AvailabilityZone,
 		Provider:         filter.Provider,
-		VipAddress:       filter.VIPAddress,
+		VipAddress:       string(ptr.Deref(filter.VIPAddress, "")),
+		AdminStateUp:     filter.AdminStateUp,
+		FlavorID:         ptr.Deref(flavor.Status.ID, ""),
 		VipNetworkID:     ptr.Deref(vipNetwork.Status.ID, ""),
 		ProjectID:        ptr.Deref(project.Status.ID, ""),
 		VipSubnetID:      ptr.Deref(vipSubnet.Status.ID, ""),
@@ -282,7 +338,7 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 func (actuator loadbalancerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
 	switch resource.ProvisioningStatus {
 	case orcv1alpha1.LoadbalancerProvisioningStatusPendingDelete:
-		return progress.WaitingOnOpenStack(progress.WaitingOnReady, loadbalancerDeletingPollingPeriod)
+		return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, loadbalancerDeletingPollingPeriod)
 	case orcv1alpha1.LoadbalancerProvisioningStatusPendingCreate, orcv1alpha1.LoadbalancerProvisioningStatusPendingUpdate:
 		// We can't delete a loadbalancer that's in a pending state, so we need to wait for it to become ACTIVE
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, loadbalancerActivePollingPeriod)
@@ -292,7 +348,7 @@ func (actuator loadbalancerActuator) DeleteResource(ctx context.Context, _ orcOb
 	// 409 Conflict means the loadbalancer is already in PENDING_DELETE state.
 	// Treat this as success and let the controller poll for deletion completion.
 	if orcerrors.IsConflict(err) {
-		return progress.WaitingOnOpenStack(progress.WaitingOnReady, loadbalancerDeletingPollingPeriod)
+		return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, loadbalancerDeletingPollingPeriod)
 	}
 	return progress.WrapError(err)
 }

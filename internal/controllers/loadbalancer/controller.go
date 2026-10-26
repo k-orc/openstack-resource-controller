@@ -150,6 +150,17 @@ var vipSubnetImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalanc
 	},
 )
 
+var flavorImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Flavor](
+	"spec.import.filter.flavorRef",
+	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
+		resource := loadbalancer.Spec.Import
+		if resource == nil || resource.Filter == nil || resource.Filter.FlavorRef == nil {
+			return nil
+		}
+		return []string{string(*resource.Filter.FlavorRef)}
+	},
+)
+
 var vipPortImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Port](
 	"spec.import.filter.vipPortRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
@@ -211,6 +222,11 @@ func (c *loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context
 		return err
 	}
 
+	flavorImportWatchEventHandler, err := flavorImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.Subnet{}, subnetWatchEventHandler,
@@ -244,6 +260,10 @@ func (c *loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context
 		Watches(&orcv1alpha1.Port{}, vipPortImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Flavor{}, flavorImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
+		).
 		For(&orcv1alpha1.LoadBalancer{})
 
 	if err := errors.Join(
@@ -256,6 +276,7 @@ func (c *loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context
 		projectImportDependency.AddToManager(ctx, mgr),
 		vipSubnetImportDependency.AddToManager(ctx, mgr),
 		vipPortImportDependency.AddToManager(ctx, mgr),
+		flavorImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

@@ -6428,6 +6428,20 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerFilter(ref
 							Format:      "",
 						},
 					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp filters by the administrative state of the load balancer.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"flavorRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "flavorRef filters by the Flavor of the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -6795,14 +6809,14 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceSt
 					},
 					"provisioningStatus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "provisioningStatus is the provisioning status of the load balancer. This value is ACTIVE, PENDING_CREATE or ERROR.",
+							Description: "provisioningStatus is the provisioning status of the load balancer. See https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"operatingStatus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "operatingStatus is the operating status of the load balancer, such as ONLINE or OFFLINE.",
+							Description: "operatingStatus is the operating status of the load balancer. See https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes",
 							Type:        []string{"string"},
 							Format:      "",
 						},

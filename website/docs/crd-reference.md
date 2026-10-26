@@ -1795,6 +1795,7 @@ _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
+- [LoadBalancerFilter](#loadbalancerfilter)
 - [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [RouterRoute](#routerroute)
 - [SubnetFilter](#subnetfilter)
@@ -2668,7 +2669,9 @@ _Appears in:_
 | `vipPortRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipPortRef filters by the neutron port used for the VIP. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the load balancer. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `provider` _string_ | provider filters by the name of the load balancer provider. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
-| `vipAddress` _string_ | vipAddress filters by the IP address of the load balancer's VIP. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `vipAddress` _[IPvAny](#ipvany)_ | vipAddress filters by the IP address of the load balancer's VIP. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp filters by the administrative state of the load balancer. |  | Optional: \{\} <br /> |
+| `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef filters by the Flavor of the load balancer. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tags` _[LoadBalancerTag](#loadbalancertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tagsAny` _[LoadBalancerTag](#loadbalancertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `notTags` _[LoadBalancerTag](#loadbalancertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
@@ -2745,8 +2748,8 @@ _Appears in:_
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the load balancer,<br />which is up (true) or down (false). |  | Optional: \{\} <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone where the load balancer is located. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the load balancer.<br />This value is ACTIVE, PENDING_CREATE or ERROR. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `operatingStatus` _string_ | operatingStatus is the operating status of the load balancer,<br />such as ONLINE or OFFLINE. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the load balancer. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the load balancer. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `provider` _string_ | provider is the name of the load balancer provider. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `vipAddress` _string_ | vipAddress is the IP address of the load balancer's VIP. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
 

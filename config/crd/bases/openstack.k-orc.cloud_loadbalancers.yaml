@@ -91,6 +91,10 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      adminStateUp:
+                        description: adminStateUp filters by the administrative state
+                          of the load balancer.
+                        type: boolean
                       availabilityZone:
                         description: availabilityZone is the availability zone in
                           which to create the load balancer.
@@ -99,6 +103,11 @@ spec:
                       description:
                         description: description of the existing resource
                         maxLength: 255
+                        minLength: 1
+                        type: string
+                      flavorRef:
+                        description: flavorRef filters by the Flavor of the load balancer.
+                        maxLength: 253
                         minLength: 1
                         type: string
                       name:
@@ -167,7 +176,8 @@ spec:
                       vipAddress:
                         description: vipAddress filters by the IP address of the load
                           balancer's VIP.
-                        maxLength: 64
+                        maxLength: 45
+                        minLength: 1
                         type: string
                       vipNetworkRef:
                         description: vipNetworkRef filters by the network on which
@@ -486,8 +496,8 @@ spec:
                     type: string
                   operatingStatus:
                     description: |-
-                      operatingStatus is the operating status of the load balancer,
-                      such as ONLINE or OFFLINE.
+                      operatingStatus is the operating status of the load balancer. See
+                      https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes
                     maxLength: 1024
                     type: string
                   projectID:
@@ -501,8 +511,8 @@ spec:
                     type: string
                   provisioningStatus:
                     description: |-
-                      provisioningStatus is the provisioning status of the load balancer.
-                      This value is ACTIVE, PENDING_CREATE or ERROR.
+                      provisioningStatus is the provisioning status of the load balancer. See
+                      https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes
                     maxLength: 1024
                     type: string
                   tags:
