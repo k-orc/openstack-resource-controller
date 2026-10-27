@@ -25,6 +25,7 @@ rules:
   - groups
   - images
   - keypairs
+  - lbhealthmonitors
   - lbpools
   - limits
   - listeners
@@ -67,6 +68,7 @@ rules:
   - groups/status
   - images/status
   - keypairs/status
+  - lbhealthmonitors/status
   - lbpools/status
   - limits/status
   - listeners/status

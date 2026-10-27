@@ -73,6 +73,7 @@ type Scope interface {
 	NewListenerClient() (osclients.ListenerClient, error)
 	NewLoadBalancerClient() (osclients.LoadBalancerClient, error)
 	NewLBPoolClient() (osclients.LBPoolClient, error)
+	NewLBHealthMonitorClient() (osclients.LBHealthMonitorClient, error)
 	ExtractToken() (*tokens.Token, error)
 	NewLimitClient() (osclients.LimitClient, error)
 }

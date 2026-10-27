@@ -38,6 +38,8 @@ type ImageExpansion interface{}
 
 type KeyPairExpansion interface{}
 
+type LBHealthMonitorExpansion interface{}
+
 type LBPoolExpansion interface{}
 
 type LimitExpansion interface{}

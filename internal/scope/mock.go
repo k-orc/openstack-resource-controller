@@ -48,6 +48,7 @@ type MockScopeFactory struct {
 	LoadBalancerClient          *mock.MockLoadBalancerClient
 	ListenerClient              *mock.MockListenerClient
 	LBPoolClient                *mock.MockLBPoolClient
+	LBHealthMonitorClient       *mock.MockLBHealthMonitorClient
 	NetworkClient               *mock.MockNetworkClient
 	RegionClient                *mock.MockRegionClient
 	RegisteredLimitClient       *mock.MockRegisteredLimitClient
@@ -79,6 +80,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	loadBalancerClient := mock.NewMockLoadBalancerClient(mockCtrl)
 	listenerClient := mock.NewMockListenerClient(mockCtrl)
 	lbPoolClient := mock.NewMockLBPoolClient(mockCtrl)
+	lbHealthMonitorClient := mock.NewMockLBHealthMonitorClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	regionClient := mock.NewMockRegionClient(mockCtrl)
 	registeredLimitClient := mock.NewMockRegisteredLimitClient(mockCtrl)
@@ -107,6 +109,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		LoadBalancerClient:          loadBalancerClient,
 		ListenerClient:              listenerClient,
 		LBPoolClient:                lbPoolClient,
+		LBHealthMonitorClient:       lbHealthMonitorClient,
 		NetworkClient:               networkClient,
 		RegionClient:                regionClient,
 		RegisteredLimitClient:       registeredLimitClient,
@@ -231,6 +234,10 @@ func (f *MockScopeFactory) NewListenerClient() (osclients.ListenerClient, error)
 
 func (f *MockScopeFactory) NewLBPoolClient() (osclients.LBPoolClient, error) {
 	return f.LBPoolClient, nil
+}
+
+func (f *MockScopeFactory) NewLBHealthMonitorClient() (osclients.LBHealthMonitorClient, error) {
+	return f.LBHealthMonitorClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

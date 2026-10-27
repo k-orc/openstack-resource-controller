@@ -38,6 +38,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/group"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/keypair"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/lbhealthmonitor"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/lbpool"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/limit"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/listener"
@@ -161,6 +162,7 @@ func main() {
 		loadbalancer.New(scopeFactory),
 		listener.New(scopeFactory),
 		lbpool.New(scopeFactory),
+		lbhealthmonitor.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

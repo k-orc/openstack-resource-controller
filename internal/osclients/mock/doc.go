@@ -56,6 +56,9 @@ import (
 //go:generate mockgen -package mock -destination=keypair.go -source=../keypair.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock KeyPairClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt keypair.go > _keypair.go && mv _keypair.go keypair.go"
 
+//go:generate mockgen -package mock -destination=lbhealthmonitor.go -source=../lbhealthmonitor.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LBHealthMonitorClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt lbhealthmonitor.go > _lbhealthmonitor.go && mv _lbhealthmonitor.go lbhealthmonitor.go"
+
 //go:generate mockgen -package mock -destination=lbpool.go -source=../lbpool.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LBPoolClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt lbpool.go > _lbpool.go && mv _lbpool.go lbpool.go"
 

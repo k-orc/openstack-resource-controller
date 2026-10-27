@@ -228,6 +228,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.KeyPairSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairStatus"):
 		return &apiv1alpha1.KeyPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBHealthMonitor"):
+		return &apiv1alpha1.LBHealthMonitorApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBHealthMonitorFilter"):
+		return &apiv1alpha1.LBHealthMonitorFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBHealthMonitorImport"):
+		return &apiv1alpha1.LBHealthMonitorImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBHealthMonitorResourceSpec"):
+		return &apiv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBHealthMonitorResourceStatus"):
+		return &apiv1alpha1.LBHealthMonitorResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBHealthMonitorSpec"):
+		return &apiv1alpha1.LBHealthMonitorSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBHealthMonitorStatus"):
+		return &apiv1alpha1.LBHealthMonitorStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("LBPool"):
 		return &apiv1alpha1.LBPoolApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolFilter"):
