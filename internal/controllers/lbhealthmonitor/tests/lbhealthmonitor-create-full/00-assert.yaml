@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-create-full
+status:
+  resource:
+    name: lbhealthmonitor-create-full-override
+    description: LBHealthMonitor from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBHealthMonitor
+      name: lbhealthmonitor-create-full
+      ref: lbhealthmonitor
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbhealthmonitor-create-full
+      ref: lBPool
+assertAll:
+    - celExpr: "lbhealthmonitor.status.id != ''"
+    - celExpr: "lbhealthmonitor.status.resource.lBPoolID == lBPool.status.id"
+    # TODO(scaffolding): Add more checks

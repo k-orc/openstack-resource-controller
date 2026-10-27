@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-update
+spec:
+  resource:
+    name: lbhealthmonitor-update-updated
+    description: lbhealthmonitor-update-updated
+    # TODO(scaffolding): update all mutable fields
