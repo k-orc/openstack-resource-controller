@@ -47,6 +47,8 @@ type (
 type applicationcredentialActuator struct {
 	osClient  osclients.ApplicationCredentialClient
 	k8sClient client.Client
+	namespace string
+	userRef   *orcv1alpha1.KubernetesNameRef
 }
 
 var _ createResourceActuator = applicationcredentialActuator{}
@@ -57,6 +59,24 @@ func (applicationcredentialActuator) GetResourceID(osResource *osResourceT) stri
 }
 
 func (actuator applicationcredentialActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
+	if actuator.userRef != nil {
+		user, reconcileStatus := dependency.FetchDependency[*orcv1alpha1.User](
+			ctx, actuator.k8sClient, actuator.namespace,
+			actuator.userRef, "User",
+			// Reading an existing credential only requires the owner's ID, not availability.
+			func(user *orcv1alpha1.User) bool { return ptr.Deref(user.Status.ID, "") != "" },
+		)
+		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+			return nil, reconcileStatus
+		}
+
+		resource, err := actuator.osClient.GetApplicationCredentialForUser(ctx, *user.Status.ID, id)
+		if err != nil {
+			return nil, progress.WrapError(err)
+		}
+		return resource, nil
+	}
+
 	resource, err := actuator.osClient.GetApplicationCredential(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -278,9 +298,16 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.ApplicationCredenti
 		return applicationcredentialActuator{}, progress.WrapError(err)
 	}
 
+	var userRef *orcv1alpha1.KubernetesNameRef
+	if orcObject.Spec.Resource != nil {
+		userRef = &orcObject.Spec.Resource.UserRef
+	}
+
 	return applicationcredentialActuator{
 		osClient:  osClient,
 		k8sClient: controller.GetK8sClient(),
+		namespace: orcObject.Namespace,
+		userRef:   userRef,
 	}, nil
 }
 

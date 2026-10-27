@@ -1,0 +1,43 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      set -eu
+      cd "$(dirname "${E2E_KUTTL_OSCLOUDS}")"
+      export OS_CLOUD=openstack
+
+      # Require the permission boundary that triggered #1022.
+      output=$(mktemp)
+      trap 'rm -f "$output"' EXIT
+      if openstack user list >"$output" 2>&1; then
+        echo "This test requires a cloud that cannot list Keystone users" >&2
+        cat "$output" >&2
+        exit 1
+      fi
+      if ! grep -Eq '\(HTTP 403\)|ForbiddenException: 403:' "$output"; then
+        echo "Expected user listing to fail with HTTP 403" >&2
+        cat "$output" >&2
+        exit 1
+      fi
+
+      user_id=$(openstack token issue -f value -c user_id)
+      test -n "$user_id"
+      kubectl create secret generic openstack-clouds --namespace "$NAMESPACE" \
+        --from-file=clouds.yaml="${E2E_KUTTL_OSCLOUDS}" ${E2E_KUTTL_CACERT_OPT}
+      kubectl create secret generic applicationcredential-secret --namespace "$NAMESPACE" \
+        --from-literal=value=abc123
+      # Import the cloud's own user with admin credentials, without creating an OpenStack user.
+      kubectl apply --namespace "$NAMESPACE" -f - <<EOF
+      apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      metadata:
+        name: applicationcredential-delete-non-admin
+      spec:
+        cloudCredentialsRef:
+          cloudName: openstack-admin
+          secretName: openstack-clouds
+        managementPolicy: unmanaged
+        import:
+          id: "$user_id"
+      EOF
