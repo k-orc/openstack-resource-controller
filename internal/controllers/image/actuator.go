@@ -74,22 +74,80 @@ func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, ob
 		return nil, false
 	}
 
+	resource := obj.Spec.Resource
 	listOpts := images.ListOpts{
 		Name: getResourceName(obj),
 	}
-	if obj.Spec.Resource.Visibility != nil {
-		listOpts.Visibility = images.ImageVisibility(*obj.Spec.Resource.Visibility)
+	if resource.Visibility != nil {
+		listOpts.Visibility = images.ImageVisibility(*resource.Visibility)
 	}
 
-	if len(obj.Spec.Resource.Tags) > 0 {
-		listOpts.Tags = make([]string, len(obj.Spec.Resource.Tags))
-		for i := range obj.Spec.Resource.Tags {
-			listOpts.Tags[i] = string(obj.Spec.Resource.Tags[i])
+	if len(resource.Tags) > 0 {
+		listOpts.Tags = make([]string, len(resource.Tags))
+		for i := range resource.Tags {
+			listOpts.Tags[i] = string(resource.Tags[i])
 		}
 	}
 
-	existingImage := actuator.osClient.ListImages(ctx, listOpts)
-	return existingImage, true
+	var filters []osclients.ResourceFilter[osResourceT]
+	if content := resource.Content; content != nil {
+		listOpts.ContainerFormat = string(content.ContainerFormat)
+		listOpts.DiskFormat = string(content.DiskFormat)
+
+		if hash := contentHash(content); hash != nil {
+			filters = append(filters, func(image *osResourceT) bool {
+				return hashMatches(image, hash)
+			})
+		}
+	}
+
+	minDisk, minMemory, additionalProperties, err := glancePropertiesFromSpec(resource.Properties)
+	if err != nil {
+		// Programming error, which CreateResource will report
+		return nil, false
+	}
+	filters = append(filters,
+		func(image *osResourceT) bool {
+			return image.MinDiskGigabytes == minDisk &&
+				image.MinRAMMegabytes == minMemory &&
+				image.Protected == ptr.Deref(resource.Protected, false)
+		},
+		func(image *osResourceT) bool {
+			for k, v := range additionalProperties {
+				if fmt.Sprint(image.Properties[k]) != v {
+					return false
+				}
+			}
+			return true
+		},
+	)
+
+	return osclients.Filter(actuator.osClient.ListImages(ctx, listOpts), filters...), true
+}
+
+// contentHash returns the hash of the content stored in Glance, if the spec
+// defines one. The download hash covers the compressed content when
+// decompression is configured.
+func contentHash(content *orcv1alpha1.ImageContent) *orcv1alpha1.ImageHash {
+	if content.Download == nil || content.Download.Decompress != nil {
+		return nil
+	}
+	return content.Download.Hash
+}
+
+// hashMatches returns false if the image has a hash with the same algorithm as
+// hash, but a different value. An image which has not been uploaded yet has no
+// hash.
+func hashMatches(image *osResourceT, hash *orcv1alpha1.ImageHash) bool {
+	if hash.Algorithm == orcv1alpha1.ImageHashAlgorithmMD5 && image.Checksum != "" {
+		return image.Checksum == hash.Value
+	}
+	osHashAlgo, _ := image.Properties[glanceOSHashAlgo].(string)
+	osHashValue, _ := image.Properties[glanceOSHashValue].(string)
+	if osHashAlgo == string(hash.Algorithm) && osHashValue != "" {
+		return osHashValue == hash.Value
+	}
+	return true
 }
 
 func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (imageIterator, progress.ReconcileStatus) {
@@ -125,29 +183,9 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 	// Sort tags before creation to simplify comparisons
 	slices.Sort(tags)
 
-	var minDisk, minMemory int
-	properties := resource.Properties
-	additionalProperties := map[string]string{}
-	if properties != nil {
-		if properties.MinDiskGB != nil {
-			minDisk = int(*properties.MinDiskGB)
-		}
-		if properties.MinMemoryMB != nil {
-			minMemory = int(*properties.MinMemoryMB)
-		}
-
-		if err := glancePropertiesFromStruct(properties.Hardware, additionalProperties); err != nil {
-			return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "programming error", err))
-		}
-		if err := glancePropertiesFromStruct(properties.OperatingSystem, additionalProperties); err != nil {
-			return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "programming error", err))
-		}
-		if properties.Architecture != nil {
-			additionalProperties["architecture"] = *properties.Architecture
-		}
-		if properties.HypervisorType != nil {
-			additionalProperties["hypervisor_type"] = *properties.HypervisorType
-		}
+	minDisk, minMemory, additionalProperties, err := glancePropertiesFromSpec(resource.Properties)
+	if err != nil {
+		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "programming error", err))
 	}
 
 	var visibility *images.ImageVisibility
@@ -279,6 +317,36 @@ func handleTagsUpdate(updateOpts images.UpdateOpts, resource *resourceSpecT, osR
 	}
 
 	return updateOpts
+}
+
+// glancePropertiesFromSpec returns the minimum disk and memory, and the
+// additional Glance properties for the given image properties.
+func glancePropertiesFromSpec(properties *orcv1alpha1.ImageProperties) (int, int, map[string]string, error) {
+	var minDisk, minMemory int
+	additionalProperties := map[string]string{}
+	if properties == nil {
+		return minDisk, minMemory, additionalProperties, nil
+	}
+
+	if properties.MinDiskGB != nil {
+		minDisk = int(*properties.MinDiskGB)
+	}
+	if properties.MinMemoryMB != nil {
+		minMemory = int(*properties.MinMemoryMB)
+	}
+	if err := glancePropertiesFromStruct(properties.Hardware, additionalProperties); err != nil {
+		return 0, 0, nil, err
+	}
+	if err := glancePropertiesFromStruct(properties.OperatingSystem, additionalProperties); err != nil {
+		return 0, 0, nil, err
+	}
+	if properties.Architecture != nil {
+		additionalProperties["architecture"] = *properties.Architecture
+	}
+	if properties.HypervisorType != nil {
+		additionalProperties["hypervisor_type"] = *properties.HypervisorType
+	}
+	return minDisk, minMemory, additionalProperties, nil
 }
 
 // glancePropertiesFromStruct populates a properties struct using field values and glance tags defined on the given struct
