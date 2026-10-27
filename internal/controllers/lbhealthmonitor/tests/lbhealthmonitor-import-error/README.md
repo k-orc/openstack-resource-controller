@@ -1,13 +1,13 @@
-# Import LBHealthMonitor with more than one matching resources
+# Import LBHealthMonitor with more than one matching resource
 
 ## Step 00
 
-Create two LBHealthMonitors with identical specs.
+Create two health monitors with the same tag, on two pools.
 
 ## Step 01
 
-Ensure that an imported LBHealthMonitor with a filter matching the resources returns an error.
+Import with a filter matching both and verify that it fails with an error.
 
 ## Reference
 
-https://k-orc.cloud/development/writing-tests/#import-error
+https://k-orc.cloud/development/writing-tests/

@@ -11,5 +11,4 @@ spec:
   import:
     filter:
       name: lbhealthmonitor-import-external
-      description: LBHealthMonitor lbhealthmonitor-import-external from "lbhealthmonitor-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
+      type: HTTP

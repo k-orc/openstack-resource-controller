@@ -87,33 +87,51 @@ func TestHandleNameUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+func TestHandleUpdates(t *testing.T) {
+	base := orcv1alpha1.LBHealthMonitorResourceSpec{Type: "HTTP", Delay: 10, Timeout: 5, MaxRetries: 3}
+	current := osResourceT{Type: "HTTP", Delay: 10, Timeout: 5, MaxRetries: 3, MaxRetriesDown: 3,
+		HTTPMethod: "GET", HTTPVersion: "1.0", ExpectedCodes: "200", URLPath: "/", AdminStateUp: true}
+
 	testCases := []struct {
-		name          string
-		newValue      *string
-		existingValue string
-		expectChange  bool
+		name         string
+		modify       func(*orcv1alpha1.LBHealthMonitorResourceSpec)
+		expectChange bool
 	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
+		{name: "Identical, optional fields keep the Octavia defaults", modify: func(*orcv1alpha1.LBHealthMonitorResourceSpec) {}, expectChange: false},
+		{name: "Delay", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.Delay = 20 }, expectChange: true},
+		{name: "Timeout", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.Timeout = 2 }, expectChange: true},
+		{name: "MaxRetries", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.MaxRetries = 5 }, expectChange: true},
+		{name: "MaxRetriesDown identical", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.MaxRetriesDown = ptr.To[int32](3) }, expectChange: false},
+		{name: "MaxRetriesDown", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.MaxRetriesDown = ptr.To[int32](5) }, expectChange: true},
+		{name: "HTTPMethod", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) {
+			r.HTTPMethod = ptr.To[orcv1alpha1.LBHealthMonitorHTTPMethod]("HEAD")
+		}, expectChange: true},
+		{name: "HTTPVersion identical", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) {
+			r.HTTPVersion = ptr.To[orcv1alpha1.LBHealthMonitorHTTPVersion]("1.0")
+		}, expectChange: false},
+		{name: "HTTPVersion", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) {
+			r.HTTPVersion = ptr.To[orcv1alpha1.LBHealthMonitorHTTPVersion]("1.1")
+		}, expectChange: true},
+		{name: "ExpectedCodes", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.ExpectedCodes = ptr.To("200-204") }, expectChange: true},
+		{name: "URLPath", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.URLPath = ptr.To("/healthz") }, expectChange: true},
+		{name: "DomainName", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.DomainName = ptr.To("example.com") }, expectChange: true},
+		{name: "AdminStateUp false", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.AdminStateUp = ptr.To(false) }, expectChange: true},
+		{name: "Tags", modify: func(r *orcv1alpha1.LBHealthMonitorResourceSpec) { r.Tags = []orcv1alpha1.LBPoolTag{"a"} }, expectChange: true},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.LBHealthMonitorResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
+			resource := base
+			tt.modify(&resource)
+			osResource := current
 
 			updateOpts := monitors.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
+			handleUpdates(&updateOpts, &resource, &osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-
 	}
 }

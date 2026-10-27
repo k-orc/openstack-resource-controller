@@ -34,6 +34,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	orcslices "github.com/k-orc/openstack-resource-controller/v3/internal/util/slices"
 )
 
 // OpenStack resource types
@@ -46,8 +47,10 @@ type (
 	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
+
 // The frequency to poll when waiting for the resource to become available
 const lbhealthmonitorAvailablePollingPeriod = 15 * time.Second
+
 // The frequency to poll when waiting for the resource to be deleted
 const lbhealthmonitorDeletingPollingPeriod = 15 * time.Second
 
@@ -78,54 +81,38 @@ func (actuator lbhealthmonitorActuator) ListOSResourcesForAdoption(ctx context.C
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	var rs progress.ReconcileStatus
-
-	lBPool, rs1 := dependency.FetchDependency[*orcv1alpha1.LBPool](
-		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.LBPoolRef, "LBPool",
+	pool, rs := dependency.FetchDependency[*orcv1alpha1.LBPool](
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.PoolRef, "LBPool",
 		orcv1alpha1.IsAvailable,
 	)
-	rs = rs.WithReconcileStatus(rs1)
-
 	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 		return nil, false
 	}
 
 	listOpts := monitors.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-		LBPoolID:  ptr.Deref(lBPool.Status.ID, ""),
-		// TODO(scaffolding): Add more adoption filters
+		Name:   getResourceName(orcObject),
+		PoolID: ptr.Deref(pool.Status.ID, ""),
+		Type:   string(resourceSpec.Type),
 	}
 
 	return actuator.osClient.ListLBHealthMonitors(ctx, listOpts), true
 }
 
 func (actuator lbhealthmonitorActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-	var reconcileStatus progress.ReconcileStatus
-
-	lBPool, rs := dependency.FetchDependency[*orcv1alpha1.LBPool](
+	pool, reconcileStatus := dependency.FetchDependency[*orcv1alpha1.LBPool](
 		ctx, actuator.k8sClient, obj.Namespace,
-		filter.LBPoolRef, "LBPool",
+		filter.PoolRef, "LBPool",
 		orcv1alpha1.IsAvailable,
 	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
-
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
 
 	listOpts := monitors.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		LBPoolID:  ptr.Deref(lBPool.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:   string(ptr.Deref(filter.Name, "")),
+		PoolID: ptr.Deref(pool.Status.ID, ""),
+		Type:   string(ptr.Deref(filter.Type, "")),
+		Tags:   tagsToStrings(filter.Tags),
 	}
 
 	return actuator.osClient.ListLBHealthMonitors(ctx, listOpts), reconcileStatus
@@ -133,28 +120,39 @@ func (actuator lbhealthmonitorActuator) ListOSResourcesForImport(ctx context.Con
 
 func (actuator lbhealthmonitorActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
-	var reconcileStatus progress.ReconcileStatus
 
-	var lBPoolID string
-	lBPool, lBPoolDepRS := lBPoolDependency.RequireDependency(
-		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
+	pool, reconcileStatus := poolDependency.RequireDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.LBPool) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
 	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(lBPoolDepRS)
-	if lBPool != nil {
-		lBPoolID = ptr.Deref(lBPool.Status.ID, "")
-	}
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
 	createOpts := monitors.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		LBPoolID:  lBPoolID,
-		// TODO(scaffolding): Add more fields
+		Name:           getResourceName(obj),
+		PoolID:         ptr.Deref(pool.Status.ID, ""),
+		Type:           string(resource.Type),
+		Delay:          int(resource.Delay),
+		Timeout:        int(resource.Timeout),
+		MaxRetries:     int(resource.MaxRetries),
+		MaxRetriesDown: int(ptr.Deref(resource.MaxRetriesDown, 0)),
+		HTTPMethod:     string(ptr.Deref(resource.HTTPMethod, "")),
+		HTTPVersion:    string(ptr.Deref(resource.HTTPVersion, "")),
+		ExpectedCodes:  ptr.Deref(resource.ExpectedCodes, ""),
+		URLPath:        ptr.Deref(resource.URLPath, ""),
+		DomainName:     ptr.Deref(resource.DomainName, ""),
+		AdminStateUp:   resource.AdminStateUp,
+		Tags:           tagsToStrings(resource.Tags),
 	}
 
 	osResource, err := actuator.osClient.CreateLBHealthMonitor(ctx, createOpts)
 	if err != nil {
+		// 409 Conflict means the pool or its load balancer is in a pending state.
+		if orcerrors.IsConflict(err) {
+			return nil, progress.WaitingOnOpenStack(progress.WaitingOnReady, lbhealthmonitorAvailablePollingPeriod)
+		}
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
@@ -165,22 +163,40 @@ func (actuator lbhealthmonitorActuator) CreateResource(ctx context.Context, obj 
 }
 
 func (actuator lbhealthmonitorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	if resource.Status == MonitorStatusDeleting {
+	switch resource.ProvisioningStatus {
+	case MonitorProvisioningStatusPendingDelete:
+		return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, lbhealthmonitorDeletingPollingPeriod)
+	case MonitorProvisioningStatusPendingCreate, MonitorProvisioningStatusPendingUpdate:
+		// We can't delete a health monitor that's in a pending state, so we need to wait for it to become ACTIVE
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbhealthmonitorDeletingPollingPeriod)
 	}
-	return progress.WrapError(actuator.osClient.DeleteLBHealthMonitor(ctx, resource.ID))
+
+	err := actuator.osClient.DeleteLBHealthMonitor(ctx, resource.ID)
+	// 409 Conflict means the health monitor or its load balancer is in a pending state.
+	// Let the controller poll for deletion completion.
+	if orcerrors.IsConflict(err) {
+		return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, lbhealthmonitorDeletingPollingPeriod)
+	}
+	return progress.WrapError(err)
 }
 
 func (actuator lbhealthmonitorActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
+
+	// Octavia rejects updates to a health monitor in a pending state
+	switch osResource.ProvisioningStatus {
+	case MonitorProvisioningStatusPendingCreate,
+		MonitorProvisioningStatusPendingUpdate,
+		MonitorProvisioningStatusPendingDelete:
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbhealthmonitorAvailablePollingPeriod)
+	}
+
 	resource := obj.Spec.Resource
 
 	updateOpts := monitors.UpdateOpts{}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleUpdates(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -193,8 +209,11 @@ func (actuator lbhealthmonitorActuator) updateResource(ctx context.Context, obj 
 	}
 
 	_, err = actuator.osClient.UpdateLBHealthMonitor(ctx, osResource.ID, updateOpts)
-
 	if err != nil {
+		// 409 Conflict means the health monitor or its load balancer is in a pending state.
+		if orcerrors.IsConflict(err) {
+			return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbhealthmonitorAvailablePollingPeriod)
+		}
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
 		}
@@ -225,17 +244,67 @@ func handleNameUpdate(updateOpts *monitors.UpdateOpts, obj orcObjectPT, osResour
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *monitors.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+// handleUpdates updates the required fields and admin state, and the optional fields when they're
+// set: Octavia fills in defaults for them, and gophercloud can't reset them or clear the tags.
+func handleUpdates(updateOpts *monitors.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	if int(resource.Delay) != osResource.Delay {
+		updateOpts.Delay = int(resource.Delay)
 	}
+	if int(resource.Timeout) != osResource.Timeout {
+		updateOpts.Timeout = int(resource.Timeout)
+	}
+	if int(resource.MaxRetries) != osResource.MaxRetries {
+		updateOpts.MaxRetries = int(resource.MaxRetries)
+	}
+	if resource.MaxRetriesDown != nil && int(*resource.MaxRetriesDown) != osResource.MaxRetriesDown {
+		updateOpts.MaxRetriesDown = int(*resource.MaxRetriesDown)
+	}
+	if resource.HTTPMethod != nil && string(*resource.HTTPMethod) != osResource.HTTPMethod {
+		updateOpts.HTTPMethod = string(*resource.HTTPMethod)
+	}
+	if resource.HTTPVersion != nil && string(*resource.HTTPVersion) != osResource.HTTPVersion {
+		updateOpts.HTTPVersion = ptr.To(string(*resource.HTTPVersion))
+	}
+	if resource.ExpectedCodes != nil && *resource.ExpectedCodes != osResource.ExpectedCodes {
+		updateOpts.ExpectedCodes = *resource.ExpectedCodes
+	}
+	if resource.URLPath != nil && *resource.URLPath != osResource.URLPath {
+		updateOpts.URLPath = *resource.URLPath
+	}
+	if resource.DomainName != nil && *resource.DomainName != osResource.DomainName {
+		updateOpts.DomainName = ptr.To(*resource.DomainName)
+	}
+	if adminStateUp := ptr.Deref(resource.AdminStateUp, true); adminStateUp != osResource.AdminStateUp {
+		updateOpts.AdminStateUp = &adminStateUp
+	}
+	if tags := tagsToStrings(resource.Tags); len(tags) > 0 && !orcslices.EqualAsSets(tags, osResource.Tags) {
+		updateOpts.Tags = tags
+	}
+}
+
+func tagsToStrings(tags []orcv1alpha1.LBPoolTag) []string {
+	if len(tags) == 0 {
+		return nil
+	}
+	out := make([]string, len(tags))
+	for i := range tags {
+		out[i] = string(tags[i])
+	}
+	return out
 }
 
 func (actuator lbhealthmonitorActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.reconcileDependencyGuards,
 		actuator.updateResource,
 	}, nil
+}
+
+// reconcileDependencyGuards adds the deletion guard to the health monitor's pool. CreateResource
+// adds it before creating; this also covers an adopted health monitor.
+func (actuator lbhealthmonitorActuator) reconcileDependencyGuards(ctx context.Context, obj orcObjectPT, _ *osResourceT) progress.ReconcileStatus {
+	_, reconcileStatus := poolDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	return reconcileStatus
 }
 
 type lbhealthmonitorHelperFactory struct{}

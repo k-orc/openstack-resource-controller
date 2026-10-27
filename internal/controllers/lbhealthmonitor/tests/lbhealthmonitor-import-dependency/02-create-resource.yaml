@@ -5,12 +5,14 @@ metadata:
   name: lbhealthmonitor-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    loadBalancerRef: lbhealthmonitor-import-dependency
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LBHealthMonitor
@@ -18,10 +20,12 @@ metadata:
   name: lbhealthmonitor-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    lBPoolRef: lbhealthmonitor-import-dependency-external
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    poolRef: lbhealthmonitor-import-dependency-external
+    type: HTTP
+    delay: 10
+    timeout: 5
+    maxRetries: 3

@@ -2531,8 +2531,37 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `lBPoolRef` _[KubernetesNameRef](#kubernetesnameref)_ | lBPoolRef is a reference to the ORC LBPool which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `poolRef` _[KubernetesNameRef](#kubernetesnameref)_ | poolRef filters by the LBPool the health monitor checks. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `type` _[LBHealthMonitorType](#lbhealthmonitortype)_ | type filters by the type of health monitor. |  | Enum: [HTTP HTTPS PING SCTP TCP TLS-HELLO UDP-CONNECT] <br />Optional: \{\} <br /> |
+| `tags` _[LBPoolTag](#lbpooltag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LBHealthMonitorHTTPMethod
+
+_Underlying type:_ _string_
+
+LBHealthMonitorHTTPMethod is the HTTP method a health monitor uses.
+
+_Validation:_
+- Enum: [CONNECT DELETE GET HEAD OPTIONS PATCH POST PUT TRACE]
+
+_Appears in:_
+- [LBHealthMonitorResourceSpec](#lbhealthmonitorresourcespec)
+
+
+
+#### LBHealthMonitorHTTPVersion
+
+_Underlying type:_ _string_
+
+LBHealthMonitorHTTPVersion is the HTTP version a health monitor uses.
+
+_Validation:_
+- Enum: [1.0 1.1]
+
+_Appears in:_
+- [LBHealthMonitorResourceSpec](#lbhealthmonitorresourcespec)
+
 
 
 #### LBHealthMonitorImport
@@ -2569,8 +2598,19 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `lBPoolRef` _[KubernetesNameRef](#kubernetesnameref)_ | lBPoolRef is a reference to the ORC LBPool which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `poolRef` _[KubernetesNameRef](#kubernetesnameref)_ | poolRef is a reference to the ORC LBPool which this health monitor checks.<br />A pool has at most one health monitor. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `type` _[LBHealthMonitorType](#lbhealthmonitortype)_ | type is the type of health monitor. |  | Enum: [HTTP HTTPS PING SCTP TCP TLS-HELLO UDP-CONNECT] <br />Required: \{\} <br /> |
+| `delay` _integer_ | delay is the time, in seconds, between probes to members. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `timeout` _integer_ | timeout is the maximum time, in seconds, that a probe waits to connect.<br />It must be less than delay. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `maxRetries` _integer_ | maxRetries is the number of successful checks before a member's<br />operating status changes to ONLINE. |  | Maximum: 10 <br />Minimum: 1 <br />Required: \{\} <br /> |
+| `maxRetriesDown` _integer_ | maxRetriesDown is the number of failed checks before a member's<br />operating status changes to ERROR. Octavia's default is 3. |  | Maximum: 10 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+| `httpMethod` _[LBHealthMonitorHTTPMethod](#lbhealthmonitorhttpmethod)_ | httpMethod is the HTTP method of the probe, for HTTP and HTTPS monitors.<br />Octavia's default is GET. |  | Enum: [CONNECT DELETE GET HEAD OPTIONS PATCH POST PUT TRACE] <br />Optional: \{\} <br /> |
+| `httpVersion` _[LBHealthMonitorHTTPVersion](#lbhealthmonitorhttpversion)_ | httpVersion is the HTTP version of the probe, for HTTP and HTTPS<br />monitors. Octavia's default is 1.0. |  | Enum: [1.0 1.1] <br />Optional: \{\} <br /> |
+| `expectedCodes` _string_ | expectedCodes are the HTTP status codes of a healthy member: a single<br />code (200), a list (200,202) or a range (200-204). Octavia's default is<br />200. |  | MaxLength: 64 <br />Pattern: `^[0-9]\{3\}([-,][0-9]\{3\})*$` <br />Optional: \{\} <br /> |
+| `urlPath` _string_ | urlPath is the path of the probe, for HTTP and HTTPS monitors.<br />Octavia's default is /. |  | MaxLength: 255 <br />Pattern: `^/` <br />Optional: \{\} <br /> |
+| `domainName` _string_ | domainName is injected into the Host header of the probe, for HTTP and<br />HTTPS monitors. Requires Octavia API 2.10. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the health monitor, which is<br />up (true) or down (false). |  | Optional: \{\} <br /> |
+| `tags` _[LBPoolTag](#lbpooltag) array_ | tags is a list of tags which will be applied to the health monitor. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### LBHealthMonitorResourceStatus
@@ -2587,8 +2627,21 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `lBPoolID` _string_ | lBPoolID is the ID of the LBPool to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `poolID` _string_ | poolID is the ID of the pool the health monitor checks. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `type` _string_ | type is the type of health monitor. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `delay` _integer_ | delay is the time, in seconds, between probes. |  | Optional: \{\} <br /> |
+| `timeout` _integer_ | timeout is the maximum time, in seconds, that a probe waits to connect. |  | Optional: \{\} <br /> |
+| `maxRetries` _integer_ | maxRetries is the number of successful checks before a member is ONLINE. |  | Optional: \{\} <br /> |
+| `maxRetriesDown` _integer_ | maxRetriesDown is the number of failed checks before a member is in ERROR. |  | Optional: \{\} <br /> |
+| `httpMethod` _string_ | httpMethod is the HTTP method of the probe. |  | MaxLength: 16 <br />Optional: \{\} <br /> |
+| `httpVersion` _string_ | httpVersion is the HTTP version of the probe. |  | MaxLength: 8 <br />Optional: \{\} <br /> |
+| `expectedCodes` _string_ | expectedCodes are the HTTP status codes of a healthy member. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `urlPath` _string_ | urlPath is the path of the probe. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `domainName` _string_ | domainName is the Host header of the probe. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the health monitor. |  | Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the health monitor. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the health monitor. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
 
 
 #### LBHealthMonitorSpec
@@ -2629,6 +2682,21 @@ _Appears in:_
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[LBHealthMonitorResourceStatus](#lbhealthmonitorresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### LBHealthMonitorType
+
+_Underlying type:_ _string_
+
+LBHealthMonitorType is the type of a health monitor.
+
+_Validation:_
+- Enum: [HTTP HTTPS PING SCTP TCP TLS-HELLO UDP-CONNECT]
+
+_Appears in:_
+- [LBHealthMonitorFilter](#lbhealthmonitorfilter)
+- [LBHealthMonitorResourceSpec](#lbhealthmonitorresourcespec)
+
 
 
 #### LBPool
@@ -2966,6 +3034,8 @@ _Validation:_
 - MinLength: 1
 
 _Appears in:_
+- [LBHealthMonitorFilter](#lbhealthmonitorfilter)
+- [LBHealthMonitorResourceSpec](#lbhealthmonitorresourcespec)
 - [LBPoolFilter](#lbpoolfilter)
 - [LBPoolMemberSpec](#lbpoolmemberspec)
 - [LBPoolResourceSpec](#lbpoolresourcespec)

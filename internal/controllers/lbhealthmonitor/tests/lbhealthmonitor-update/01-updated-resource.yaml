@@ -6,5 +6,15 @@ metadata:
 spec:
   resource:
     name: lbhealthmonitor-update-updated
-    description: lbhealthmonitor-update-updated
-    # TODO(scaffolding): update all mutable fields
+    delay: 20
+    timeout: 10
+    maxRetries: 5
+    maxRetriesDown: 6
+    httpMethod: HEAD
+    httpVersion: "1.1"
+    expectedCodes: "200,202"
+    urlPath: /healthz
+    domainName: example.com
+    adminStateUp: false
+    tags:
+      - updated

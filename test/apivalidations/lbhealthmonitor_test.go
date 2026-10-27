@@ -42,7 +42,11 @@ func lbhealthmonitorStub(namespace *corev1.Namespace) *orcv1alpha1.LBHealthMonit
 
 func testLBHealthMonitorResource() *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.LBHealthMonitorResourceSpec().
-		WithLBPoolRef("lbpool")
+		WithPoolRef("lbpool").
+		WithType("HTTP").
+		WithDelay(10).
+		WithTimeout(5).
+		WithMaxRetries(3)
 }
 
 func baseLBHealthMonitorPatch(obj client.Object) *applyconfigv1alpha1.LBHealthMonitorApplyConfiguration {
@@ -105,24 +109,59 @@ var _ = Describe("ORC LBHealthMonitor API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
 	})
 
-	It("should have immutable lBPoolRef", func(ctx context.Context) {
+	DescribeTable("should have immutable fields",
+		func(ctx context.Context, field string, set func(*applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration)) {
+			obj := lbhealthmonitorStub(namespace)
+			patch := baseLBHealthMonitorPatch(obj)
+			patch.Spec.WithResource(testLBHealthMonitorResource())
+			Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+			resource := testLBHealthMonitorResource()
+			set(resource)
+			patch.Spec.WithResource(resource)
+			Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring(field + " is immutable")))
+		},
+		Entry("poolRef", "poolRef", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) {
+			r.WithPoolRef("other")
+		}),
+		Entry("type", "type", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) {
+			r.WithType("TCP")
+		}),
+	)
+
+	It("should reject a timeout that isn't less than the delay", func(ctx context.Context) {
 		obj := lbhealthmonitorStub(namespace)
 		patch := baseLBHealthMonitorPatch(obj)
-		patch.Spec.WithResource(testLBHealthMonitorResource().
-			WithLBPoolRef("lbpool-a"))
-		Expect(applyObj(ctx, obj, patch)).To(Succeed())
-
-		patch.Spec.WithResource(testLBHealthMonitorResource().
-			WithLBPoolRef("lbpool-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("lBPoolRef is immutable")))
+		patch.Spec.WithResource(testLBHealthMonitorResource().WithTimeout(10))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("timeout must be less than delay")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	DescribeTable("should reject invalid values",
+		func(ctx context.Context, set func(*applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration)) {
+			obj := lbhealthmonitorStub(namespace)
+			patch := baseLBHealthMonitorPatch(obj)
+			resource := testLBHealthMonitorResource()
+			set(resource)
+			patch.Spec.WithResource(resource)
+			Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+		},
+		Entry("unknown type", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) { r.WithType("ICMP") }),
+		Entry("maxRetries above 10", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) { r.WithMaxRetries(11) }),
+		Entry("maxRetriesDown below 1", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) { r.WithMaxRetriesDown(0) }),
+		Entry("urlPath without a leading slash", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) { r.WithURLPath("healthz") }),
+		Entry("malformed expectedCodes", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) { r.WithExpectedCodes("2xx") }),
+		Entry("unknown httpVersion", func(r *applyconfigv1alpha1.LBHealthMonitorResourceSpecApplyConfiguration) { r.WithHTTPVersion("2.0") }),
+	)
+
+	DescribeTable("should permit valid expectedCodes",
+		func(ctx context.Context, codes string) {
+			obj := lbhealthmonitorStub(namespace)
+			patch := baseLBHealthMonitorPatch(obj)
+			patch.Spec.WithResource(testLBHealthMonitorResource().WithExpectedCodes(codes))
+			Expect(applyObj(ctx, obj, patch)).To(Succeed())
+		},
+		Entry("single", "200"),
+		Entry("list", "200,202"),
+		Entry("range", "200-204"),
+	)
 })

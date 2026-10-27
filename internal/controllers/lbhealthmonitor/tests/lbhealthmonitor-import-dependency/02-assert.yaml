@@ -1,22 +1,23 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
+timeout: 600
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LBHealthMonitor
       name: lbhealthmonitor-import-dependency
-      ref: lbhealthmonitor1
+      ref: imported
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LBHealthMonitor
       name: lbhealthmonitor-import-dependency-not-this-one
-      ref: lbhealthmonitor2
+      ref: trap
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LBPool
       name: lbhealthmonitor-import-dependency
-      ref: lBPool
+      ref: pool
 assertAll:
-    - celExpr: "lbhealthmonitor1.status.id != lbhealthmonitor2.status.id"
-    - celExpr: "lbhealthmonitor1.status.resource.lBPoolID == lBPool.status.id"
+    - celExpr: "imported.status.id != trap.status.id"
+    - celExpr: "imported.status.resource.poolID == pool.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LBHealthMonitor
@@ -24,11 +25,9 @@ metadata:
   name: lbhealthmonitor-import-dependency
 status:
   conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

@@ -5,13 +5,13 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LBPool
       name: lbhealthmonitor-dependency
-      ref: lBPool
+      ref: pool
     - apiVersion: v1
       kind: Secret
       name: lbhealthmonitor-dependency
       ref: secret
 assertAll:
-    - celExpr: "lBPool.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/lbhealthmonitor' in lBPool.metadata.finalizers"
+    - celExpr: "pool.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lbhealthmonitor' in pool.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/lbhealthmonitor' in secret.metadata.finalizers"

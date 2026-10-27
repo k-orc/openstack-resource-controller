@@ -57,26 +57,26 @@ func (c *lbhealthmonitorReconcilerConstructor) SetDefaultResyncPeriod(d time.Dur
 	c.defaultResyncPeriod = d
 }
 
-var lBPoolDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LBHealthMonitorList, *orcv1alpha1.LBPool](
-	"spec.resource.lBPoolRef",
+var poolDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LBHealthMonitorList, *orcv1alpha1.LBPool](
+	"spec.resource.poolRef",
 	func(lbhealthmonitor *orcv1alpha1.LBHealthMonitor) []string {
 		resource := lbhealthmonitor.Spec.Resource
 		if resource == nil {
 			return nil
 		}
-		return []string{string(resource.LBPoolRef)}
+		return []string{string(resource.PoolRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )
 
-var lBPoolImportDependency = dependency.NewDependency[*orcv1alpha1.LBHealthMonitorList, *orcv1alpha1.LBPool](
-	"spec.import.filter.lBPoolRef",
+var poolImportDependency = dependency.NewDependency[*orcv1alpha1.LBHealthMonitorList, *orcv1alpha1.LBPool](
+	"spec.import.filter.poolRef",
 	func(lbhealthmonitor *orcv1alpha1.LBHealthMonitor) []string {
 		resource := lbhealthmonitor.Spec.Import
-		if resource == nil || resource.Filter == nil || resource.Filter.LBPoolRef == nil {
+		if resource == nil || resource.Filter == nil || resource.Filter.PoolRef == nil {
 			return nil
 		}
-		return []string{string(*resource.Filter.LBPoolRef)}
+		return []string{string(*resource.Filter.PoolRef)}
 	},
 )
 
@@ -85,30 +85,30 @@ func (c *lbhealthmonitorReconcilerConstructor) SetupWithManager(ctx context.Cont
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
-	lBPoolWatchEventHandler, err := lBPoolDependency.WatchEventHandler(log, k8sClient)
+	poolWatchEventHandler, err := poolDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
-	lBPoolImportWatchEventHandler, err := lBPoolImportDependency.WatchEventHandler(log, k8sClient)
+	poolImportWatchEventHandler, err := poolImportDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
-		Watches(&orcv1alpha1.LBPool{}, lBPoolWatchEventHandler,
+		Watches(&orcv1alpha1.LBPool{}, poolWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.LBPool{})),
 		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
-		Watches(&orcv1alpha1.LBPool{}, lBPoolImportWatchEventHandler,
+		Watches(&orcv1alpha1.LBPool{}, poolImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.LBPool{})),
 		).
 		For(&orcv1alpha1.LBHealthMonitor{})
 
 	if err := errors.Join(
-		lBPoolDependency.AddToManager(ctx, mgr),
-		lBPoolImportDependency.AddToManager(ctx, mgr),
+		poolDependency.AddToManager(ctx, mgr),
+		poolImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {
