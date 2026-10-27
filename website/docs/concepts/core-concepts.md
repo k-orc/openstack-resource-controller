@@ -121,6 +121,18 @@ spec:
 Use `detach` when you want to stop managing a resource through ORC without
 destroying the underlying infrastructure, for example during a migration.
 
+## Updating Objects
+
+Change ORC objects with `kubectl apply`, `kubectl patch` or `kubectl edit`. Don't
+`kubectl replace` them from the manifest they were created from, and don't let a
+GitOps tool replace them (for example Argo CD's `Replace=true` sync option).
+
+Replacing an object drops the metadata controllers add to it, in particular its
+finalizers. ORC adds back the object's own finalizer, but the finalizers other
+objects put on it to keep their dependencies from being deleted
+(see [Resource References and Dependencies](#resource-references-and-dependencies))
+are only added back when those objects are reconciled again.
+
 ## Name Reuse
 
 Deleting an ORC object and creating a new one with the same name is safe. ORC's
