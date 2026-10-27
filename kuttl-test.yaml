@@ -12,6 +12,7 @@ testDirs:
 - ./internal/controllers/group/tests/
 - ./internal/controllers/image/tests/
 - ./internal/controllers/keypair/tests/
+- ./internal/controllers/lbhealthmonitor/tests/
 - ./internal/controllers/lbpool/tests/
 - ./internal/controllers/limit/tests/
 - ./internal/controllers/listener/tests/

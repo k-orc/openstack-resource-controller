@@ -68,6 +68,10 @@ nameReference:
     path: spec/resource/keypairRef
   kind: KeyPair
 - fieldSpecs:
+  - kind: LBHealthMonitor
+    path: spec/import/filter/lBPoolRef
+  - kind: LBHealthMonitor
+    path: spec/resource/lBPoolRef
   - kind: Listener
     path: spec/resource/defaultPoolRef
   kind: LBPool
@@ -235,6 +239,8 @@ nameReference:
   - kind: Image
     path: spec/cloudCredentialsRef/secretName
   - kind: KeyPair
+    path: spec/cloudCredentialsRef/secretName
+  - kind: LBHealthMonitor
     path: spec/cloudCredentialsRef/secretName
   - kind: LBPool
     path: spec/cloudCredentialsRef/secretName

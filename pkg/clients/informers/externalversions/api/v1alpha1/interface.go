@@ -44,6 +44,8 @@ type Interface interface {
 	Images() ImageInformer
 	// KeyPairs returns a KeyPairInformer.
 	KeyPairs() KeyPairInformer
+	// LBHealthMonitors returns a LBHealthMonitorInformer.
+	LBHealthMonitors() LBHealthMonitorInformer
 	// LBPools returns a LBPoolInformer.
 	LBPools() LBPoolInformer
 	// Limits returns a LimitInformer.
@@ -155,6 +157,11 @@ func (v *version) Images() ImageInformer {
 // KeyPairs returns a KeyPairInformer.
 func (v *version) KeyPairs() KeyPairInformer {
 	return &keyPairInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// LBHealthMonitors returns a LBHealthMonitorInformer.
+func (v *version) LBHealthMonitors() LBHealthMonitorInformer {
+	return &lBHealthMonitorInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // LBPools returns a LBPoolInformer.

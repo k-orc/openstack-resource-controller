@@ -98,6 +98,14 @@ type KeyPairListerExpansion interface{}
 // KeyPairNamespaceLister.
 type KeyPairNamespaceListerExpansion interface{}
 
+// LBHealthMonitorListerExpansion allows custom methods to be added to
+// LBHealthMonitorLister.
+type LBHealthMonitorListerExpansion interface{}
+
+// LBHealthMonitorNamespaceListerExpansion allows custom methods to be added to
+// LBHealthMonitorNamespaceLister.
+type LBHealthMonitorNamespaceListerExpansion interface{}
+
 // LBPoolListerExpansion allows custom methods to be added to
 // LBPoolLister.
 type LBPoolListerExpansion interface{}

@@ -68,6 +68,10 @@ func (c *FakeOpenstackV1alpha1) KeyPairs(namespace string) v1alpha1.KeyPairInter
 	return newFakeKeyPairs(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) LBHealthMonitors(namespace string) v1alpha1.LBHealthMonitorInterface {
+	return newFakeLBHealthMonitors(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) LBPools(namespace string) v1alpha1.LBPoolInterface {
 	return newFakeLBPools(c, namespace)
 }

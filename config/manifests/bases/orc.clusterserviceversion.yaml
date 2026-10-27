@@ -74,6 +74,11 @@ spec:
       kind: KeyPair
       name: keypairs.openstack.k-orc.cloud
       version: v1alpha1
+    - description: LBHealthMonitor is the Schema for an ORC resource.
+      displayName: LBHealth Monitor
+      kind: LBHealthMonitor
+      name: lbhealthmonitors.openstack.k-orc.cloud
+      version: v1alpha1
     - description: LBPool is the Schema for an ORC resource.
       displayName: LBPool
       kind: LBPool
