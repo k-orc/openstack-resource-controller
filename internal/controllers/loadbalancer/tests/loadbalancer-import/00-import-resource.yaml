@@ -23,6 +23,11 @@ spec:
     networkRef: loadbalancer-import
     ipVersion: 4
     cidr: 10.0.0.0/24
+    # Keep automatically allocated addresses (the trap load balancer, the
+    # amphora ports) away from the fixed VIP address 10.0.0.100
+    allocationPools:
+      - start: 10.0.0.10
+        end: 10.0.0.99
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
