@@ -1,0 +1,31 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbhealthmonitor-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+---
+# This `lbhealthmonitor-import-external-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
+# - ensure that importing a resource which name is a substring of it will not pick this one.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: LBHealthMonitor lbhealthmonitor-import-external from "lbhealthmonitor-import" test
+    lBPoolRef: lbhealthmonitor-import-external-not-this-one
+    # TODO(scaffolding): Add fields necessary to match filter

@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbhealthmonitor-dependency
+      ref: lBPool
+    - apiVersion: v1
+      kind: Secret
+      name: lbhealthmonitor-dependency
+      ref: secret
+assertAll:
+    - celExpr: "lBPool.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lbhealthmonitor' in lBPool.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lbhealthmonitor' in secret.metadata.finalizers"
