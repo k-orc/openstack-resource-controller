@@ -23,4 +23,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      lBPoolRef: lbhealthmonitor-import-dependency
+      poolRef: lbhealthmonitor-import-dependency

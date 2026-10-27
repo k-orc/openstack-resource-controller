@@ -5978,18 +5978,38 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorFilter(
 							Format:      "",
 						},
 					},
-					"description": {
+					"poolRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
+							Description: "poolRef filters by the LBPool the health monitor checks.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"lBPoolRef": {
+					"type": {
 						SchemaProps: spec.SchemaProps{
-							Description: "lBPoolRef is a reference to the ORC LBPool which this resource is associated with.",
+							Description: "type filters by the type of health monitor.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -6091,22 +6111,112 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorResourc
 							Format:      "",
 						},
 					},
-					"description": {
+					"poolRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description is a human-readable description for the resource.",
+							Description: "poolRef is a reference to the ORC LBPool which this health monitor checks. A pool has at most one health monitor.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"lBPoolRef": {
+					"type": {
 						SchemaProps: spec.SchemaProps{
-							Description: "lBPoolRef is a reference to the ORC LBPool which this resource is associated with.",
+							Description: "type is the type of health monitor.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"delay": {
+						SchemaProps: spec.SchemaProps{
+							Description: "delay is the time, in seconds, between probes to members.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeout": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeout is the maximum time, in seconds, that a probe waits to connect. It must be less than delay.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetries": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetries is the number of successful checks before a member's operating status changes to ONLINE.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetriesDown": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetriesDown is the number of failed checks before a member's operating status changes to ERROR. Octavia's default is 3.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"httpMethod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpMethod is the HTTP method of the probe, for HTTP and HTTPS monitors. Octavia's default is GET.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"httpVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpVersion is the HTTP version of the probe, for HTTP and HTTPS monitors. Octavia's default is 1.0.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"expectedCodes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "expectedCodes are the HTTP status codes of a healthy member: a single code (200), a list (200,202) or a range (200-204). Octavia's default is 200.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"urlPath": {
+						SchemaProps: spec.SchemaProps{
+							Description: "urlPath is the path of the probe, for HTTP and HTTPS monitors. Octavia's default is /.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainName is injected into the Host header of the probe, for HTTP and HTTPS monitors. Requires Octavia API 2.10.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the health monitor, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the health monitor.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
-				Required: []string{"lBPoolRef"},
+				Required: []string{"poolRef", "type", "delay", "timeout", "maxRetries"},
 			},
 		},
 	}
@@ -6126,18 +6236,122 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorResourc
 							Format:      "",
 						},
 					},
-					"description": {
+					"poolID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description is a human-readable description for the resource.",
+							Description: "poolID is the ID of the pool the health monitor checks.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"lBPoolID": {
+					"type": {
 						SchemaProps: spec.SchemaProps{
-							Description: "lBPoolID is the ID of the LBPool to which the resource is associated.",
+							Description: "type is the type of health monitor.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"delay": {
+						SchemaProps: spec.SchemaProps{
+							Description: "delay is the time, in seconds, between probes.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeout": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeout is the maximum time, in seconds, that a probe waits to connect.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetries": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetries is the number of successful checks before a member is ONLINE.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetriesDown": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetriesDown is the number of failed checks before a member is in ERROR.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"httpMethod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpMethod is the HTTP method of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"httpVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpVersion is the HTTP version of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"expectedCodes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "expectedCodes are the HTTP status codes of a healthy member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"urlPath": {
+						SchemaProps: spec.SchemaProps{
+							Description: "urlPath is the path of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainName is the Host header of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the health monitor.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the health monitor. See https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the health monitor. See https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},

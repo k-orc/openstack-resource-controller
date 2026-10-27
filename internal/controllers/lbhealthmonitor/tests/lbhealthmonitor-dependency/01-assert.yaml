@@ -5,14 +5,13 @@ metadata:
   name: lbhealthmonitor-dependency-no-secret
 status:
   conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LBHealthMonitor
@@ -20,11 +19,13 @@ metadata:
   name: lbhealthmonitor-dependency-no-lbpool
 status:
   conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 600

@@ -6,8 +6,18 @@ metadata:
 status:
   resource:
     name: lbhealthmonitor-create-full-override
-    description: LBHealthMonitor from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    type: HTTP
+    delay: 10
+    timeout: 5
+    maxRetries: 3
+    maxRetriesDown: 4
+    httpMethod: HEAD
+    httpVersion: "1.1"
+    expectedCodes: "200-204"
+    urlPath: /healthz
+    domainName: example.com
+    adminStateUp: false
+    provisioningStatus: ACTIVE
   conditions:
   - type: Available
     status: "True"
@@ -18,16 +28,16 @@ status:
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
+timeout: 600
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LBHealthMonitor
       name: lbhealthmonitor-create-full
-      ref: lbhealthmonitor
+      ref: monitor
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LBPool
       name: lbhealthmonitor-create-full
-      ref: lBPool
+      ref: pool
 assertAll:
-    - celExpr: "lbhealthmonitor.status.id != ''"
-    - celExpr: "lbhealthmonitor.status.resource.lBPoolID == lBPool.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "monitor.status.resource.poolID == pool.status.id"
+    - celExpr: "size(monitor.status.resource.tags) == 2 && 'tag1' in monitor.status.resource.tags && 'tag2' in monitor.status.resource.tags"

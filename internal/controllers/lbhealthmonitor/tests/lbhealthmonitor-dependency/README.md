@@ -2,20 +2,20 @@
 
 ## Step 00
 
-Create LBHealthMonitors referencing non-existing resources. Each LBHealthMonitor is dependent on other non-existing resource. Verify that the LBHealthMonitors are waiting for the needed resources to be created externally.
+Create health monitors referencing a secret and a pool that don't exist yet, and verify that they wait.
 
 ## Step 01
 
-Create the missing dependencies and verify all the LBHealthMonitors are available.
+Create the missing dependencies and verify that the health monitors become available.
 
 ## Step 02
 
-Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+Delete a pool and a secret in use, and verify that the finalizers stop their deletion.
 
 ## Step 03
 
-Delete the LBHealthMonitors and validate that all resources are gone.
+Delete the health monitors and verify that the dependencies are deleted too.
 
 ## Reference
 
-https://k-orc.cloud/development/writing-tests/#dependency
+https://k-orc.cloud/development/writing-tests/

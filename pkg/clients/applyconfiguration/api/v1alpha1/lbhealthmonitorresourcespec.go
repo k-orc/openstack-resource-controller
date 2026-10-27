@@ -25,9 +25,20 @@ import (
 // LBHealthMonitorResourceSpecApplyConfiguration represents a declarative configuration of the LBHealthMonitorResourceSpec type for use
 // with apply.
 type LBHealthMonitorResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	LBPoolRef   *apiv1alpha1.KubernetesNameRef `json:"lBPoolRef,omitempty"`
+	Name           *apiv1alpha1.OpenStackName              `json:"name,omitempty"`
+	PoolRef        *apiv1alpha1.KubernetesNameRef          `json:"poolRef,omitempty"`
+	Type           *apiv1alpha1.LBHealthMonitorType        `json:"type,omitempty"`
+	Delay          *int32                                  `json:"delay,omitempty"`
+	Timeout        *int32                                  `json:"timeout,omitempty"`
+	MaxRetries     *int32                                  `json:"maxRetries,omitempty"`
+	MaxRetriesDown *int32                                  `json:"maxRetriesDown,omitempty"`
+	HTTPMethod     *apiv1alpha1.LBHealthMonitorHTTPMethod  `json:"httpMethod,omitempty"`
+	HTTPVersion    *apiv1alpha1.LBHealthMonitorHTTPVersion `json:"httpVersion,omitempty"`
+	ExpectedCodes  *string                                 `json:"expectedCodes,omitempty"`
+	URLPath        *string                                 `json:"urlPath,omitempty"`
+	DomainName     *string                                 `json:"domainName,omitempty"`
+	AdminStateUp   *bool                                   `json:"adminStateUp,omitempty"`
+	Tags           []apiv1alpha1.LBPoolTag                 `json:"tags,omitempty"`
 }
 
 // LBHealthMonitorResourceSpecApplyConfiguration constructs a declarative configuration of the LBHealthMonitorResourceSpec type for use with
@@ -44,18 +55,108 @@ func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithName(value apiv1alph
 	return b
 }
 
-// WithDescription sets the Description field in the declarative configuration to the given value
+// WithPoolRef sets the PoolRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithDescription(value string) *LBHealthMonitorResourceSpecApplyConfiguration {
-	b.Description = &value
+// If called multiple times, the PoolRef field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithPoolRef(value apiv1alpha1.KubernetesNameRef) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.PoolRef = &value
 	return b
 }
 
-// WithLBPoolRef sets the LBPoolRef field in the declarative configuration to the given value
+// WithType sets the Type field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the LBPoolRef field is set to the value of the last call.
-func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithLBPoolRef(value apiv1alpha1.KubernetesNameRef) *LBHealthMonitorResourceSpecApplyConfiguration {
-	b.LBPoolRef = &value
+// If called multiple times, the Type field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithType(value apiv1alpha1.LBHealthMonitorType) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.Type = &value
+	return b
+}
+
+// WithDelay sets the Delay field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Delay field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithDelay(value int32) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.Delay = &value
+	return b
+}
+
+// WithTimeout sets the Timeout field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Timeout field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithTimeout(value int32) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.Timeout = &value
+	return b
+}
+
+// WithMaxRetries sets the MaxRetries field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MaxRetries field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithMaxRetries(value int32) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.MaxRetries = &value
+	return b
+}
+
+// WithMaxRetriesDown sets the MaxRetriesDown field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MaxRetriesDown field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithMaxRetriesDown(value int32) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.MaxRetriesDown = &value
+	return b
+}
+
+// WithHTTPMethod sets the HTTPMethod field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the HTTPMethod field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithHTTPMethod(value apiv1alpha1.LBHealthMonitorHTTPMethod) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.HTTPMethod = &value
+	return b
+}
+
+// WithHTTPVersion sets the HTTPVersion field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the HTTPVersion field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithHTTPVersion(value apiv1alpha1.LBHealthMonitorHTTPVersion) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.HTTPVersion = &value
+	return b
+}
+
+// WithExpectedCodes sets the ExpectedCodes field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ExpectedCodes field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithExpectedCodes(value string) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.ExpectedCodes = &value
+	return b
+}
+
+// WithURLPath sets the URLPath field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the URLPath field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithURLPath(value string) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.URLPath = &value
+	return b
+}
+
+// WithDomainName sets the DomainName field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DomainName field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithDomainName(value string) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.DomainName = &value
+	return b
+}
+
+// WithAdminStateUp sets the AdminStateUp field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AdminStateUp field is set to the value of the last call.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithAdminStateUp(value bool) *LBHealthMonitorResourceSpecApplyConfiguration {
+	b.AdminStateUp = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *LBHealthMonitorResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.LBPoolTag) *LBHealthMonitorResourceSpecApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
 	return b
 }

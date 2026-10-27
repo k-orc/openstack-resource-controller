@@ -10,4 +10,5 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: LBHealthMonitor from "import error" test
+      tags:
+        - lbhealthmonitor-import-error

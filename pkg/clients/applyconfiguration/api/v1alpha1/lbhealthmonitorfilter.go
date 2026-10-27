@@ -25,9 +25,10 @@ import (
 // LBHealthMonitorFilterApplyConfiguration represents a declarative configuration of the LBHealthMonitorFilter type for use
 // with apply.
 type LBHealthMonitorFilterApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	LBPoolRef   *apiv1alpha1.KubernetesNameRef `json:"lBPoolRef,omitempty"`
+	Name    *apiv1alpha1.OpenStackName       `json:"name,omitempty"`
+	PoolRef *apiv1alpha1.KubernetesNameRef   `json:"poolRef,omitempty"`
+	Type    *apiv1alpha1.LBHealthMonitorType `json:"type,omitempty"`
+	Tags    []apiv1alpha1.LBPoolTag          `json:"tags,omitempty"`
 }
 
 // LBHealthMonitorFilterApplyConfiguration constructs a declarative configuration of the LBHealthMonitorFilter type for use with
@@ -44,18 +45,28 @@ func (b *LBHealthMonitorFilterApplyConfiguration) WithName(value apiv1alpha1.Ope
 	return b
 }
 
-// WithDescription sets the Description field in the declarative configuration to the given value
+// WithPoolRef sets the PoolRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *LBHealthMonitorFilterApplyConfiguration) WithDescription(value string) *LBHealthMonitorFilterApplyConfiguration {
-	b.Description = &value
+// If called multiple times, the PoolRef field is set to the value of the last call.
+func (b *LBHealthMonitorFilterApplyConfiguration) WithPoolRef(value apiv1alpha1.KubernetesNameRef) *LBHealthMonitorFilterApplyConfiguration {
+	b.PoolRef = &value
 	return b
 }
 
-// WithLBPoolRef sets the LBPoolRef field in the declarative configuration to the given value
+// WithType sets the Type field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the LBPoolRef field is set to the value of the last call.
-func (b *LBHealthMonitorFilterApplyConfiguration) WithLBPoolRef(value apiv1alpha1.KubernetesNameRef) *LBHealthMonitorFilterApplyConfiguration {
-	b.LBPoolRef = &value
+// If called multiple times, the Type field is set to the value of the last call.
+func (b *LBHealthMonitorFilterApplyConfiguration) WithType(value apiv1alpha1.LBHealthMonitorType) *LBHealthMonitorFilterApplyConfiguration {
+	b.Type = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *LBHealthMonitorFilterApplyConfiguration) WithTags(values ...apiv1alpha1.LBPoolTag) *LBHealthMonitorFilterApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
 	return b
 }

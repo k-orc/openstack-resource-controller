@@ -1688,13 +1688,19 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LBHealthMonitorFilter
   map:
     fields:
-    - name: description
-      type:
-        scalar: string
-    - name: lBPoolRef
-      type:
-        scalar: string
     - name: name
+      type:
+        scalar: string
+    - name: poolRef
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: type
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LBHealthMonitorImport
@@ -1709,25 +1715,103 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LBHealthMonitorResourceSpec
   map:
     fields:
-    - name: description
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: delay
+      type:
+        scalar: numeric
+    - name: domainName
       type:
         scalar: string
-    - name: lBPoolRef
+    - name: expectedCodes
       type:
         scalar: string
+    - name: httpMethod
+      type:
+        scalar: string
+    - name: httpVersion
+      type:
+        scalar: string
+    - name: maxRetries
+      type:
+        scalar: numeric
+    - name: maxRetriesDown
+      type:
+        scalar: numeric
     - name: name
+      type:
+        scalar: string
+    - name: poolRef
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: timeout
+      type:
+        scalar: numeric
+    - name: type
+      type:
+        scalar: string
+    - name: urlPath
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LBHealthMonitorResourceStatus
   map:
     fields:
-    - name: description
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: delay
+      type:
+        scalar: numeric
+    - name: domainName
       type:
         scalar: string
-    - name: lBPoolID
+    - name: expectedCodes
       type:
         scalar: string
+    - name: httpMethod
+      type:
+        scalar: string
+    - name: httpVersion
+      type:
+        scalar: string
+    - name: maxRetries
+      type:
+        scalar: numeric
+    - name: maxRetriesDown
+      type:
+        scalar: numeric
     - name: name
+      type:
+        scalar: string
+    - name: operatingStatus
+      type:
+        scalar: string
+    - name: poolID
+      type:
+        scalar: string
+    - name: provisioningStatus
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: timeout
+      type:
+        scalar: numeric
+    - name: type
+      type:
+        scalar: string
+    - name: urlPath
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LBHealthMonitorSpec
