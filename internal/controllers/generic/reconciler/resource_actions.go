@@ -126,7 +126,17 @@ func GetOrCreateOSResource[
 		if osResource == nil {
 			return nil, progress.WaitingOnOpenStack(progress.WaitingOnCreation, externalUpdatePollingPeriod)
 		}
-		return osResource, reconcileStatus
+
+		osResource, reconcileStatus = getListedResourceByID(ctx, actuator, osResource)
+		if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
+			if orcerrors.IsNotFound(err) {
+				// Deleted since it was listed
+				return nil, progress.WaitingOnOpenStack(progress.WaitingOnCreation, externalUpdatePollingPeriod)
+			}
+			return nil, reconcileStatus
+		}
+		log.V(logging.Verbose).Info("Imported existing OpenStack resource by filter", "ID", actuator.GetResourceID(osResource))
+		return osResource, nil
 	}
 
 	// Create
@@ -142,6 +152,10 @@ func GetOrCreateOSResource[
 		return nil, progress.WrapError(err)
 	}
 	if osResource != nil {
+		osResource, reconcileStatus := getListedResourceByID(ctx, actuator, osResource)
+		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+			return nil, reconcileStatus
+		}
 		log.V(logging.Info).Info("Adopted previously created resource")
 		return osResource, nil
 	}
@@ -272,6 +286,32 @@ func atMostOne[osResourceT any](resourceIter iter.Seq2[*osResourceT, error], mul
 		return nil, multipleErr
 	}
 
+	return osResource, nil
+}
+
+// getListedResourceByID fetches a resource selected from a list operation by
+// its ID. List results may be incomplete: some actuators only populate parts of
+// the resource in GetOSResourceByID.
+func getListedResourceByID[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	osResourceT any,
+](
+	ctx context.Context,
+	actuator interfaces.BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT],
+	listed *osResourceT,
+) (*osResourceT, progress.ReconcileStatus) {
+	resourceID := actuator.GetResourceID(listed)
+	osResource, reconcileStatus := actuator.GetOSResourceByID(ctx, resourceID)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+	if osResource == nil {
+		return nil, progress.WrapError(fmt.Errorf("GetOSResourceByID returned nil resource with no error for ID %q", resourceID))
+	}
 	return osResource, nil
 }
 

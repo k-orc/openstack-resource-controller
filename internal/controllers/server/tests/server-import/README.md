@@ -13,6 +13,10 @@ Create a server which name is a superstring of the one specified in the import f
 Create a server matching the filter and verify that the observed status on the imported server corresponds to the spec of the created server.
 Also verify that the created server didn't adopt the one which name is a superstring of it.
 
+## Step 03
+
+Import the server after it is ACTIVE and verify that its interfaces are reported.
+
 ## Reference
 
 https://k-orc.cloud/development/writing-tests/#import
