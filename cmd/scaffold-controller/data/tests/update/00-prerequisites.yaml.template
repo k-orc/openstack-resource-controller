@@ -1,0 +1,24 @@
+{{ $packageName := .PackageName -}}
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl create secret generic openstack-clouds --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
+# The dependencies are not in 00-minimal-resource.yaml: replacing them in the
+# revert step would remove their finalizers.
+{{ range .RequiredCreateDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-update
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+{{ end -}}
