@@ -11,4 +11,13 @@ load balancer is kept.
 
 ## Step 02
 
-Create a load balancer with the same spec. It adopts the existing load balancer (same ID).
+Remove the load balancer's deletion guard from the subnet, as if it had never been added.
+
+## Step 03
+
+Create a load balancer with the same spec. It adopts the existing load balancer (same ID) and adds
+the deletion guard to the subnet.
+
+## Reference
+
+https://github.com/k-orc/openstack-resource-controller/issues/1011

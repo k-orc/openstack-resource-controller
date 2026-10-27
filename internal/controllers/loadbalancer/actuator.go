@@ -416,8 +416,23 @@ func handleTagsUpdate(updateOpts *loadbalancers.UpdateOpts, resource *resourceSp
 
 func (actuator loadbalancerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.reconcileDependencyGuards,
 		actuator.updateResource,
 	}, nil
+}
+
+// reconcileDependencyGuards adds the deletion guards to the load balancer's dependencies.
+// CreateResource adds them before creating; this also covers an adopted load balancer.
+func (actuator loadbalancerActuator) reconcileDependencyGuards(ctx context.Context, obj orcObjectPT, _ *osResourceT) progress.ReconcileStatus {
+	var reconcileStatus progress.ReconcileStatus
+	_, rs := subnetDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	_, rs = networkDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	_, rs = portDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	_, rs = projectDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	return reconcileStatus.WithReconcileStatus(rs)
 }
 
 type loadbalancerHelperFactory struct{}
