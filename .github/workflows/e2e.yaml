@@ -53,6 +53,11 @@ jobs:
           LIBVIRT_CPU_MODE=host-passthrough
 
           [[post-config|/etc/nova/nova.conf]]
+          [DEFAULT]
+          # Every load balancer is an amphora VM. They are mostly idle, so
+          # overcommit memory rather than run out of room for them.
+          ram_allocation_ratio = 2.0
+
           [quota]
           instances = 50
 
