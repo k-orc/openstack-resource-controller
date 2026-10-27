@@ -18,6 +18,7 @@ package dependency
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
@@ -127,11 +128,11 @@ func addDeletionGuard[objTP ObjectType[objT], objT any, depTP ObjectType[depT], 
 
 	// Register deletionGuard with the manager as a reconciler of the
 	// dependency.  We also watch for referring objects, but we're only
-	// interested in deletion events.  We need to ensure that if the depdency
-	// object is marked deleted we will continue to call deletionGuard every
-	// time a referring object is deleted so that we will eventually be called
-	// when the last dependent object is deleted and we can remove the
-	// dependency.
+	// interested in deletion events and updates which remove references.  We
+	// need to ensure that if the depdency object is marked deleted we will
+	// continue to call deletionGuard every time a referring object is deleted
+	// or stops referencing it so that we will eventually be called when the
+	// last reference is gone and we can remove the dependency.
 	err = builder.ControllerManagedBy(mgr).
 		For(depSpecimen,
 			// Only reconcile objects which are marked deleted and have our finalizer
@@ -148,6 +149,16 @@ func addDeletionGuard[objTP ObjectType[objT], objT any, depTP ObjectType[depT], 
 			}))).
 		Watches(objSpecimen,
 			handler.Funcs{
+				UpdateFunc: func(ctx context.Context, evt event.TypedUpdateEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+					for _, guarded := range removedRefs(getDepRefsFromObject(evt.ObjectOld), getDepRefsFromObject(evt.ObjectNew)) {
+						q.Add(reconcile.Request{
+							NamespacedName: types.NamespacedName{
+								Namespace: evt.ObjectNew.GetNamespace(),
+								Name:      guarded,
+							},
+						})
+					}
+				},
 				DeleteFunc: func(ctx context.Context, evt event.TypedDeleteEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
 					for _, guarded := range getDepRefsFromObject(evt.Object) {
 						q.Add(reconcile.Request{
@@ -168,6 +179,17 @@ func addDeletionGuard[objTP ObjectType[objT], objT any, depTP ObjectType[depT], 
 	}
 
 	return nil
+}
+
+// removedRefs returns the references in oldRefs which are not in newRefs.
+func removedRefs(oldRefs, newRefs []string) []string {
+	var removed []string
+	for _, ref := range oldRefs {
+		if !slices.Contains(newRefs, ref) && !slices.Contains(removed, ref) {
+			removed = append(removed, ref)
+		}
+	}
+	return removed
 }
 
 func getObjectKind(obj runtime.Object, scheme *runtime.Scheme) (string, error) {

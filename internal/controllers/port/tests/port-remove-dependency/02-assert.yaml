@@ -1,0 +1,21 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: port-remove-dependency-1
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: port-remove-dependency-1
+      ref: sg1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: port-remove-dependency-2
+      ref: sg2
+assertAll:
+    # port-remove-dependency-2 still references the security group
+    - celExpr: "sg1.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in sg1.metadata.finalizers"
+    - celExpr: "port.status.resource.securityGroups == [sg2.status.id]"

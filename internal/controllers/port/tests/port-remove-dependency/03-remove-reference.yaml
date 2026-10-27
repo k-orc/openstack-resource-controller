@@ -1,0 +1,8 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-remove-dependency-2
+spec:
+  resource:
+    securityGroupRefs: []
