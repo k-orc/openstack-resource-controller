@@ -1,0 +1,7 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# The security group is no longer referenced and can be deleted
+- script: "! kubectl get securitygroup port-remove-dependency-1 --namespace $NAMESPACE"
+  skipLogOutput: true
