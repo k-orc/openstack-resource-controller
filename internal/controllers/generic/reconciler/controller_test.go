@@ -563,3 +563,33 @@ func TestResyncRequeue_RequeueTimingRange(t *testing.T) {
 		})
 	}
 }
+
+// TestShouldReconcileWithFinalizer_MissingFinalizer verifies that an up to date object is
+// reconciled when it has lost its finalizer, so that the finalizer is restored.
+func TestShouldReconcileWithFinalizer_MissingFinalizer(t *testing.T) {
+	t.Parallel()
+
+	const finalizer = "openstack.k-orc.cloud/test"
+
+	tests := []struct {
+		name       string
+		finalizers []string
+		want       bool
+	}{
+		{name: "finalizer present", finalizers: []string{finalizer}, want: false},
+		{name: "finalizer missing", finalizers: nil, want: true},
+		{name: "only other finalizers", finalizers: []string{"openstack.k-orc.cloud/other"}, want: true},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			obj := makeObj(1, []metav1.Condition{makeProgressingCondition(metav1.ConditionFalse, 1)})
+			obj.SetFinalizers(tc.finalizers)
+			if got := ShouldReconcileWithFinalizer(obj, finalizer, nil, 0); got != tc.want {
+				t.Errorf("ShouldReconcileWithFinalizer() = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}

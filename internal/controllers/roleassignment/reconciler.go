@@ -100,7 +100,7 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 	effectiveResyncPeriod := resync.DetermineResyncPeriod(orcObject.Spec.ResyncPeriod, r.defaultResyncPeriod)
 
 	// Check if we should skip reconciliation
-	if !reconciler.ShouldReconcile(orcObject, orcObject.Status.LastSyncTime, effectiveResyncPeriod) {
+	if !reconciler.ShouldReconcileWithFinalizer(orcObject, finalizer, orcObject.Status.LastSyncTime, effectiveResyncPeriod) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
 		if remaining := resync.RemainingUntilNextSync(orcObject.Status.LastSyncTime, effectiveResyncPeriod); remaining > 0 {
 			return reconcileStatus.WithRequeue(remaining)
