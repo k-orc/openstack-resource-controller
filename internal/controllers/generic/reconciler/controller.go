@@ -24,6 +24,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -35,6 +36,9 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/scope"
 )
+
+// cacheSyncTimeout is how long to wait for the cache to contain our own writes
+const cacheSyncTimeout = 5 * time.Second
 
 type ResourceController interface {
 	GetName() string
@@ -106,6 +110,23 @@ type Controller[
 
 func (c *Controller[_, _, _, _, _, _, _, _]) GetName() string {
 	return c.name
+}
+
+// waitForCachedStatusID waits until the cache contains the status ID we just
+// wrote. Otherwise the next reconcile could read the object without a status ID
+// and create the OpenStack resource again. Resources without a name cannot be
+// adopted, so the first one would be leaked.
+func (c *Controller[orcObjectPT, orcObjectT, _, _, _, _, _, _]) waitForCachedStatusID(ctx context.Context, key client.ObjectKey) error {
+	return wait.PollUntilContextTimeout(ctx, 100*time.Millisecond, cacheSyncTimeout, true, func(ctx context.Context) (bool, error) {
+		var obj orcObjectPT = new(orcObjectT)
+		if err := c.client.Get(ctx, key, obj); err != nil {
+			if apierrors.IsNotFound(err) {
+				return true, nil
+			}
+			return false, err
+		}
+		return c.helperFactory.NewAPIObjectAdapter(obj).GetStatusID() != nil, nil
+	})
 }
 
 func (c *Controller[_, _, _, _, _, _, _, _]) GetK8sClient() client.Client {
@@ -258,6 +279,9 @@ func (c *Controller[
 	if objAdapter.GetStatusID() == nil {
 		resourceID := actuator.GetResourceID(osResource)
 		if err := status.SetStatusID(ctx, c, objAdapter.GetObject(), resourceID, c.statusWriter); err != nil {
+			return reconcileStatus.WithError(err)
+		}
+		if err := c.waitForCachedStatusID(ctx, client.ObjectKeyFromObject(objAdapter.GetObject())); err != nil {
 			return reconcileStatus.WithError(err)
 		}
 	}
