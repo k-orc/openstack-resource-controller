@@ -26,6 +26,54 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 )
 
+const testApplicationCredentialID = "credential"
+
+func TestGetApplicationCredentialForUser(t *testing.T) {
+	for _, status := range []int{http.StatusOK, http.StatusNotFound, http.StatusForbidden, http.StatusServiceUnavailable} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			var requests atomic.Int32
+			client := applicationcredentialClient{client: newTestServiceClient(t, func(w http.ResponseWriter, r *http.Request) {
+				requests.Add(1)
+				if r.Method != http.MethodGet || r.URL.Path != "/users/owner/application_credentials/credential" {
+					t.Errorf("unexpected request: %s %s", r.Method, r.URL)
+					w.WriteHeader(http.StatusForbidden)
+					return
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(status)
+				if status == http.StatusOK {
+					_, _ = fmt.Fprint(w, `{"application_credential":{"id":"credential"}}`)
+				}
+			})}
+
+			credential, err := client.GetApplicationCredentialForUser(t.Context(), "owner", testApplicationCredentialID)
+			if status == http.StatusOK {
+				if err != nil || credential == nil || credential.ID != testApplicationCredentialID {
+					t.Errorf("credential = %v, error = %v, want matching credential", credential, err)
+				}
+			} else {
+				if !gophercloud.ResponseCodeIs(err, status) {
+					t.Errorf("error = %v, want HTTP %d", err, status)
+				}
+				if credential != nil {
+					t.Errorf("unexpected credential: %v", credential)
+				}
+			}
+			if requests.Load() != 1 {
+				t.Errorf("requests = %d, want one owner lookup without discovery", requests.Load())
+			}
+		})
+	}
+}
+
+func TestApplicationCredentialErrorClientForUser(t *testing.T) {
+	wantErr := errors.New("client error")
+	credential, err := NewApplicationCredentialErrorClient(wantErr).GetApplicationCredentialForUser(t.Context(), "owner", testApplicationCredentialID)
+	if credential != nil || !errors.Is(err, wantErr) {
+		t.Errorf("credential = %v, error = %v, want nil credential and %v", credential, err, wantErr)
+	}
+}
+
 func TestGetApplicationCredentialUserListing(t *testing.T) {
 	for _, tc := range []struct {
 		name          string
@@ -97,19 +145,19 @@ func TestGetApplicationCredentialUserListing(t *testing.T) {
 					w.WriteHeader(http.StatusNotFound)
 				}
 			})}
-			credential, err := client.GetApplicationCredential(t.Context(), "credential")
+			credential, err := client.GetApplicationCredential(t.Context(), testApplicationCredentialID)
 			switch {
 			case tc.wantStatus != 0:
 				if !gophercloud.ResponseCodeIs(err, tc.wantStatus) {
 					t.Errorf("error = %v, want HTTP %d", err, tc.wantStatus)
 				}
 			case tc.found:
-				if err != nil || credential == nil || credential.ID != "credential" {
+				if err != nil || credential == nil || credential.ID != testApplicationCredentialID {
 					t.Errorf("credential = %v, error = %v, want matching credential", credential, err)
 				}
 			default:
 				var notFound gophercloud.ErrResourceNotFound
-				if !errors.As(err, &notFound) || notFound.Name != "credential" {
+				if !errors.As(err, &notFound) || notFound.Name != testApplicationCredentialID {
 					t.Errorf("error = %v, want credential not found", err)
 				}
 			}

@@ -101,6 +101,21 @@ func (mr *MockApplicationCredentialClientMockRecorder) GetApplicationCredential(
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetApplicationCredential", reflect.TypeOf((*MockApplicationCredentialClient)(nil).GetApplicationCredential), ctx, resourceID)
 }
 
+// GetApplicationCredentialForUser mocks base method.
+func (m *MockApplicationCredentialClient) GetApplicationCredentialForUser(ctx context.Context, userID, resourceID string) (*applicationcredentials.ApplicationCredential, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetApplicationCredentialForUser", ctx, userID, resourceID)
+	ret0, _ := ret[0].(*applicationcredentials.ApplicationCredential)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetApplicationCredentialForUser indicates an expected call of GetApplicationCredentialForUser.
+func (mr *MockApplicationCredentialClientMockRecorder) GetApplicationCredentialForUser(ctx, userID, resourceID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetApplicationCredentialForUser", reflect.TypeOf((*MockApplicationCredentialClient)(nil).GetApplicationCredentialForUser), ctx, userID, resourceID)
+}
+
 // ListApplicationCredentials mocks base method.
 func (m *MockApplicationCredentialClient) ListApplicationCredentials(ctx context.Context, userID string, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
 	m.ctrl.T.Helper()

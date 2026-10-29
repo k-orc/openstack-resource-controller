@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-delete-non-admin
+status:
+  resource:
+    name: applicationcredential-delete-non-admin
+    unrestricted: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: ApplicationCredential
+    name: applicationcredential-delete-non-admin
+    ref: credential
+assertAll:
+  - celExpr: "credential.status.id != ''"
+  - celExpr: "credential.status.resource.projectID != ''"
+  - celExpr: "'openstack.k-orc.cloud/applicationcredential' in credential.metadata.finalizers"

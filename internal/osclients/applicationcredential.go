@@ -36,6 +36,7 @@ type ApplicationCredentialClient interface {
 	CreateApplicationCredential(ctx context.Context, userID string, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error)
 	DeleteApplicationCredential(ctx context.Context, userID string, resourceID string) error
 	GetApplicationCredential(ctx context.Context, resourceID string) (*applicationcredentials.ApplicationCredential, error)
+	GetApplicationCredentialForUser(ctx context.Context, userID string, resourceID string) (*applicationcredentials.ApplicationCredential, error)
 }
 
 type applicationcredentialClient struct{ client *gophercloud.ServiceClient }
@@ -65,6 +66,11 @@ func (c applicationcredentialClient) CreateApplicationCredential(ctx context.Con
 
 func (c applicationcredentialClient) DeleteApplicationCredential(ctx context.Context, userID string, resourceID string) error {
 	return applicationcredentials.Delete(ctx, c.client, userID, resourceID).ExtractErr()
+}
+
+// GetApplicationCredentialForUser queries the known owner without attempting user discovery.
+func (c applicationcredentialClient) GetApplicationCredentialForUser(ctx context.Context, userID string, resourceID string) (*applicationcredentials.ApplicationCredential, error) {
+	return applicationcredentials.Get(ctx, c.client, userID, resourceID).Extract()
 }
 
 func (c applicationcredentialClient) GetApplicationCredential(ctx context.Context, resourceID string) (*applicationcredentials.ApplicationCredential, error) {
@@ -148,5 +154,9 @@ func (e applicationcredentialErrorClient) DeleteApplicationCredential(_ context.
 }
 
 func (e applicationcredentialErrorClient) GetApplicationCredential(_ context.Context, _ string) (*applicationcredentials.ApplicationCredential, error) {
+	return nil, e.error
+}
+
+func (e applicationcredentialErrorClient) GetApplicationCredentialForUser(_ context.Context, _ string, _ string) (*applicationcredentials.ApplicationCredential, error) {
 	return nil, e.error
 }

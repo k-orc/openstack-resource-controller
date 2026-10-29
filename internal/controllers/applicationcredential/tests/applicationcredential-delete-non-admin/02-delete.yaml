@@ -1,0 +1,8 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl delete applicationcredential applicationcredential-delete-non-admin --wait=false
+    namespaced: true
+  - command: kubectl wait --for=delete applicationcredential/applicationcredential-delete-non-admin --timeout=60s
+    namespaced: true
