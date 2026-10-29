@@ -25,6 +25,7 @@ type VolumeTypeResourceStatusApplyConfiguration struct {
 	Description *string                                       `json:"description,omitempty"`
 	ExtraSpecs  []VolumeTypeExtraSpecStatusApplyConfiguration `json:"extraSpecs,omitempty"`
 	IsPublic    *bool                                         `json:"isPublic,omitempty"`
+	ProjectIDs  []string                                      `json:"projectIDs,omitempty"`
 }
 
 // VolumeTypeResourceStatusApplyConfiguration constructs a declarative configuration of the VolumeTypeResourceStatus type for use with
@@ -67,5 +68,15 @@ func (b *VolumeTypeResourceStatusApplyConfiguration) WithExtraSpecs(values ...*V
 // If called multiple times, the IsPublic field is set to the value of the last call.
 func (b *VolumeTypeResourceStatusApplyConfiguration) WithIsPublic(value bool) *VolumeTypeResourceStatusApplyConfiguration {
 	b.IsPublic = &value
+	return b
+}
+
+// WithProjectIDs adds the given value to the ProjectIDs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ProjectIDs field.
+func (b *VolumeTypeResourceStatusApplyConfiguration) WithProjectIDs(values ...string) *VolumeTypeResourceStatusApplyConfiguration {
+	for i := range values {
+		b.ProjectIDs = append(b.ProjectIDs, values[i])
+	}
 	return b
 }
