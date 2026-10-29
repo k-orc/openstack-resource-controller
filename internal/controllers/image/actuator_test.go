@@ -295,3 +295,56 @@ func TestHandleTagsUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestHashMatches(t *testing.T) {
+	sha512Image := &images.Image{
+		Checksum: "md5-value",
+		Properties: map[string]any{
+			glanceOSHashAlgo:  "sha512",
+			glanceOSHashValue: "sha512-value",
+		},
+	}
+	testCases := []struct {
+		name  string
+		image *images.Image
+		hash  orcv1alpha1.ImageHash
+		want  bool
+	}{
+		{name: "Same sha512", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmSHA512, Value: "sha512-value"}, want: true},
+		{name: "Different sha512", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmSHA512, Value: "other"}, want: false},
+		{name: "Same md5", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmMD5, Value: "md5-value"}, want: true},
+		{name: "Different md5", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmMD5, Value: "other"}, want: false},
+		{name: "Algorithm not stored by Glance", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmSHA256, Value: "other"}, want: true},
+		{name: "Not uploaded yet", image: &images.Image{}, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmSHA512, Value: "other"}, want: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := hashMatches(tt.image, &tt.hash); got != tt.want {
+				t.Errorf("Expected hashMatches to return %v, but got %v", tt.want, got)
+			}
+		})
+	}
+}
+
+func TestContentHash(t *testing.T) {
+	hash := &orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmMD5, Value: "value"}
+	testCases := []struct {
+		name    string
+		content orcv1alpha1.ImageContent
+		want    *orcv1alpha1.ImageHash
+	}{
+		{name: "No download", content: orcv1alpha1.ImageContent{}},
+		{name: "No hash", content: orcv1alpha1.ImageContent{Download: &orcv1alpha1.ImageContentSourceDownload{}}},
+		{name: "Hash", content: orcv1alpha1.ImageContent{Download: &orcv1alpha1.ImageContentSourceDownload{Hash: hash}}, want: hash},
+		{name: "Hash of compressed download", content: orcv1alpha1.ImageContent{Download: &orcv1alpha1.ImageContentSourceDownload{Hash: hash, Decompress: ptr.To(orcv1alpha1.ImageCompressionGZ)}}},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := contentHash(&tt.content); got != tt.want {
+				t.Errorf("Expected contentHash to return %v, but got %v", tt.want, got)
+			}
+		})
+	}
+}
