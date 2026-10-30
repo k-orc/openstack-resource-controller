@@ -76,6 +76,8 @@ nameReference:
     path: spec/import/filter/networkRef
   - kind: Port
     path: spec/resource/networkRef
+  - kind: RBACPolicy
+    path: spec/resource/networkRef
   - kind: Router
     path: spec/resource/externalGateways[]/networkRef
   - kind: ShareNetwork
@@ -122,6 +124,10 @@ nameReference:
     path: spec/import/filter/projectRef
   - kind: Port
     path: spec/resource/projectRef
+  - kind: RBACPolicy
+    path: spec/import/filter/targetProjectRef
+  - kind: RBACPolicy
+    path: spec/resource/targetProjectRef
   - kind: RoleAssignment
     path: spec/import/filter/projectRef
   - kind: RoleAssignment
@@ -207,6 +213,8 @@ nameReference:
   - kind: Port
     path: spec/cloudCredentialsRef/secretName
   - kind: Project
+    path: spec/cloudCredentialsRef/secretName
+  - kind: RBACPolicy
     path: spec/cloudCredentialsRef/secretName
   - kind: RecordSet
     path: spec/cloudCredentialsRef/secretName
