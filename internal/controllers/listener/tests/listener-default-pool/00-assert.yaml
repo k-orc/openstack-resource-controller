@@ -1,0 +1,29 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 600
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Listener
+      name: listener-default-pool
+      ref: listener
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: listener-default-pool
+      ref: pool
+assertAll:
+    - celExpr: "listener.status.resource.defaultPoolID == pool.status.id"
+    - celExpr: "'openstack.k-orc.cloud/listener' in pool.metadata.finalizers"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-default-pool
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

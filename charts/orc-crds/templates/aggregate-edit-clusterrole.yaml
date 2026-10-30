@@ -24,7 +24,11 @@ rules:
   - groups
   - images
   - keypairs
+  - lbhealthmonitors
+  - lbpools
   - limits
+  - listeners
+  - loadbalancers
   - networks
   - ports
   - projects

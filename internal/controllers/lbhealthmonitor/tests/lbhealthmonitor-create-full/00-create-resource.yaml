@@ -1,0 +1,80 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: lbhealthmonitor-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: lbhealthmonitor-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: lbhealthmonitor-create-full
+    ipVersion: 4
+    cidr: 10.0.0.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: lbhealthmonitor-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: lbhealthmonitor-create-full
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbhealthmonitor-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    loadBalancerRef: lbhealthmonitor-create-full
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    poolRef: lbhealthmonitor-create-full
+    type: HTTP
+    delay: 10
+    timeout: 5
+    maxRetries: 3
+    name: lbhealthmonitor-create-full-override
+    maxRetriesDown: 4
+    httpMethod: HEAD
+    httpVersion: "1.1"
+    expectedCodes: "200-204"
+    urlPath: /healthz
+    domainName: example.com
+    adminStateUp: false
+    tags:
+      - tag1
+      - tag2

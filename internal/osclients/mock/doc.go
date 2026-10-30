@@ -56,8 +56,20 @@ import (
 //go:generate mockgen -package mock -destination=keypair.go -source=../keypair.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock KeyPairClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt keypair.go > _keypair.go && mv _keypair.go keypair.go"
 
+//go:generate mockgen -package mock -destination=lbhealthmonitor.go -source=../lbhealthmonitor.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LBHealthMonitorClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt lbhealthmonitor.go > _lbhealthmonitor.go && mv _lbhealthmonitor.go lbhealthmonitor.go"
+
+//go:generate mockgen -package mock -destination=lbpool.go -source=../lbpool.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LBPoolClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt lbpool.go > _lbpool.go && mv _lbpool.go lbpool.go"
+
 //go:generate mockgen -package mock -destination=limit.go -source=../limit.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LimitClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt limit.go > _limit.go && mv _limit.go limit.go"
+
+//go:generate mockgen -package mock -destination=listener.go -source=../listener.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock ListenerClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt listener.go > _listener.go && mv _listener.go listener.go"
+
+//go:generate mockgen -package mock -destination=loadbalancer.go -source=../loadbalancer.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LoadBalancerClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt loadbalancer.go > _loadbalancer.go && mv _loadbalancer.go loadbalancer.go"
 
 //go:generate mockgen -package mock -destination=recordset.go -source=../recordset.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock RecordSetClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt recordset.go > _recordset.go && mv _recordset.go recordset.go"
