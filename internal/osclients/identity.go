@@ -20,6 +20,9 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"net/http"
+	"slices"
+	"strings"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
@@ -50,9 +53,73 @@ func NewIdentityClient(providerClient *gophercloud.ProviderClient, providerClien
 	return &identityClient{identity}, nil
 }
 
+// ListProjects lists the projects matching opts. Listing projects needs admin by default: when it
+// is forbidden, this lists the projects the caller has access to instead, filtered here.
 func (c identityClient) ListProjects(ctx context.Context, opts projects.ListOptsBuilder) iter.Seq2[*projects.Project, error] {
-	pager := projects.List(c.client, opts)
-	return listResources(ctx, pager, projects.ExtractProjects)
+	return func(yield func(*projects.Project, error) bool) {
+		yielded := false
+		for project, err := range listResources(ctx, projects.List(c.client, opts), projects.ExtractProjects) {
+			if err != nil && !yielded && gophercloud.ResponseCodeIs(err, http.StatusForbidden) {
+				// Listing all projects is admin-only by default. Fall back to the
+				// projects the caller can access, filtered client-side.
+				listOpts, ok := projectListOpts(opts)
+				if !ok {
+					yield(nil, err)
+					return
+				}
+				available := listResources(ctx, projects.ListAvailable(c.client), projects.ExtractProjects)
+				for project, err := range Filter(available, func(p *projects.Project) bool { return projectMatches(p, listOpts) }) {
+					if !yield(project, err) {
+						return
+					}
+				}
+				return
+			}
+			yielded = true
+			if !yield(project, err) {
+				return
+			}
+		}
+	}
+}
+
+func projectListOpts(opts projects.ListOptsBuilder) (projects.ListOpts, bool) {
+	switch o := opts.(type) {
+	case projects.ListOpts:
+		return o, true
+	case *projects.ListOpts:
+		return *o, true
+	}
+	return projects.ListOpts{}, false
+}
+
+// projectMatches applies a project list filter the way Keystone does.
+func projectMatches(project *projects.Project, opts projects.ListOpts) bool {
+	hasAll := func(tags string) bool {
+		for _, t := range strings.Split(tags, ",") {
+			if !slices.Contains(project.Tags, t) {
+				return false
+			}
+		}
+		return true
+	}
+	hasAny := func(tags string) bool {
+		for _, t := range strings.Split(tags, ",") {
+			if slices.Contains(project.Tags, t) {
+				return true
+			}
+		}
+		return false
+	}
+	return (opts.Name == "" || project.Name == opts.Name) &&
+		(opts.DomainID == "" || project.DomainID == opts.DomainID) &&
+		(opts.ParentID == "" || project.ParentID == opts.ParentID) &&
+		(opts.Enabled == nil || project.Enabled == *opts.Enabled) &&
+		(opts.IsDomain == nil || project.IsDomain == *opts.IsDomain) &&
+		(opts.Tags == "" || hasAll(opts.Tags)) &&
+		(opts.TagsAny == "" || hasAny(opts.TagsAny)) &&
+		(opts.NotTags == "" || !hasAll(opts.NotTags)) &&
+		(opts.NotTagsAny == "" || !hasAny(opts.NotTagsAny))
 }
 
 func (c identityClient) CreateProject(ctx context.Context, opts projects.CreateOptsBuilder) (*projects.Project, error) {
