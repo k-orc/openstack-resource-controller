@@ -1,0 +1,31 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-create-minimal
+status:
+  resource:
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000021"
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZoneShare
+      name: dnszoneshare-create-minimal
+      ref: dnszoneshare
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZone
+      name: dnszoneshare-create-minimal
+      ref: dnszone
+assertAll:
+    - celExpr: "dnszoneshare.status.id != ''"
+    - celExpr: "dnszoneshare.status.resource.zoneID == dnszone.status.id"
+    - celExpr: "dnszoneshare.status.resource.projectID != ''"
