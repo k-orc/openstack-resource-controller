@@ -39,10 +39,39 @@ if [ -n "$E2E_KUTTL_DELETE_OPTION" ]; then
     E2E_KUTTL_DELETE_OPT="--delete ${E2E_KUTTL_DELETE_OPTION}"
 fi
 
+# Add the OpenStack version to the test run labels if it is set.
+# https://releases.openstack.org/
+# 2027.1 Indri
+# 2026.2 Hibiscus
+# 2026.1 Gazpacho
+# 2025.2 Flamingo
+# 2025.1 Epoxy
+KNOWN_RELEASES=("2025.1" "2025.2" "2026.1" "2026.2" "2027.1")
+E2E_KUTTL_TEST_RUN_LABELS=
+if [ -n "${E2E_OPENSTACK_VERSION:-}" ]; then
+    OS_RELEASE="$E2E_OPENSTACK_VERSION"
+    labels=
+
+    for release in "${KNOWN_RELEASES[@]}"; do
+        if [[ ! "$OS_RELEASE" < "$release" ]]; then
+            labels="${labels:+$labels,}min-${release}=true"
+        fi
+        if [[ ! "$OS_RELEASE" > "$release" ]]; then
+            labels="${labels:+$labels,}max-${release}=true"
+        fi
+    done
+
+    if [ -n "$labels" ]; then
+        E2E_KUTTL_TEST_RUN_LABELS="--test-run-labels $labels"
+    fi
+fi
+
 # Export variables referenced in kuttl tests.
 export E2E_EXTERNAL_NETWORK_NAME
 export E2E_KUTTL_OSCLOUDS=${PREPARED_OSCLOUDS}
 export E2E_KUTTL_CACERT_OPT
 export E2E_KUTTL_FLAVOR
 
-kubectl kuttl test $E2E_KUTTL_DIR $E2E_KUTTL_TIMEOUT_OPT $E2E_KUTTL_DELETE_OPT --test "$E2E_KUTTL_TEST"
+set -x
+kubectl kuttl test $E2E_KUTTL_DIR $E2E_KUTTL_TIMEOUT_OPT $E2E_KUTTL_DELETE_OPT $E2E_KUTTL_TEST_RUN_LABELS --test "$E2E_KUTTL_TEST"
+set +x
