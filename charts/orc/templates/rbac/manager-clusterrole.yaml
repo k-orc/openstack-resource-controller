@@ -32,6 +32,8 @@ rules:
   - images
   - keypairs
   - limits
+  - listeners
+  - loadbalancers
   - networks
   - ports
   - projects
@@ -75,6 +77,8 @@ rules:
   - images/status
   - keypairs/status
   - limits/status
+  - listeners/status
+  - loadbalancers/status
   - networks/status
   - ports/status
   - projects/status

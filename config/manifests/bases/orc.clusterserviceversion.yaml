@@ -79,6 +79,16 @@ spec:
       kind: Limit
       name: limits.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Listener is the Schema for an ORC resource.
+      displayName: Listener
+      kind: Listener
+      name: listeners.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: LoadBalancer is the Schema for an ORC resource.
+      displayName: Load Balancer
+      kind: LoadBalancer
+      name: loadbalancers.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Network is the Schema for an ORC resource.
       displayName: Network
       kind: Network
