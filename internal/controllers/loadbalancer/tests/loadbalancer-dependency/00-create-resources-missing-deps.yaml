@@ -1,0 +1,88 @@
+---
+# Create network/subnet infrastructure for tests that need existing subnet
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: loadbalancer-dependency-infra
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: loadbalancer-dependency-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: loadbalancer-dependency-infra
+    ipVersion: 4
+    cidr: 10.0.99.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: loadbalancer-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipNetworkRef: loadbalancer-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-port
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipPortRef: loadbalancer-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    # using openstack-admin to create the LB in another project
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: loadbalancer-dependency-subnet
+    projectRef: loadbalancer-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: loadbalancer-dependency
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: loadbalancer-dependency-subnet

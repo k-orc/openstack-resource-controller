@@ -1,0 +1,24 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: my-loadbalancer
+    description: Sample LoadBalancer
+    vipSubnetRef: loadbalancer-sample-subnet
+    vipNetworkRef: loadbalancer-sample-network
+    vipPortRef: loadbalancer-sample-port
+    vipAddress: 10.0.0.100
+    projectRef: loadbalancer-sample-project
+    adminStateUp: true
+    availabilityZone: nova
+    provider: amphora
+    tags:
+      - environment:production
+      - team:platform
