@@ -137,6 +137,9 @@ test: envtest
 #   run. If not set, all discovered kuttl tests will run.
 # - E2E_KUTTL_TEST: if set, only run the specific named test, e.g.
 #   'create-full-v4'. If not set, all tests will run.
+# - E2E_OPENSTACK_VERSION: if set, the OpenStack version will be passed as a test run label
+#   `--test-run-labels openstack-version=$E2E_OPENSTACK_VERSION`. Test cases can be run/skipped
+#   with `testRunSelector` in `TestCase` based on it.
 .PHONY: test-e2e  # Run the e2e tests against a Kind k8s instance that is spun up.
 test-e2e: kuttl
 	# go test ./test/e2e/ -v -ginkgo.v
@@ -333,7 +336,7 @@ CONTROLLER_TOOLS_VERSION ?= v0.20.1
 ENVTEST_VERSION ?= release-0.23
 GOLANGCI_LINT_VERSION ?= v2.11.4
 MOCKGEN_VERSION ?= v0.6.0
-KUTTL_VERSION ?= v0.27.0
+KUTTL_VERSION ?= v0.28.0
 GOVULNCHECK_VERSION ?= v1.1.4
 OPERATOR_SDK_VERSION ?= v1.42.2
 

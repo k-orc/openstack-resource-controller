@@ -39,10 +39,16 @@ if [ -n "$E2E_KUTTL_DELETE_OPTION" ]; then
     E2E_KUTTL_DELETE_OPT="--delete ${E2E_KUTTL_DELETE_OPTION}"
 fi
 
+# Add the OpenStack version to the test run labels if it is set.
+E2E_KUTTL_TEST_RUN_LABELS=
+if [ -n "$E2E_OPENSTACK_VERSION" ]; then
+    E2E_KUTTL_TEST_RUN_LABELS="--test-run-labels openstack-version=$E2E_OPENSTACK_VERSION"
+fi
+
 # Export variables referenced in kuttl tests.
 export E2E_EXTERNAL_NETWORK_NAME
 export E2E_KUTTL_OSCLOUDS=${PREPARED_OSCLOUDS}
 export E2E_KUTTL_CACERT_OPT
 export E2E_KUTTL_FLAVOR
 
-kubectl kuttl test $E2E_KUTTL_DIR $E2E_KUTTL_TIMEOUT_OPT $E2E_KUTTL_DELETE_OPT --test "$E2E_KUTTL_TEST"
+kubectl kuttl test $E2E_KUTTL_DIR $E2E_KUTTL_TIMEOUT_OPT $E2E_KUTTL_DELETE_OPT $E2E_KUTTL_TEST_RUN_LABELS --test "$E2E_KUTTL_TEST"
