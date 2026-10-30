@@ -1,0 +1,30 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Listener
+      name: listener-update
+      ref: listener
+assertAll:
+    - celExpr: "!has(listener.status.resource.description) || listener.status.resource.description == ''"
+    - celExpr: "!has(listener.status.resource.tags)"
+    - celExpr: "!has(listener.status.resource.allowedCIDRs)"
+    - celExpr: "!has(listener.status.resource.insertHeaders) || size(listener.status.resource.insertHeaders) == 0"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-update
+status:
+  resource:
+    name: listener-update
+    adminStateUp: true
+    connectionLimit: -1
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
