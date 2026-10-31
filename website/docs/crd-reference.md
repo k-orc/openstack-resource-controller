@@ -2018,6 +2018,40 @@ _Appears in:_
 | `filter` _[ImageFilter](#imagefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
 
 
+#### ImageMemberGrant
+
+
+
+ImageMemberGrant identifies a project or user an image is shared with.
+
+
+
+_Appears in:_
+- [ImageResourceSpec](#imageresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to a Project ORC object to share this image with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to a User ORC object to share this image with,<br />for clouds whose Glance member policy is keyed on user_id instead of<br />project_id. It is not supported yet. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### ImageMemberGrantStatus
+
+
+
+ImageMemberGrantStatus is the observed state of an image member.
+
+
+
+_Appears in:_
+- [ImageResourceStatus](#imageresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `memberID` _string_ | memberID is the ID of the project or user the image is shared with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `status` _string_ | status is the acceptance status of the member: pending, accepted or<br />rejected. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
 #### ImageProperties
 
 
@@ -2101,6 +2135,7 @@ _Appears in:_
 | `tags` _[ImageTag](#imagetag) array_ | tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `visibility` _[ImageVisibility](#imagevisibility)_ | visibility of the image |  | Enum: [public private shared community] <br />Optional: \{\} <br /> |
 | `properties` _[ImageProperties](#imageproperties)_ | properties is metadata available to consumers of the image |  | Optional: \{\} <br /> |
+| `members` _[ImageMemberGrant](#imagemembergrant) array_ | members is the list of projects or users the image is shared with. The<br />image visibility must be shared. Members which are not in this list are<br />removed from the image, including members added outside ORC: add<br />existing members to this list before upgrading ORC to a version which<br />supports it. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
 | `content` _[ImageContent](#imagecontent)_ | content specifies how to obtain the image content. |  | Optional: \{\} <br /> |
 
 
@@ -2125,6 +2160,7 @@ _Appears in:_
 | `sizeB` _integer_ | sizeB is the size of the image data, in bytes |  | Optional: \{\} <br /> |
 | `virtualSizeB` _integer_ | virtualSizeB is the size of the disk the image data represents, in bytes |  | Optional: \{\} <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `members` _[ImageMemberGrantStatus](#imagemembergrantstatus) array_ | members is the list of members of a shared image, with their<br />acceptance status. |  | MaxItems: 1024 <br />Optional: \{\} <br /> |
 
 
 #### ImageSpec
@@ -2436,6 +2472,7 @@ _Appears in:_
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
 - [HostID](#hostid)
+- [ImageMemberGrant](#imagemembergrant)
 - [LimitFilter](#limitfilter)
 - [LimitResourceSpec](#limitresourcespec)
 - [NetworkFilter](#networkfilter)

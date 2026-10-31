@@ -1391,6 +1391,24 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberGrant
+  map:
+    fields:
+    - name: projectRef
+      type:
+        scalar: string
+    - name: userRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberGrantStatus
+  map:
+    fields:
+    - name: memberID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageProperties
   map:
     fields:
@@ -1466,6 +1484,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: content
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageContent
+    - name: members
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberGrant
+          elementRelationship: atomic
     - name: name
       type:
         scalar: string
@@ -1490,6 +1514,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: hash
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageHash
+    - name: members
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberGrantStatus
+          elementRelationship: atomic
     - name: name
       type:
         scalar: string

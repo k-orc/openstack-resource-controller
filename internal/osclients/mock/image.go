@@ -32,6 +32,7 @@ import (
 
 	imageimport "github.com/gophercloud/gophercloud/v2/openstack/image/v2/imageimport"
 	images "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
+	members "github.com/gophercloud/gophercloud/v2/openstack/image/v2/members"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -74,6 +75,21 @@ func (mr *MockImageClientMockRecorder) CreateImage(ctx, createOpts any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImageClient)(nil).CreateImage), ctx, createOpts)
 }
 
+// CreateImageMember mocks base method.
+func (m *MockImageClient) CreateImageMember(ctx context.Context, imageID, memberID string) (*members.Member, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateImageMember", ctx, imageID, memberID)
+	ret0, _ := ret[0].(*members.Member)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateImageMember indicates an expected call of CreateImageMember.
+func (mr *MockImageClientMockRecorder) CreateImageMember(ctx, imageID, memberID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImageMember", reflect.TypeOf((*MockImageClient)(nil).CreateImageMember), ctx, imageID, memberID)
+}
+
 // CreateImport mocks base method.
 func (m *MockImageClient) CreateImport(ctx context.Context, id string, createOpts imageimport.CreateOptsBuilder) error {
 	m.ctrl.T.Helper()
@@ -100,6 +116,20 @@ func (m *MockImageClient) DeleteImage(ctx context.Context, id string) error {
 func (mr *MockImageClientMockRecorder) DeleteImage(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteImage", reflect.TypeOf((*MockImageClient)(nil).DeleteImage), ctx, id)
+}
+
+// DeleteImageMember mocks base method.
+func (m *MockImageClient) DeleteImageMember(ctx context.Context, imageID, memberID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteImageMember", ctx, imageID, memberID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteImageMember indicates an expected call of DeleteImageMember.
+func (mr *MockImageClientMockRecorder) DeleteImageMember(ctx, imageID, memberID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteImageMember", reflect.TypeOf((*MockImageClient)(nil).DeleteImageMember), ctx, imageID, memberID)
 }
 
 // GetImage mocks base method.
@@ -130,6 +160,20 @@ func (m *MockImageClient) GetImportInfo(ctx context.Context) (*imageimport.Impor
 func (mr *MockImageClientMockRecorder) GetImportInfo(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImportInfo", reflect.TypeOf((*MockImageClient)(nil).GetImportInfo), ctx)
+}
+
+// ListImageMembers mocks base method.
+func (m *MockImageClient) ListImageMembers(ctx context.Context, imageID string) iter.Seq2[*members.Member, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListImageMembers", ctx, imageID)
+	ret0, _ := ret[0].(iter.Seq2[*members.Member, error])
+	return ret0
+}
+
+// ListImageMembers indicates an expected call of ListImageMembers.
+func (mr *MockImageClientMockRecorder) ListImageMembers(ctx, imageID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImageMembers", reflect.TypeOf((*MockImageClient)(nil).ListImageMembers), ctx, imageID)
 }
 
 // ListImages mocks base method.

@@ -196,6 +196,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ImageHashApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImageImport"):
 		return &apiv1alpha1.ImageImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberGrant"):
+		return &apiv1alpha1.ImageMemberGrantApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberGrantStatus"):
+		return &apiv1alpha1.ImageMemberGrantStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImageProperties"):
 		return &apiv1alpha1.ImagePropertiesApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImagePropertiesHardware"):

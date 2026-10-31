@@ -122,6 +122,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageHash":                             schema_openstack_resource_controller_v3_api_v1alpha1_ImageHash(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageImport":                           schema_openstack_resource_controller_v3_api_v1alpha1_ImageImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageList":                             schema_openstack_resource_controller_v3_api_v1alpha1_ImageList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageMemberGrant":                      schema_openstack_resource_controller_v3_api_v1alpha1_ImageMemberGrant(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageMemberGrantStatus":                schema_openstack_resource_controller_v3_api_v1alpha1_ImageMemberGrantStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageProperties":                       schema_openstack_resource_controller_v3_api_v1alpha1_ImageProperties(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImagePropertiesHardware":               schema_openstack_resource_controller_v3_api_v1alpha1_ImagePropertiesHardware(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImagePropertiesOperatingSystem":        schema_openstack_resource_controller_v3_api_v1alpha1_ImagePropertiesOperatingSystem(ref),
@@ -5073,6 +5075,60 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ImageList(ref common.R
 	}
 }
 
+func schema_openstack_resource_controller_v3_api_v1alpha1_ImageMemberGrant(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ImageMemberGrant identifies a project or user an image is shared with.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to a Project ORC object to share this image with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"userRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "userRef is a reference to a User ORC object to share this image with, for clouds whose Glance member policy is keyed on user_id instead of project_id. It is not supported yet.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ImageMemberGrantStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ImageMemberGrantStatus is the observed state of an image member.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"memberID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "memberID is the ID of the project or user the image is shared with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status is the acceptance status of the member: pending, accepted or rejected.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v3_api_v1alpha1_ImageProperties(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -5303,6 +5359,25 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ImageResourceSpec(ref 
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageProperties"),
 						},
 					},
+					"members": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "members is the list of projects or users the image is shared with. The image visibility must be shared. Members which are not in this list are removed from the image, including members added outside ORC: add existing members to this list before upgrading ORC to a version which supports it.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageMemberGrant"),
+									},
+								},
+							},
+						},
+					},
 					"content": {
 						SchemaProps: spec.SchemaProps{
 							Description: "content specifies how to obtain the image content.",
@@ -5313,7 +5388,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ImageResourceSpec(ref 
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageContent", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageProperties"},
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageContent", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageMemberGrant", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageProperties"},
 	}
 }
 
@@ -5392,11 +5467,30 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ImageResourceStatus(re
 							},
 						},
 					},
+					"members": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "members is the list of members of a shared image, with their acceptance status.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageMemberGrantStatus"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageHash"},
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageHash", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ImageMemberGrantStatus"},
 	}
 }
 

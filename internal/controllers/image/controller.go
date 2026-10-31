@@ -22,6 +22,7 @@ import (
 	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
@@ -30,6 +31,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/credentials"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/v3/pkg/predicates"
 )
 
 const controllerName = "image"
@@ -46,6 +49,24 @@ const (
 
 	// The maximum number of times we will attempt to download content before failing.
 	maxDownloadAttempts = 5
+)
+
+var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ImageList, *orcv1alpha1.Project](
+	"spec.resource.members[].projectRef",
+	func(image *orcv1alpha1.Image) []string {
+		resource := image.Spec.Resource
+		if resource == nil {
+			return nil
+		}
+		var projects []string
+		for i := range resource.Members {
+			if resource.Members[i].ProjectRef != nil {
+				projects = append(projects, string(*resource.Members[i].ProjectRef))
+			}
+		}
+		return projects
+	},
+	finalizer, externalObjectFieldOwner,
 )
 
 type imageReconcilerConstructor struct {
@@ -69,11 +90,20 @@ func (c *imageReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
 func (c *imageReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 
+	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, mgr.GetClient())
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
-		For(&orcv1alpha1.Image{})
+		For(&orcv1alpha1.Image{}).
+		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
+		)
 
 	if err := errors.Join(
+		projectDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

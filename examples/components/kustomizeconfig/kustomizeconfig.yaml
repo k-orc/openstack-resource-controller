@@ -110,6 +110,8 @@ nameReference:
     path: spec/import/filter/projectRef
   - kind: FloatingIP
     path: spec/resource/projectRef
+  - kind: Image
+    path: spec/resource/members[]/projectRef
   - kind: Limit
     path: spec/import/filter/projectRef
   - kind: Limit
@@ -294,6 +296,8 @@ nameReference:
     path: spec/import/filter/userRef
   - kind: ApplicationCredential
     path: spec/resource/userRef
+  - kind: Image
+    path: spec/resource/members[]/userRef
   - kind: RoleAssignment
     path: spec/import/filter/userRef
   - kind: RoleAssignment
