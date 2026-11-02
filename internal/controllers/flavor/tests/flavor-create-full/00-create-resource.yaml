@@ -1,5 +1,16 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: flavor-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
   name: flavor-create-full
@@ -21,3 +32,5 @@ spec:
     extraSpecs:
     - name: spec
       value: specValue
+    projectRefs:
+    - flavor-create-full

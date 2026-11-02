@@ -1276,6 +1276,7 @@ _Appears in:_
 | `extraSpecs` _[FlavorExtraSpec](#flavorextraspec) array_ | extraSpecs is a list of key-value pairs that define extra specifications for the flavor. |  | MaxItems: 128 <br />Optional: \{\} <br /> |
 | `isPublic` _boolean_ | isPublic flags a flavor as being available to all projects or not. |  | Optional: \{\} <br /> |
 | `ephemeral` _integer_ | ephemeral is the size of the ephemeral disk that will be created, in GiB.<br />Ephemeral disks may be written over on server state changes. So should only<br />be used as a scratch space for applications that are aware of its<br />limitations. Defaults to 0. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `projectRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | projectRefs contains ORC Projects which have access to this flavor. |  | MaxItems: 4096 <br />MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### FlavorResourceStatus
@@ -1300,6 +1301,7 @@ _Appears in:_
 | `extraSpecs` _[FlavorExtraSpecStatus](#flavorextraspecstatus) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the flavor. |  | MaxItems: 128 <br />Optional: \{\} <br /> |
 | `isPublic` _boolean_ | isPublic flags a flavor as being available to all projects or not. |  | Optional: \{\} <br /> |
 | `ephemeral` _integer_ | ephemeral is the size of the ephemeral disk, in GiB. |  | Optional: \{\} <br /> |
+| `projectIDs` _string array_ | projectIDs lists the IDs of the Projects which have access to this flavor. |  | MaxItems: 4096 <br />items:MaxLength: 4096 <br />Optional: \{\} <br /> |
 
 
 #### FlavorSpec
@@ -2431,6 +2433,7 @@ _Appears in:_
 - [EndpointFilter](#endpointfilter)
 - [EndpointResourceSpec](#endpointresourcespec)
 - [ExternalGateway](#externalgateway)
+- [FlavorResourceSpec](#flavorresourcespec)
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [GroupFilter](#groupfilter)
