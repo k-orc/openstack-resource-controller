@@ -106,6 +106,8 @@ nameReference:
     path: spec/import/filter/projectRef
   - kind: AddressScope
     path: spec/resource/projectRef
+  - kind: Flavor
+    path: spec/resource/projectRefs[]
   - kind: FloatingIP
     path: spec/import/filter/projectRef
   - kind: FloatingIP

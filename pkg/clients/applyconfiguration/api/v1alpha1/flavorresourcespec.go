@@ -35,6 +35,7 @@ type FlavorResourceSpecApplyConfiguration struct {
 	ExtraSpecs  []FlavorExtraSpecApplyConfiguration `json:"extraSpecs,omitempty"`
 	IsPublic    *bool                               `json:"isPublic,omitempty"`
 	Ephemeral   *int32                              `json:"ephemeral,omitempty"`
+	ProjectRefs []apiv1alpha1.KubernetesNameRef     `json:"projectRefs,omitempty"`
 }
 
 // FlavorResourceSpecApplyConfiguration constructs a declarative configuration of the FlavorResourceSpec type for use with
@@ -125,5 +126,15 @@ func (b *FlavorResourceSpecApplyConfiguration) WithIsPublic(value bool) *FlavorR
 // If called multiple times, the Ephemeral field is set to the value of the last call.
 func (b *FlavorResourceSpecApplyConfiguration) WithEphemeral(value int32) *FlavorResourceSpecApplyConfiguration {
 	b.Ephemeral = &value
+	return b
+}
+
+// WithProjectRefs adds the given value to the ProjectRefs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ProjectRefs field.
+func (b *FlavorResourceSpecApplyConfiguration) WithProjectRefs(values ...apiv1alpha1.KubernetesNameRef) *FlavorResourceSpecApplyConfiguration {
+	for i := range values {
+		b.ProjectRefs = append(b.ProjectRefs, values[i])
+	}
 	return b
 }

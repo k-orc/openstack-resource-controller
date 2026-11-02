@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 // FlavorResourceSpec contains the desired state of a flavor
+// +kubebuilder:validation:XValidation:rule="(!has(self.projectRefs) || (has(self.isPublic) && !self.isPublic))",message="projectRefs may only be specified on a private flavor"
 type FlavorResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -92,6 +93,13 @@ type FlavorResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ephemeral is immutable"
 	// +optional
 	Ephemeral int32 `json:"ephemeral,omitempty"`
+
+	// projectRefs contains ORC Projects which have access to this flavor.
+	// +kubebuilder:validation:MaxItems:=4096
+	// +listType=set
+	// +optional
+	// +orc:kustomize:ref=Project
+	ProjectRefs []KubernetesNameRef `json:"projectRefs,omitempty"`
 }
 
 // FlavorFilter defines an existing resource by its properties
@@ -159,6 +167,13 @@ type FlavorResourceStatus struct {
 	// ephemeral is the size of the ephemeral disk, in GiB.
 	// +optional
 	Ephemeral *int32 `json:"ephemeral,omitempty"`
+
+	// projectIDs lists the IDs of the Projects which have access to this flavor.
+	// +kubebuilder:validation:MaxItems=4096
+	// +kubebuilder:validation:items:MaxLength=4096
+	// +optional
+	// +listType=set
+	ProjectIDs []string `json:"projectIDs,omitempty"`
 }
 
 type FlavorExtraSpec struct {
