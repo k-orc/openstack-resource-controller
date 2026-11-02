@@ -4,3 +4,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Flavor
   name: flavor-dependency-no-secret
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Flavor
+  name: flavor-dependency-no-project
