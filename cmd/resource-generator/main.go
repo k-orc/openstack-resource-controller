@@ -258,6 +258,18 @@ var resources []templateFields = []templateFields{
 			},
 		},
 	},
+	{
+		Name: "LoadBalancer",
+	},
+	{
+		Name: "Listener",
+	},
+	{
+		Name: "LBPool",
+	},
+	{
+		Name: "LBHealthMonitor",
+	},
 }
 
 // These resources won't be generated

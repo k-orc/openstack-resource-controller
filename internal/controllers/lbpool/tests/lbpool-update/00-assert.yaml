@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-update
+status:
+  resource:
+    name: lbpool-update
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+    provisioningStatus: ACTIVE
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbpool-update
+      ref: lbpool
+assertAll:
+    # Dynamic checks that require CEL
+    - celExpr: "lbpool.status.id != ''"
+    - celExpr: "!has(lbpool.status.resource.description) || lbpool.status.resource.description == ''"

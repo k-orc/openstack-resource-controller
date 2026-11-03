@@ -1,0 +1,36 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 600
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBHealthMonitor
+      name: lbhealthmonitor-import-external
+      ref: external
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBHealthMonitor
+      name: lbhealthmonitor-import-external-not-this-one
+      ref: trap
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBHealthMonitor
+      name: lbhealthmonitor-import
+      ref: imported
+assertAll:
+    - celExpr: "imported.status.id == external.status.id"
+    - celExpr: "imported.status.id != trap.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-import
+status:
+  resource:
+    name: lbhealthmonitor-import-external
+    type: HTTP
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
