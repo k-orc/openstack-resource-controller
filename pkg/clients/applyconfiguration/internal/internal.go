@@ -1391,6 +1391,33 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMember
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberFilter
+  map:
+    fields:
+    - name: imageRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberGrant
   map:
     fields:
@@ -1409,6 +1436,78 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: status
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberResourceSpec
+  map:
+    fields:
+    - name: imageRef
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberResourceStatus
+  map:
+    fields:
+    - name: imageID
+      type:
+        scalar: string
+    - name: memberID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageMemberResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ImageProperties
   map:
     fields:

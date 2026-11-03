@@ -119,6 +119,11 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
+		Name:             "ImageMember",
+		IsNotNamed:       true,
+		ExistingOSClient: true, // Uses the image client
+	},
+	{
 		Name: "Image",
 		SpecExtraValidations: []specExtraValidation{
 			{
