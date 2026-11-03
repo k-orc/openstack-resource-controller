@@ -132,6 +132,21 @@ func (mr *MockImageClientMockRecorder) DeleteImageMember(ctx, imageID, memberID 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteImageMember", reflect.TypeOf((*MockImageClient)(nil).DeleteImageMember), ctx, imageID, memberID)
 }
 
+// GetAuthenticatedProjectID mocks base method.
+func (m *MockImageClient) GetAuthenticatedProjectID() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAuthenticatedProjectID")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAuthenticatedProjectID indicates an expected call of GetAuthenticatedProjectID.
+func (mr *MockImageClientMockRecorder) GetAuthenticatedProjectID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthenticatedProjectID", reflect.TypeOf((*MockImageClient)(nil).GetAuthenticatedProjectID))
+}
+
 // GetImage mocks base method.
 func (m *MockImageClient) GetImage(ctx context.Context, id string) (*images.Image, error) {
 	m.ctrl.T.Helper()
@@ -145,6 +160,21 @@ func (m *MockImageClient) GetImage(ctx context.Context, id string) (*images.Imag
 func (mr *MockImageClientMockRecorder) GetImage(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImageClient)(nil).GetImage), ctx, id)
+}
+
+// GetImageMember mocks base method.
+func (m *MockImageClient) GetImageMember(ctx context.Context, imageID, memberID string) (*members.Member, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImageMember", ctx, imageID, memberID)
+	ret0, _ := ret[0].(*members.Member)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetImageMember indicates an expected call of GetImageMember.
+func (mr *MockImageClientMockRecorder) GetImageMember(ctx, imageID, memberID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageMember", reflect.TypeOf((*MockImageClient)(nil).GetImageMember), ctx, imageID, memberID)
 }
 
 // GetImportInfo mocks base method.
@@ -203,6 +233,21 @@ func (m *MockImageClient) UpdateImage(ctx context.Context, id string, updateOpts
 func (mr *MockImageClientMockRecorder) UpdateImage(ctx, id, updateOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateImage", reflect.TypeOf((*MockImageClient)(nil).UpdateImage), ctx, id, updateOpts)
+}
+
+// UpdateImageMember mocks base method.
+func (m *MockImageClient) UpdateImageMember(ctx context.Context, imageID, memberID string, opts members.UpdateOptsBuilder) (*members.Member, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateImageMember", ctx, imageID, memberID, opts)
+	ret0, _ := ret[0].(*members.Member)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateImageMember indicates an expected call of UpdateImageMember.
+func (mr *MockImageClientMockRecorder) UpdateImageMember(ctx, imageID, memberID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateImageMember", reflect.TypeOf((*MockImageClient)(nil).UpdateImageMember), ctx, imageID, memberID, opts)
 }
 
 // UploadData mocks base method.

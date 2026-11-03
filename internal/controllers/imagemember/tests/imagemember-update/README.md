@@ -1,16 +1,20 @@
-# Update ImageMember
+# Update the membership status
 
 ## Step 00
 
-Create a ImageMember using only mandatory fields.
+Create a project with a user, and an image shared with the project.
 
 ## Step 01
 
-Update all mutable fields.
+Accept the image.
 
 ## Step 02
 
-Revert the resource to its original value and verify that the resulting object matches its state when first created.
+Reject the image and verify the membership status.
+
+## Step 03
+
+Accept the image again and verify the membership status.
 
 ## Reference
 

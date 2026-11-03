@@ -2,12 +2,12 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ImageMember
 metadata:
-  name: imagemember-import-error
+  name: imagemember-import-import
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
+    cloudName: consumer
+    secretName: consumer-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      description: ImageMember from "import error" test
+      imageRef: imagemember-import

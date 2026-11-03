@@ -51,14 +51,8 @@ func (imagememberStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Im
 func (imagememberStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.ImageMemberResourceStatus().
 		WithImageID(osResource.ImageID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the ImageMemberResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
-	}
+		WithMemberID(osResource.MemberID).
+		WithStatus(osResource.Status)
 
 	statusApply.WithResource(resourceStatus)
 }

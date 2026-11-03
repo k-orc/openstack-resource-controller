@@ -19,101 +19,51 @@ package imagemember
 import (
 	"testing"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/members"
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"k8s.io/utils/ptr"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 )
 
-func TestNeedsUpdate(t *testing.T) {
+func TestImageRef(t *testing.T) {
 	testCases := []struct {
-		name         string
-		updateOpts   members.UpdateOpts
-		expectChange bool
+		name string
+		spec orcv1alpha1.ImageMemberSpec
+		want *orcv1alpha1.KubernetesNameRef
 	}{
 		{
-			name:         "Empty base opts",
-			updateOpts:   members.UpdateOpts{},
-			expectChange: false,
+			name: "Managed",
+			spec: orcv1alpha1.ImageMemberSpec{Resource: &orcv1alpha1.ImageMemberResourceSpec{ImageRef: "image"}},
+			want: ptr.To[orcv1alpha1.KubernetesNameRef]("image"),
 		},
 		{
-			name:         "Updated opts",
-			updateOpts:   members.UpdateOpts{Name: ptr.To("updated")},
-			expectChange: true,
+			name: "Import by filter",
+			spec: orcv1alpha1.ImageMemberSpec{Import: &orcv1alpha1.ImageMemberImport{Filter: &orcv1alpha1.ImageMemberFilter{ImageRef: ptr.To[orcv1alpha1.KubernetesNameRef]("image")}}},
+			want: ptr.To[orcv1alpha1.KubernetesNameRef]("image"),
+		},
+		{
+			name: "Import by ID",
+			spec: orcv1alpha1.ImageMemberSpec{Import: &orcv1alpha1.ImageMemberImport{ID: ptr.To("member")}},
 		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := needsUpdate(tt.updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			got := imageRef(&orcv1alpha1.ImageMember{Spec: tt.spec})
+			if ptr.Deref(got, "") != ptr.Deref(tt.want, "") {
+				t.Errorf("Expected %v, got %v", ptr.Deref(tt.want, ""), ptr.Deref(got, ""))
 			}
 		})
 	}
 }
 
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
-	testCases := []struct {
-		name          string
-		newValue      *orcv1alpha1.OpenStackName
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
+func TestDesiredStatus(t *testing.T) {
+	member := func(status *orcv1alpha1.ImageMembershipStatus) *orcv1alpha1.ImageMember {
+		return &orcv1alpha1.ImageMember{Spec: orcv1alpha1.ImageMemberSpec{Resource: &orcv1alpha1.ImageMemberResourceSpec{Status: status}}}
 	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.ImageMember{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.ImageMemberSpec{
-				Resource: &orcv1alpha1.ImageMemberResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
-
-			updateOpts := members.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
+	if got := desiredStatus(member(nil)); got != orcv1alpha1.ImageMembershipStatusAccepted {
+		t.Errorf("Expected accepted by default, got %s", got)
 	}
-}
-
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
-	testCases := []struct {
-		name          string
-		newValue      *string
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.ImageMemberResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
-
-			updateOpts := members.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
+	if got := desiredStatus(member(ptr.To(orcv1alpha1.ImageMembershipStatusRejected))); got != orcv1alpha1.ImageMembershipStatusRejected {
+		t.Errorf("Expected rejected, got %s", got)
 	}
 }

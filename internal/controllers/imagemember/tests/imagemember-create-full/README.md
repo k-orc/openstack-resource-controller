@@ -1,10 +1,12 @@
-# Create a ImageMember with all the options
+# Reject a shared image
 
 ## Step 00
 
-Create a ImageMember using all available fields, and verify that the observed state corresponds to the spec.
+Create a project with a user, and an image shared with the project.
 
-Also validate that the OpenStack resource uses the name from the spec when it is specified.
+## Step 01
+
+Create an ImageMember which rejects the image and verify the membership status.
 
 ## Reference
 

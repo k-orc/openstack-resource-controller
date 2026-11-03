@@ -5,22 +5,19 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: ImageMember
       name: imagemember-update
-      ref: imagemember
+      ref: member
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: imagemember-update
+      ref: image
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: imagemember-update
+      ref: project
 assertAll:
-    - celExpr: "!has(imagemember.status.resource.description)"
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: ImageMember
-metadata:
-  name: imagemember-update
-status:
-  resource:
-    name: imagemember-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
-  conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+    - celExpr: "member.status.conditions.exists(c, c.type == 'Available' && c.status == 'True')"
+    - celExpr: "member.status.id == project.status.id"
+    - celExpr: "member.status.resource.memberID == project.status.id"
+    - celExpr: "member.status.resource.imageID == image.status.id"
+    - celExpr: "member.status.resource.status == 'rejected'"
+    - celExpr: "image.status.resource.members.exists(m, m.memberID == project.status.id && m.status == 'rejected')"

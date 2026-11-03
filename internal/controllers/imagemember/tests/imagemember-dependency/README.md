@@ -2,19 +2,19 @@
 
 ## Step 00
 
-Create ImageMembers referencing non-existing resources. Each ImageMember is dependent on other non-existing resource. Verify that the ImageMembers are waiting for the needed resources to be created externally.
+Create an ImageMember before its image and verify that it waits for the image.
 
 ## Step 01
 
-Create the missing dependencies and verify all the ImageMembers are available.
+Create the image without members and verify that the ImageMember waits for the owner to add the project. Verify that the image has no finalizer from the ImageMember.
 
 ## Step 02
 
-Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+Add the project as a member of the image and verify that the membership is accepted.
 
 ## Step 03
 
-Delete the ImageMembers and validate that all resources are gone.
+Delete the image and verify that the ImageMember does not prevent it.
 
 ## Reference
 

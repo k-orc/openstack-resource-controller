@@ -16,70 +16,57 @@ limitations under the License.
 
 package v1alpha1
 
+// ImageMembershipStatus is the status of an image member.
+// +kubebuilder:validation:Enum:=accepted;rejected
+type ImageMembershipStatus string
+
+const (
+	ImageMembershipStatusAccepted ImageMembershipStatus = "accepted"
+	ImageMembershipStatusRejected ImageMembershipStatus = "rejected"
+)
+
 // ImageMemberResourceSpec contains the desired state of the resource.
 type ImageMemberResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// imageRef is a reference to the ORC Image which this resource is associated with.
+	// imageRef is a reference to the ORC Image shared with the project of
+	// this object's credentials. The Image's members must include that
+	// project.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
 	// +orc:kustomize:ref=Image
 	ImageRef KubernetesNameRef `json:"imageRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/image/v2/members
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// status is the membership status to set. accepted makes the image
+	// appear in the project's image list. Deleting the object resets the
+	// status to pending; only the image owner can remove the member.
+	// +kubebuilder:default:=accepted
+	// +optional
+	Status *ImageMembershipStatus `json:"status,omitempty"`
 }
 
 // ImageMemberFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type ImageMemberFilter struct {
-	// name of the existing resource
+	// imageRef is a reference to the ORC Image shared with the project of
+	// this object's credentials.
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/image/v2/members
+	// +orc:kustomize:ref=Image
+	ImageRef *KubernetesNameRef `json:"imageRef,omitempty"`
 }
 
 // ImageMemberResourceStatus represents the observed state of the resource.
 type ImageMemberResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Name string `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Description string `json:"description,omitempty"`
-
-	// imageID is the ID of the Image to which the resource is associated.
+	// imageID is the ID of the shared image.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ImageID string `json:"imageID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Member structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/image/v2/members
+	// memberID is the ID of the project the image is shared with.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	MemberID string `json:"memberID,omitempty"`
+
+	// status is the membership status: pending, accepted or rejected.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Status string `json:"status,omitempty"`
 }

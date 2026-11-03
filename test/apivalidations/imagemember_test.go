@@ -21,6 +21,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gstruct"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -79,7 +80,7 @@ var _ = Describe("ORC ImageMember API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.ImageMemberImport().WithFilter(applyconfigv1alpha1.ImageMemberFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.ImageMemberApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.ImageMemberImport().WithFilter(applyconfigv1alpha1.ImageMemberFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.ImageMemberImport().WithFilter(applyconfigv1alpha1.ImageMemberFilter().WithImageRef("image")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.ImageMemberApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
@@ -98,7 +99,7 @@ var _ = Describe("ORC ImageMember API validations", func() {
 		},
 	})
 
-	It("should reject a imagemember without required fields", func(ctx context.Context) {
+	It("should reject an imagemember without required fields", func(ctx context.Context) {
 		obj := imagememberStub(namespace)
 		patch := baseImageMemberPatch(obj)
 		patch.Spec.WithResource(applyconfigv1alpha1.ImageMemberResourceSpec())
@@ -117,12 +118,28 @@ var _ = Describe("ORC ImageMember API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("imageRef is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should default status to accepted", func(ctx context.Context) {
+		obj := imagememberStub(namespace)
+		patch := baseImageMemberPatch(obj)
+		patch.Spec.WithResource(testImageMemberResource())
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+		Expect(obj.Spec.Resource.Status).To(PointTo(Equal(orcv1alpha1.ImageMembershipStatusAccepted)))
+	})
+
+	It("should permit modifying status", func(ctx context.Context) {
+		obj := imagememberStub(namespace)
+		patch := baseImageMemberPatch(obj)
+		patch.Spec.WithResource(testImageMemberResource().WithStatus(orcv1alpha1.ImageMembershipStatusAccepted))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testImageMemberResource().WithStatus(orcv1alpha1.ImageMembershipStatusRejected))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
+
+	It("should not permit status pending", func(ctx context.Context) {
+		obj := imagememberStub(namespace)
+		patch := baseImageMemberPatch(obj)
+		patch.Spec.WithResource(testImageMemberResource().WithStatus("pending"))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
 })

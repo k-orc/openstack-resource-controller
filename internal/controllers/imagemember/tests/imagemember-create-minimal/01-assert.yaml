@@ -2,10 +2,22 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
-    - apiVersion: v1
-      kind: Secret
-      name: openstack-clouds
-      ref: secret
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ImageMember
+      name: imagemember-create-minimal
+      ref: member
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: imagemember-create-minimal
+      ref: image
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: imagemember-create-minimal
+      ref: project
 assertAll:
-    - celExpr: "secret.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/imagemember' in secret.metadata.finalizers"
+    - celExpr: "member.status.conditions.exists(c, c.type == 'Available' && c.status == 'True')"
+    - celExpr: "member.status.id == project.status.id"
+    - celExpr: "member.status.resource.memberID == project.status.id"
+    - celExpr: "member.status.resource.imageID == image.status.id"
+    - celExpr: "member.status.resource.status == 'accepted'"
+    - celExpr: "image.status.resource.members.exists(m, m.memberID == project.status.id && m.status == 'accepted')"

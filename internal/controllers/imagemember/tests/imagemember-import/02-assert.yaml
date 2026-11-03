@@ -4,30 +4,20 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: ImageMember
-      name: imagemember-import-external
-      ref: imagemember1
+      name: imagemember-import-import
+      ref: member
     - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: ImageMember
-      name: imagemember-import-external-not-this-one
-      ref: imagemember2
+      kind: Image
+      name: imagemember-import
+      ref: image
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: imagemember-import
+      ref: project
 assertAll:
-    - celExpr: "imagemember1.status.id != imagemember2.status.id"
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: ImageMember
-metadata:
-  name: imagemember-import
-status:
-  conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
-  resource:
-    name: imagemember-import-external
-    description: ImageMember imagemember-import-external from "imagemember-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    - celExpr: "member.status.conditions.exists(c, c.type == 'Available' && c.status == 'True')"
+    - celExpr: "member.status.id == project.status.id"
+    - celExpr: "member.status.resource.memberID == project.status.id"
+    - celExpr: "member.status.resource.imageID == image.status.id"
+    - celExpr: "member.status.resource.status == 'accepted'"
+    - celExpr: "image.status.resource.members.exists(m, m.memberID == project.status.id && m.status == 'accepted')"

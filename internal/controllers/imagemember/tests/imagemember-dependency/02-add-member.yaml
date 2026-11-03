@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: imagemember-dependency
+spec:
+  resource:
+    members:
+      - projectRef: imagemember-dependency

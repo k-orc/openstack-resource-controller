@@ -1,14 +1,16 @@
-# Create a ImageMember with the minimum options
+# Accept a shared image
 
 ## Step 00
 
-Create a minimal ImageMember, that sets only the required fields, and verify that the observed state corresponds to the spec.
-
-Also validate that the OpenStack resource uses the name of the ORC object when no name is explicitly specified.
+Create a project with a user, and an image shared with the project.
 
 ## Step 01
 
-Try deleting the secret and ensure that it is not deleted thanks to the finalizer.
+Create an ImageMember with the user's credentials and verify that the membership is accepted.
+
+## Step 02
+
+Delete the ImageMember and verify that the membership is pending again.
 
 ## Reference
 

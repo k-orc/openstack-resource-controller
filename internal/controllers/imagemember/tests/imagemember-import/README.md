@@ -1,17 +1,16 @@
-# Import ImageMember
+# Import a membership
 
 ## Step 00
 
-Import a imagemember that matches all fields in the filter, and verify it is waiting for the external resource to be created.
+Create a project with a user, and an image shared with the project.
 
 ## Step 01
 
-Create a imagemember whose name is a superstring of the one specified in the import filter, otherwise matching the filter, and verify that it's not being imported.
+Import the membership and verify that it waits while the membership is pending.
 
 ## Step 02
 
-Create a imagemember matching the filter and verify that the observed status on the imported imagemember corresponds to the spec of the created imagemember.
-Also, confirm that it does not adopt any imagemember whose name is a superstring of its own.
+Accept the image with a managed ImageMember and verify that the imported one observes it.
 
 ## Reference
 

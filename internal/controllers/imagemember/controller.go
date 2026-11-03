@@ -57,16 +57,16 @@ func (c *imagememberReconcilerConstructor) SetDefaultResyncPeriod(d time.Duratio
 	c.defaultResyncPeriod = d
 }
 
-var imageDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ImageMemberList, *orcv1alpha1.Image](
-	"spec.resource.imageRef",
+// imageDependency has no deletion guard: the image owner must always be able to
+// delete the image.
+var imageDependency = dependency.NewDependency[*orcv1alpha1.ImageMemberList, *orcv1alpha1.Image](
+	"spec.imageRef",
 	func(imagemember *orcv1alpha1.ImageMember) []string {
-		resource := imagemember.Spec.Resource
-		if resource == nil {
-			return nil
+		if ref := imageRef(imagemember); ref != nil {
+			return []string{string(*ref)}
 		}
-		return []string{string(resource.ImageRef)}
+		return nil
 	},
-	finalizer, externalObjectFieldOwner,
 )
 
 // SetupWithManager sets up the controller with the Manager.
