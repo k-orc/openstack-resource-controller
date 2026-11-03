@@ -98,6 +98,14 @@ type KeyPairListerExpansion interface{}
 // KeyPairNamespaceLister.
 type KeyPairNamespaceListerExpansion interface{}
 
+// LBPoolListerExpansion allows custom methods to be added to
+// LBPoolLister.
+type LBPoolListerExpansion interface{}
+
+// LBPoolNamespaceListerExpansion allows custom methods to be added to
+// LBPoolNamespaceLister.
+type LBPoolNamespaceListerExpansion interface{}
+
 // LimitListerExpansion allows custom methods to be added to
 // LimitLister.
 type LimitListerExpansion interface{}
@@ -105,6 +113,22 @@ type LimitListerExpansion interface{}
 // LimitNamespaceListerExpansion allows custom methods to be added to
 // LimitNamespaceLister.
 type LimitNamespaceListerExpansion interface{}
+
+// ListenerListerExpansion allows custom methods to be added to
+// ListenerLister.
+type ListenerListerExpansion interface{}
+
+// ListenerNamespaceListerExpansion allows custom methods to be added to
+// ListenerNamespaceLister.
+type ListenerNamespaceListerExpansion interface{}
+
+// LoadBalancerListerExpansion allows custom methods to be added to
+// LoadBalancerLister.
+type LoadBalancerListerExpansion interface{}
+
+// LoadBalancerNamespaceListerExpansion allows custom methods to be added to
+// LoadBalancerNamespaceLister.
+type LoadBalancerNamespaceListerExpansion interface{}
 
 // NetworkListerExpansion allows custom methods to be added to
 // NetworkLister.
