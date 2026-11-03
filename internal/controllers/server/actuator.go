@@ -109,8 +109,8 @@ func wrapServers(serverIter iter.Seq2[*servers.Server, error]) iter.Seq2[*osReso
 
 			wrapped := &osResourceT{
 				Server: *server,
-				// Interfaces are not fetched here as they are not needed for adoption/import filtering
-				// They will be fetched later when the resource is reconciled
+				// Interfaces are not fetched here as they are not needed for adoption/import filtering.
+				// The generic reconciler fetches the selected server by ID.
 				Interfaces: nil,
 			}
 			if !yield(wrapped, nil) {

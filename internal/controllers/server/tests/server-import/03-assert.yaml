@@ -1,0 +1,28 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: server-import-active
+      ref: server
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-import-external
+      ref: port
+assertAll:
+    - celExpr: "size(server.status.resource.interfaces) == 1"
+    - celExpr: "server.status.resource.interfaces[0].portID == port.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-import-active
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success

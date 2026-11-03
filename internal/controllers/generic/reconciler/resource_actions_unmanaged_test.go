@@ -56,6 +56,10 @@ import (
 // fakeOSResource is a stand-in for any OpenStack resource (e.g. flavors.Flavor).
 type fakeOSResource struct {
 	ID string
+
+	// Complete is only set on resources returned by GetOSResourceByID, to
+	// tell them apart from the incomplete results of list operations.
+	Complete bool
 }
 
 // --------------------------------------------------------------------------
@@ -75,6 +79,10 @@ type noWriteActuator struct {
 
 	// listResult is returned by ListOSResourcesForImport.
 	listResult []*fakeOSResource
+
+	// adoptResult is returned by ListOSResourcesForAdoption. Adoption is
+	// disabled if it is nil.
+	adoptResult []*fakeOSResource
 
 	// Track which read methods were called so tests can assert that OpenStack
 	// state was actually fetched.
@@ -101,8 +109,17 @@ func (a *noWriteActuator) GetOSResourceByID(_ context.Context, _ string) (*fakeO
 // resources; for unmanaged resources this path should not be reached when
 // statusID or importID is set.
 func (a *noWriteActuator) ListOSResourcesForAdoption(_ context.Context, _ *orcv1alpha1.Flavor) (iter.Seq2[*fakeOSResource, error], bool) {
-	// Return false to signal "no adoption" — this is a safe, read-only path.
-	return nil, false
+	if a.adoptResult == nil {
+		// Return false to signal "no adoption" — this is a safe, read-only path.
+		return nil, false
+	}
+	return func(yield func(*fakeOSResource, error) bool) {
+		for _, r := range a.adoptResult {
+			if !yield(r, nil) {
+				return
+			}
+		}
+	}, true
 }
 
 // ListOSResourcesForImport is a read-only operation: allowed for unmanaged
@@ -397,12 +414,16 @@ func TestGetOrCreateOSResource_UnmanagedByImportID(t *testing.T) {
 func TestGetOrCreateOSResource_UnmanagedByFilter(t *testing.T) {
 	t.Parallel()
 
-	osResource := &fakeOSResource{ID: "filter-flavor-id"}
+	const resourceID = "filter-flavor-id"
 	filter := orcv1alpha1.FlavorFilter{
 		Name: ptr.To[orcv1alpha1.OpenStackName]("my-flavor"),
 	}
 
-	actuator := &noWriteActuator{t: t, listResult: []*fakeOSResource{osResource}}
+	actuator := &noWriteActuator{
+		t:              t,
+		listResult:     []*fakeOSResource{{ID: resourceID}},
+		readByIDResult: &fakeOSResource{ID: resourceID, Complete: true},
+	}
 	adapter := unmanagedFlavorWithFilter(filter)
 
 	got, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
@@ -410,11 +431,66 @@ func TestGetOrCreateOSResource_UnmanagedByFilter(t *testing.T) {
 	if needsReschedule, err := rs.NeedsReschedule(); needsReschedule {
 		t.Fatalf("unexpected reconcile status: needsReschedule=%v err=%v", needsReschedule, err)
 	}
-	if got == nil || got.ID != osResource.ID {
-		t.Errorf("got resource %v, want ID=%q", got, osResource.ID)
+	if got == nil || got.ID != resourceID {
+		t.Errorf("got resource %v, want ID=%q", got, resourceID)
 	}
 	if !actuator.listCalled {
 		t.Error("ListOSResourcesForImport was not called: unmanaged resources must still fetch current OpenStack state")
+	}
+	if got != nil && !got.Complete {
+		t.Error("got the listed resource: the selected resource must be fetched by ID")
+	}
+}
+
+// TestGetOrCreateOSResource_UnmanagedByFilterDeletedAfterList verifies that a
+// resource deleted between the list and the fetch by ID is treated as not
+// found yet.
+func TestGetOrCreateOSResource_UnmanagedByFilterDeletedAfterList(t *testing.T) {
+	t.Parallel()
+
+	filter := orcv1alpha1.FlavorFilter{
+		Name: ptr.To[orcv1alpha1.OpenStackName]("my-flavor"),
+	}
+
+	actuator := &noWriteActuator{
+		t:           t,
+		listResult:  []*fakeOSResource{{ID: "filter-flavor-id"}},
+		readByIDErr: notFoundErr(),
+	}
+	adapter := unmanagedFlavorWithFilter(filter)
+
+	got, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
+
+	needsReschedule, err := rs.NeedsReschedule()
+	if !needsReschedule || err != nil {
+		t.Fatalf("expected to wait for the resource without error, got needsReschedule=%v err=%v", needsReschedule, err)
+	}
+	if got != nil {
+		t.Errorf("got resource %v, want nil", got)
+	}
+}
+
+// TestGetOrCreateOSResource_AdoptionFetchesByID verifies that an adopted
+// resource is fetched by ID rather than taken from the list result.
+func TestGetOrCreateOSResource_AdoptionFetchesByID(t *testing.T) {
+	t.Parallel()
+
+	const resourceID = "adopted-flavor-id"
+	actuator := &noWriteActuator{
+		t:              t,
+		adoptResult:    []*fakeOSResource{{ID: resourceID}},
+		readByIDResult: &fakeOSResource{ID: resourceID, Complete: true},
+	}
+	adapter := managedFlavorWithStatusID(resourceID)
+	adapter.Status.ID = nil
+
+	got, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
+
+	if needsReschedule, err := rs.NeedsReschedule(); needsReschedule {
+		t.Fatalf("unexpected reconcile status: needsReschedule=%v err=%v", needsReschedule, err)
+	}
+	if got == nil || got.ID != resourceID || !got.Complete {
+		t.Errorf("got resource %v, want complete resource with ID=%q", got, resourceID)
 	}
 }
 
