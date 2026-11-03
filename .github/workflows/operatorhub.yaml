@@ -1,0 +1,80 @@
+name: Submit to OperatorHub
+
+on:
+  workflow_run:
+    workflows: ["release"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    # Only run if the release workflow succeeded and it was a tag push
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'v')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout ORC
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag=v7.0.1
+      with:
+        ref: ${{ github.event.workflow_run.head_branch }}
+        fetch-depth: 0
+        fetch-tags: true
+        persist-credentials: false
+
+    - name: Install build dependencies
+      run: sudo apt-get install -y libgpgme-dev
+
+    - name: Generate bundle
+      run: make generate-bundle
+
+    - name: Determine version
+      id: version
+      run: |
+        TAG="${{ github.event.workflow_run.head_branch }}"
+        # Strip leading 'v' for community-operators directory
+        echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+        echo "oh_version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout community-operators fork
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag=v7.0.1
+      with:
+        repository: k-orc/community-operators
+        path: community-operators
+        token: ${{ secrets.OPERATORHUB_PAT }}
+        persist-credentials: true  # needed for git push
+
+    - name: Copy bundle to community-operators
+      run: |
+        VERSION="${{ steps.version.outputs.oh_version }}"
+        mkdir -p community-operators/operators/orc/${VERSION}
+        cp -r bundle/manifests community-operators/operators/orc/${VERSION}/
+        cp -r bundle/metadata  community-operators/operators/orc/${VERSION}/
+
+    - name: Create PR
+      working-directory: community-operators
+      env:
+        GH_TOKEN: ${{ secrets.OPERATORHUB_PAT }}
+      run: |
+        VERSION="${{ steps.version.outputs.oh_version }}"
+        BRANCH="orc-${VERSION}"
+
+        git config user.name "ORC Release Bot"
+        git config user.email "orc-release-bot@users.noreply.github.com"
+        git checkout -b "${BRANCH}"
+        git add operators/orc/${VERSION}
+        git commit -s -m "operator orc (${VERSION})"
+        git push origin "${BRANCH}"
+
+        gh pr create \
+          --repo k8s-operatorhub/community-operators \
+          --base main \
+          --head "k-orc:${BRANCH}" \
+          --title "operator orc (${VERSION})" \
+          --body "Update ORC operator to version ${VERSION}.
+
+        Automated submission from https://github.com/k-orc/openstack-resource-controller/releases/tag/${{ steps.version.outputs.tag }}"
