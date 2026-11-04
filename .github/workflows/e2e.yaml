@@ -43,11 +43,19 @@ jobs:
           enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
           enable_plugin manila https://github.com/openstack/manila ${{ matrix.openstack_version }}
           enable_plugin designate https://github.com/openstack/designate ${{ matrix.openstack_version }}
+          enable_plugin blazar https://github.com/openstack/blazar ${{ matrix.openstack_version }}
           DESIGNATE_BACKEND_DRIVER=bind9
 
           [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
+
+    - name: Enroll a compute host in Blazar
+      run: |
+        export PATH=/opt/stack/data/venv/bin:$PATH
+        export OS_CLOUD=devstack-admin
+        openstack reservation host create --extra orc=e2e \
+          "$(openstack hypervisor list -f value -c 'Hypervisor Hostname' | head -n 1)"
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@1544676c07bb3570fcb70166beaa07c4528fd4aa # tag=v1.15.1

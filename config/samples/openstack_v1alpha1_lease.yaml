@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: lease-sample
+    startDate: "2030-01-01T10:00:00Z"
+    endDate: "2030-01-01T18:00:00Z"
+    reservations:
+      - host:
+          min: 1
+          max: 2
+          hypervisorProperties: '[">=", "$vcpus", "4"]'
+          resourceProperties: '["==", "$gpu", "a100"]'
+      - instance:
+          amount: 2
+          vcpus: 2
+          memoryMB: 4096
+          diskGB: 20
+          affinity: false
+          resourceProperties: '["==", "$gpu", "a100"]'
+      - flavorInstance:
+          amount: 2
+          flavorRef: flavor-sample

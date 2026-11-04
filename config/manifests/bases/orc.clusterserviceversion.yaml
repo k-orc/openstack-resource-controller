@@ -74,6 +74,11 @@ spec:
       kind: KeyPair
       name: keypairs.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Lease is the Schema for an ORC resource.
+      displayName: Lease
+      kind: Lease
+      name: leases.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Limit is the Schema for an ORC resource.
       displayName: Limit
       kind: Limit

@@ -1,0 +1,25 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: lease-create-full-override
+    # Each lease test uses its own window so that they do not compete for the
+    # capacity of the single DevStack host.
+    startDate: "2095-01-01T10:00:00Z"
+    endDate: "2095-01-01T11:00:00Z"
+    reservations:
+      - instance:
+          amount: 1
+          vcpus: 1
+          memoryMB: 128
+          diskGB: 1
+          affinity: false
+          # The e2e workflow enrolls the DevStack host with this capability
+          resourceProperties: '["==", "$orc", "e2e"]'
