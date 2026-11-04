@@ -6,7 +6,7 @@
 | **Author(s)** | @zunken1337 |
 | **Created** | 2026-09-30 |
 | **Last Updated** | 2026-10-12 |
-| **Tracking Issue** | TBD |
+| **Tracking Issue** | #1044 |
 
 ## Summary
 
@@ -256,3 +256,4 @@ member-`DELETE` at all).
 ## Implementation History
 
 - 2026-09-30: Enhancement proposed
+- 2026-11-04: Implementation proposed (#1044)
