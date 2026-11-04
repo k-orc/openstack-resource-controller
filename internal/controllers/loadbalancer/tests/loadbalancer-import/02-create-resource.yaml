@@ -11,7 +11,7 @@ spec:
   resource:
     vipSubnetRef: loadbalancer-import
     description: LoadBalancer loadbalancer-import-external from "loadbalancer-import" test
-    provider: amphora
+    provider: ovn
     vipAddress: 10.0.0.100
     tags:
       - import-test

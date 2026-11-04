@@ -8,7 +8,7 @@ status:
     name: loadbalancer-create-full-override
     description: LoadBalancer from "create full" test
     adminStateUp: true
-    provider: amphora
+    provider: ovn
     provisioningStatus: ACTIVE
     operatingStatus: ONLINE
     tags:

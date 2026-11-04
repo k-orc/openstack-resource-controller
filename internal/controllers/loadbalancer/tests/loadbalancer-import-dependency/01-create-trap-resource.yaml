@@ -64,6 +64,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipPortRef: loadbalancer-import-dependency-not-this-one
     vipSubnetRef: loadbalancer-import-dependency-not-this-one
     projectRef: loadbalancer-import-dependency-not-this-one

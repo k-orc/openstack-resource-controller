@@ -66,7 +66,7 @@ spec:
     vipNetworkRef: loadbalancer-create-full
     vipPortRef: loadbalancer-create-full
     adminStateUp: true
-    provider: amphora
+    provider: ovn
     tags:
       - tag1
       - tag2
@@ -82,5 +82,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipSubnetRef: loadbalancer-create-full
     projectRef: loadbalancer-create-full

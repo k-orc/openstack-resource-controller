@@ -35,6 +35,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipSubnetRef: loadbalancer-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -47,6 +48,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipNetworkRef: loadbalancer-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -59,6 +61,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipPortRef: loadbalancer-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -72,6 +75,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipSubnetRef: loadbalancer-dependency-subnet
     projectRef: loadbalancer-dependency
 ---
@@ -85,4 +89,5 @@ spec:
     secretName: loadbalancer-dependency
   managementPolicy: managed
   resource:
+    provider: ovn
     vipSubnetRef: loadbalancer-dependency-subnet

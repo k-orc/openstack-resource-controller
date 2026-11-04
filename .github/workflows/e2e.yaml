@@ -49,12 +49,14 @@ jobs:
           enable_plugin designate https://github.com/openstack/designate ${{ matrix.openstack_version }}
           DESIGNATE_BACKEND_DRIVER=bind9
           enable_plugin octavia https://github.com/openstack/octavia ${{ matrix.openstack_version }}
+          enable_plugin ovn-octavia-provider https://github.com/openstack/ovn-octavia-provider ${{ matrix.openstack_version }}
           OCTAVIA_AMP_IMAGE_FILE=/tmp/amphora-x64-haproxy.qcow2
           LIBVIRT_CPU_MODE=host-passthrough
 
           [[post-config|/etc/nova/nova.conf]]
           [DEFAULT]
-          # Every load balancer is an amphora VM. They are mostly idle, so
+          # Every amphora load balancer is a VM. Most load balancer tests use
+          # the OVN provider instead, and the amphorae are mostly idle, so
           # overcommit memory rather than run out of room for them.
           ram_allocation_ratio = 2.0
 

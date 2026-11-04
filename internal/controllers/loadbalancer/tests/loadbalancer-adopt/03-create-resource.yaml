@@ -9,5 +9,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     name: loadbalancer-adopt
     vipSubnetRef: loadbalancer-adopt

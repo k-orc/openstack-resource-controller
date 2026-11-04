@@ -34,6 +34,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipSubnetRef: loadbalancer-import-error
     description: LoadBalancer from "import error" test
 ---
@@ -47,5 +48,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    provider: ovn
     vipSubnetRef: loadbalancer-import-error
     description: LoadBalancer from "import error" test

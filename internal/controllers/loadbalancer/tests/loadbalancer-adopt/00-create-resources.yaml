@@ -36,5 +36,6 @@ spec:
   managedOptions:
     onDelete: detach
   resource:
+    provider: ovn
     name: loadbalancer-adopt
     vipSubnetRef: loadbalancer-adopt
