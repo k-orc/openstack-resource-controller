@@ -35,6 +35,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/tags"
 )
 
 const (
@@ -190,24 +191,13 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 		ProjectID:        ptr.Deref(project.Status.ID, ""),
 		VipSubnetID:      ptr.Deref(vipSubnet.Status.ID, ""),
 		VipPortID:        ptr.Deref(vipPort.Status.ID, ""),
-		Tags:             tagsToStrings(filter.Tags),
-		TagsAny:          tagsToStrings(filter.TagsAny),
-		TagsNot:          tagsToStrings(filter.NotTags),
-		TagsNotAny:       tagsToStrings(filter.NotTagsAny),
+		Tags:             tags.Strings(filter.Tags),
+		TagsAny:          tags.Strings(filter.TagsAny),
+		TagsNot:          tags.Strings(filter.NotTags),
+		TagsNotAny:       tags.Strings(filter.NotTagsAny),
 	}
 
 	return actuator.osClient.ListLoadBalancers(ctx, listOpts), reconcileStatus
-}
-
-func tagsToStrings(tags []orcv1alpha1.LoadBalancerTag) []string {
-	if len(tags) == 0 {
-		return nil
-	}
-	out := make([]string, len(tags))
-	for i := range tags {
-		out[i] = string(tags[i])
-	}
-	return out
 }
 
 func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -269,12 +259,9 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		return nil, reconcileStatus
 	}
 
-	tags := make([]string, len(resource.Tags))
-	for i := range resource.Tags {
-		tags[i] = string(resource.Tags[i])
-	}
+	createTags := tags.Strings(resource.Tags)
 	// Sort tags before creation to simplify comparisons
-	slices.Sort(tags)
+	slices.Sort(createTags)
 
 	createOpts := loadbalancers.CreateOpts{
 		Name:             getResourceName(obj),
@@ -287,7 +274,7 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		AvailabilityZone: resource.AvailabilityZone,
 		Provider:         resource.Provider,
 		VipAddress:       string(ptr.Deref(resource.VIPAddress, "")),
-		Tags:             tags,
+		Tags:             createTags,
 	}
 
 	osResource, err := actuator.osClient.CreateLoadBalancer(ctx, createOpts)
@@ -401,10 +388,7 @@ func handleAdminStateUpdate(updateOpts *loadbalancers.UpdateOpts, resource *reso
 }
 
 func handleTagsUpdate(updateOpts *loadbalancers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	desiredTags := make([]string, len(resource.Tags))
-	for i, tag := range resource.Tags {
-		desiredTags[i] = string(tag)
-	}
+	desiredTags := tags.Strings(resource.Tags)
 
 	slices.Sort(desiredTags)
 	slices.Sort(osResource.Tags)
