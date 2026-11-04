@@ -158,7 +158,16 @@ func (actuator rbacpolicyActuator) CreateResource(ctx context.Context, obj orcOb
 }
 
 func (actuator rbacpolicyActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteRBACPolicy(ctx, resource.ID))
+	err := actuator.osClient.DeleteRBACPolicy(ctx, resource.ID)
+	// Neutron refuses to delete the policy while the target project uses the
+	// object, e.g. has ports on a shared network. Poll instead of retrying
+	// with an increasing backoff, so the policy is deleted soon after.
+	if orcerrors.IsConflict(err) {
+		return progress.NewReconcileStatus().
+			WithProgressMessage("RBAC policy is in use by the target project").
+			WithRequeue(inUsePollingPeriod)
+	}
+	return progress.WrapError(err)
 }
 
 // The target project is the only field Neutron allows updating.

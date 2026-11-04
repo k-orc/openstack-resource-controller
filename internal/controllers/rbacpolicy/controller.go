@@ -37,6 +37,9 @@ import (
 
 const controllerName = "rbacpolicy"
 
+// The time to wait before retrying to delete a policy which is in use
+const inUsePollingPeriod = 15 * time.Second
+
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=rbacpolicies,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=rbacpolicies/status,verbs=get;update;patch
 
