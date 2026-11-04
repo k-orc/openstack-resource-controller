@@ -2311,7 +2311,7 @@ _Appears in:_
 | `sizeB` _integer_ | sizeB is the size of the image data, in bytes |  | Optional: \{\} <br /> |
 | `virtualSizeB` _integer_ | virtualSizeB is the size of the disk the image data represents, in bytes |  | Optional: \{\} <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `members` _[ImageMemberGrantStatus](#imagemembergrantstatus) array_ | members is the list of members of a shared image, with their<br />acceptance status. |  | MaxItems: 1024 <br />Optional: \{\} <br /> |
+| `members` _[ImageMemberGrantStatus](#imagemembergrantstatus) array_ | members is the list of members of a shared image, with their<br />acceptance status. Members change their status without changing the<br />Image, so a change is only reported when the Image is next reconciled,<br />e.g. by a periodic resync. |  | MaxItems: 1024 <br />Optional: \{\} <br /> |
 
 
 #### ImageSpec

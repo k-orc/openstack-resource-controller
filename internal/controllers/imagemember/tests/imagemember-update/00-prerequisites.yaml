@@ -18,6 +18,9 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
+  # Members change their status without changing the Image: resync to
+  # report it in status.resource.members.
+  resyncPeriod: 10s
   resource:
     visibility: shared
     content:

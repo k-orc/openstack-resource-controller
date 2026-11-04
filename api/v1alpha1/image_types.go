@@ -436,7 +436,9 @@ type ImageResourceStatus struct {
 	Tags []string `json:"tags,omitempty"`
 
 	// members is the list of members of a shared image, with their
-	// acceptance status.
+	// acceptance status. Members change their status without changing the
+	// Image, so a change is only reported when the Image is next reconciled,
+	// e.g. by a periodic resync.
 	// +kubebuilder:validation:MaxItems:=1024
 	// +listType=atomic
 	// +optional

@@ -5806,7 +5806,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ImageResourceStatus(re
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "members is the list of members of a shared image, with their acceptance status.",
+							Description: "members is the list of members of a shared image, with their acceptance status. Members change their status without changing the Image, so a change is only reported when the Image is next reconciled, e.g. by a periodic resync.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
