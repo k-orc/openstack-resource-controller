@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
@@ -398,6 +399,9 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, log 
 		log.V(logging.Debug).Info("Deleting router interface")
 		_, err := networkClient.RemoveRouterInterface(ctx, *router.Status.ID, deleteOpts)
 		if err != nil {
+			if isInUseByRoute(err) {
+				return r.handleInUseByRoute(ctx, log, router, networkClient)
+			}
 			return progress.WrapError(
 				fmt.Errorf("removing router interface: %w", err))
 		}
@@ -410,6 +414,30 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, log 
 	log.V(logging.Info).Info("Router interface deleted")
 	return progress.WrapError(
 		r.client.Patch(ctx, routerInterface, finalizers.RemoveFinalizerPatch(routerInterface), client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer)))
+}
+
+// isInUseByRoute returns true if Neutron refused to remove a router interface
+// because a route of the router uses it.
+func isInUseByRoute(err error) bool {
+	return orcerrors.IsConflict(err) && strings.Contains(err.Error(), "RouterInterfaceInUseByRoute")
+}
+
+// handleInUseByRoute handles a router interface which can't be removed because
+// a route of the router uses it. If the router is being deleted, we remove its
+// routes: the router can't be deleted before its interfaces. Otherwise the route
+// must be removed from the router spec first.
+func (r *orcRouterInterfaceReconciler) handleInUseByRoute(ctx context.Context, log logr.Logger, router *orcv1alpha1.Router, networkClient osclients.NetworkClient) progress.ReconcileStatus {
+	if router.GetDeletionTimestamp().IsZero() {
+		return progress.NewReconcileStatus().
+			WithProgressMessage("Router interface is used by a route of the router").
+			WithRequeue(portStatusPollingPeriod)
+	}
+
+	log.V(logging.Info).Info("Removing the routes of the router being deleted")
+	if _, err := networkClient.UpdateRouter(ctx, *router.Status.ID, routers.UpdateOpts{Routes: &[]routers.Route{}}); err != nil {
+		return progress.WrapError(fmt.Errorf("removing routes from router: %w", err))
+	}
+	return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, portStatusPollingPeriod)
 }
 
 func (r *orcRouterInterfaceReconciler) reconcileDeleteSubnet(ctx context.Context, log logr.Logger, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []osclients.PortExt) (*osclients.PortExt, routers.RemoveInterfaceOptsBuilder, progress.ReconcileStatus) {
