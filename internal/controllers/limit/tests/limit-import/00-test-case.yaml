@@ -1,0 +1,9 @@
+# Skip limit import tests due to a Keystone API issue (list limit) in older versions
+apiVersion: kuttl.dev/v1beta1
+kind: TestCase
+testRunSelector:
+  matchExpressions:
+  - key: openstack-version
+    operator: NotIn
+    values:
+    - flamingo
