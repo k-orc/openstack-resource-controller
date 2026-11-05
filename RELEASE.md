@@ -82,3 +82,51 @@ Wait for community-operators CI to validate the bundle. The CI runs `operator-sd
 
 **Note:** The [`ci.yaml`](https://k8s-operatorhub.github.io/community-operators/operator-ci-yaml/) in `operators/orc/` uses `updateGraph: semver-mode`, meaning OLM determines upgrade paths based on
 semantic versioning automatically. 
+
+## Helm Charts and ArtifactHub
+
+Publishing new Helm chart versions to [ArtifactHub](https://artifacthub.io)
+is fully automated as part of the `release` workflow so no manual steps are
+required.
+
+### How it works
+
+When a tag is pushed, the `helm` job in the
+[release workflow](.github/workflows/release.yaml) runs after the image
+push and performs the following:
+
+**Version stamping** — The `Chart.yaml` files in `charts/orc` and
+`charts/orc-crds` contain development placeholders (`0.0.0-dev`).
+The workflow derives the release version from the git tag (stripping
+the `v` prefix for `version`, keeping it for `appVersion`) and stamps
+both charts using `sed`.
+
+**Packaging** — Both charts are packaged with `helm package`.
+
+**Pushing** — The packaged charts are pushed to the OCI registry at
+`oci://quay.io/orc/helm`:
+
+```bash
+helm push "orc-crds-${VERSION}.tgz" oci://quay.io/orc/helm
+helm push "orc-${VERSION}.tgz" oci://quay.io/orc/helm
+```
+
+ArtifactHub automatically discovers new chart versions from the OCI
+registry. The `artifacthub.io/*` annotations in each `Chart.yaml`
+provide metadata (license, category, links) that ArtifactHub uses for
+the listing.
+
+### Verifying after a release
+
+After the release workflow completes, confirm the new charts are
+available:
+
+```bash
+# Pull and verify the chart versions
+helm show chart oci://quay.io/orc/helm/orc --version X.Y.Z
+helm show chart oci://quay.io/orc/helm/orc-crds --version X.Y.Z
+```
+
+Check that the new versions appear on ArtifactHub:
+- [orc](https://artifacthub.io/packages/helm/orc/orc)
+- [orc-crds](https://artifacthub.io/packages/helm/orc-crds/orc-crds)
