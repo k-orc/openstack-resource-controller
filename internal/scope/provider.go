@@ -314,6 +314,10 @@ func (s *providerScope) NewRoleAssignmentClient() (clients.RoleAssignmentClient,
 	return client, err
 }
 
+func (s *providerScope) NewLoadBalancerClient() (clients.LoadBalancerClient, error) {
+	return clients.NewLoadBalancerClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 	client, err := openstack.NewIdentityV3(s.providerClient, gophercloud.EndpointOpts{})
 	if err != nil {

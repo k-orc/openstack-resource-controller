@@ -1,0 +1,8 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # Save the load balancer's ID to check that step 03 adopts it rather than creating a new one.
+  - script: kubectl create configmap loadbalancer-adopt --namespace $NAMESPACE --from-literal=id=$(kubectl get loadbalancer.openstack.k-orc.cloud loadbalancer-adopt-detached --namespace $NAMESPACE -o jsonpath='{.status.id}')
+  - command: kubectl delete loadbalancer.openstack.k-orc.cloud loadbalancer-adopt-detached
+    namespaced: true
