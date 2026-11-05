@@ -211,4 +211,36 @@ var _ = Describe("ORC Flavor API validations", func() {
 				WithName("key").WithValue("value")))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
 	})
+
+	It("should reject projectRefs on a public flavor", func(ctx context.Context) {
+		flavor := flavorStub(namespace)
+		patch := baseFlavorPatch(flavor)
+		patch.Spec.WithResource(testFlavorResource().
+			WithIsPublic(true).
+			WithProjectRefs("projectid"))
+		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+	})
+
+	It("should accept projectRefs on a private flavor", func(ctx context.Context) {
+		flavor := flavorStub(namespace)
+		patch := baseFlavorPatch(flavor)
+		patch.Spec.WithResource(testFlavorResource().
+			WithIsPublic(false).
+			WithProjectRefs("projectid"))
+		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
+	})
+
+	It("should allow updating projectRefs", func(ctx context.Context) {
+		flavor := flavorStub(namespace)
+		patch := baseFlavorPatch(flavor)
+		patch.Spec.WithResource(testFlavorResource().
+			WithIsPublic(false).
+			WithProjectRefs("project-1"))
+		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testFlavorResource().
+			WithIsPublic(false).
+			WithProjectRefs("project-2", "project-3"))
+		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
+	})
 })

@@ -4,3 +4,5 @@ commands:
   # We expect the deletion to hang due to the finalizer, so use --wait=false
   - command: kubectl delete secret flavor-dependency --wait=false
     namespaced: true
+  - command: kubectl delete project.openstack.k-orc.cloud flavor-dependency --wait=false
+    namespaced: true
