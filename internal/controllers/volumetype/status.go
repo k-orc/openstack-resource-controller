@@ -63,5 +63,9 @@ func (volumetypeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *o
 		resourceStatus.WithDescription(osResource.Description)
 	}
 
+	if osResource.ProjectIDs != nil {
+		resourceStatus.WithProjectIDs(osResource.ProjectIDs...)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

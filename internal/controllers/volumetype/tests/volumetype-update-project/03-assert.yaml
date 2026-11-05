@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-update-project
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: VolumeType
+    name: volumetype-update-project
+    ref: volumetype
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Project
+    name: volumetype-update-project1
+    ref: project1
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Project
+    name: volumetype-update-project2
+    ref: project2
+assertAll:
+    - celExpr: "!(project1.status.id in volumetype.status.resource.projectIDs)"
+    - celExpr: "project2.status.id in volumetype.status.resource.projectIDs"

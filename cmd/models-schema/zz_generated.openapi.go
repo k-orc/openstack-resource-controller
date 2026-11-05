@@ -17411,6 +17411,26 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_VolumeTypeResourceSpec
 							Format:      "",
 						},
 					},
+					"projectRefs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRefs contains ORC Projects which have access to this volume type.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -17464,6 +17484,26 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_VolumeTypeResourceStat
 							Description: "isPublic indicates whether the VolumeType is public.",
 							Type:        []string{"boolean"},
 							Format:      "",
+						},
+					},
+					"projectIDs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "projectIDs lists the IDs of the Projects which have access to this volume type.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
