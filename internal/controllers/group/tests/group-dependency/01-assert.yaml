@@ -29,6 +29,21 @@ status:
       status: "False"
       reason: Success
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-dependency-no-user
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
@@ -40,5 +55,14 @@ resourceRefs:
       kind: Domain
       name: group-dependency
       ref: domain
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Group
+      name: group-dependency-no-user
+      ref: group1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: group-dependency
+      ref: user
 assertAll:
     - celExpr: "group.status.resource.domainID == domain.status.id"
+    - celExpr: "user.status.id in group1.status.resource.userIDs"

@@ -5,10 +5,22 @@ metadata:
   name: group-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin 
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: group-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: group-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Group
@@ -23,3 +35,5 @@ spec:
     name: group-create-full-override
     description: Group from "create full" test
     domainRef: group-create-full
+    userRefs:
+      - group-create-full

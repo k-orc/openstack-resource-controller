@@ -108,4 +108,16 @@ var _ = Describe("ORC Group API validations", func() {
 			WithDomainRef("domain-b"))
 		Expect(applyObj(ctx, group, patch)).To(MatchError(ContainSubstring("domainRef is immutable")))
 	})
+
+	It("should allow updating userRefs", func(ctx context.Context) {
+		group := groupStub(namespace)
+		patch := baseGroupPatch(group)
+		patch.Spec.WithResource(applyconfigv1alpha1.GroupResourceSpec().
+			WithUserRefs("user-1"))
+		Expect(applyObj(ctx, group, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.GroupResourceSpec().
+			WithUserRefs("user-2", "user-3"))
+		Expect(applyObj(ctx, group, patch)).To(Succeed())
+	})
 })

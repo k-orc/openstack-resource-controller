@@ -28,3 +28,19 @@ status:
       message: Waiting for Domain/group-dependency to be created
       status: "True"
       reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-dependency-no-user
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: Waiting for User/group-dependency to be created
+      status: "True"
+      reason: Progressing
+

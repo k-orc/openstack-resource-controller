@@ -21,3 +21,5 @@ spec:
   resource:
     description: Sample Group
     domainRef: group-sample
+    userRefs:
+    - user-sample

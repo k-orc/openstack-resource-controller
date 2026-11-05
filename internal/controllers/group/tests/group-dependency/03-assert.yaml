@@ -10,8 +10,14 @@ resourceRefs:
       kind: Secret
       name: group-dependency
       ref: secret
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: group-dependency
+      ref: user
 assertAll:
     - celExpr: "domain.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/group' in domain.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/group' in secret.metadata.finalizers"
+    - celExpr: "user.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/group' in user.metadata.finalizers"

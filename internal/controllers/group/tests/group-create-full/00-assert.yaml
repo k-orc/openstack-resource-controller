@@ -26,7 +26,11 @@ resourceRefs:
       kind: Domain
       name: group-create-full
       ref: domain
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: group-create-full
+      ref: user
 assertAll:
     - celExpr: "group.status.id != ''"
     - celExpr: "group.status.resource.domainID == domain.status.id"
-
+    - celExpr: "user.status.id in group.status.resource.userIDs"
