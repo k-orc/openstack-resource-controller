@@ -44,6 +44,9 @@ import (
 //go:generate mockgen -package mock -destination=dnszone.go -source=../dnszone.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock DNSZoneClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt dnszone.go > _dnszone.go && mv _dnszone.go dnszone.go"
 
+//go:generate mockgen -package mock -destination=dnszoneshare.go -source=../dnszoneshare.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock DNSZoneShareClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt dnszoneshare.go > _dnszoneshare.go && mv _dnszoneshare.go dnszoneshare.go"
+
 //go:generate mockgen -package mock -destination=domain.go -source=../domain.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock DomainClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt domain.go > _domain.go && mv _domain.go domain.go"
 
