@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      action: access_as_shared
+      targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000016"
