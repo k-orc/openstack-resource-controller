@@ -40,6 +40,10 @@ type KeyPairExpansion interface{}
 
 type LimitExpansion interface{}
 
+type ListenerExpansion interface{}
+
+type LoadBalancerExpansion interface{}
+
 type NetworkExpansion interface{}
 
 type PortExpansion interface{}

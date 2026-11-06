@@ -46,6 +46,10 @@ type Interface interface {
 	KeyPairs() KeyPairInformer
 	// Limits returns a LimitInformer.
 	Limits() LimitInformer
+	// Listeners returns a ListenerInformer.
+	Listeners() ListenerInformer
+	// LoadBalancers returns a LoadBalancerInformer.
+	LoadBalancers() LoadBalancerInformer
 	// Networks returns a NetworkInformer.
 	Networks() NetworkInformer
 	// Ports returns a PortInformer.
@@ -154,6 +158,16 @@ func (v *version) KeyPairs() KeyPairInformer {
 // Limits returns a LimitInformer.
 func (v *version) Limits() LimitInformer {
 	return &limitInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Listeners returns a ListenerInformer.
+func (v *version) Listeners() ListenerInformer {
+	return &listenerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// LoadBalancers returns a LoadBalancerInformer.
+func (v *version) LoadBalancers() LoadBalancerInformer {
+	return &loadBalancerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Networks returns a NetworkInformer.

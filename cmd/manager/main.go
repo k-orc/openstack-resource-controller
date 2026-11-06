@@ -39,6 +39,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/keypair"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/limit"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/listener"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/loadbalancer"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/project"
@@ -155,6 +157,8 @@ func main() {
 		role.New(scopeFactory),
 		roleassignment.New(scopeFactory),
 		limit.New(scopeFactory),
+		loadbalancer.New(scopeFactory),
+		listener.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
