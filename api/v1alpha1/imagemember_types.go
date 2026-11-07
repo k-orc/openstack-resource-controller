@@ -35,9 +35,10 @@ type ImageMemberResourceSpec struct {
 	// +orc:kustomize:ref=Image
 	ImageRef KubernetesNameRef `json:"imageRef,omitempty"`
 
-	// status is the membership status to set. accepted makes the image
-	// appear in the project's image list. Deleting the object resets the
-	// status to pending; only the image owner can remove the member.
+	// status is the membership status to set: accepted or rejected.
+	// accepted makes the image appear in the project's image list, rejected
+	// declines it. Deleting the object resets the status to pending; only the
+	// image owner can remove the member.
 	// +kubebuilder:default:=accepted
 	// +optional
 	Status *ImageMembershipStatus `json:"status,omitempty"`

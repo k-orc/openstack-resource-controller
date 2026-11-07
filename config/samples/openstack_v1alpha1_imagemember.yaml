@@ -5,10 +5,12 @@ metadata:
   name: imagemember-sample
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    # The credentials of the project the image is shared with, not of the
+    # image owner: only the member can set its status.
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Sample ImageMember
-    # TODO(scaffolding): Add all fields the resource supports
+    # The Image must list this project in spec.resource.members
+    imageRef: image-sample
+    status: accepted

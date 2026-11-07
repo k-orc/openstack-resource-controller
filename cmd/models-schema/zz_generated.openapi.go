@@ -5303,7 +5303,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ImageMemberResourceSpe
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Description: "status is the membership status to set. accepted makes the image appear in the project's image list. Deleting the object resets the status to pending; only the image owner can remove the member.",
+							Description: "status is the membership status to set: accepted or rejected. accepted makes the image appear in the project's image list, rejected declines it. Deleting the object resets the status to pending; only the image owner can remove the member.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

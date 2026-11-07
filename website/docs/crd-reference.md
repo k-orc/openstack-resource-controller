@@ -2124,7 +2124,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef is a reference to the ORC Image shared with the project of<br />this object's credentials. The Image's members must include that<br />project. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
-| `status` _[ImageMembershipStatus](#imagemembershipstatus)_ | status is the membership status to set. accepted makes the image<br />appear in the project's image list. Deleting the object resets the<br />status to pending; only the image owner can remove the member. | accepted | Enum: [accepted rejected] <br />Optional: \{\} <br /> |
+| `status` _[ImageMembershipStatus](#imagemembershipstatus)_ | status is the membership status to set: accepted or rejected.<br />accepted makes the image appear in the project's image list, rejected<br />declines it. Deleting the object resets the status to pending; only the<br />image owner can remove the member. | accepted | Enum: [accepted rejected] <br />Optional: \{\} <br /> |
 
 
 #### ImageMemberResourceStatus

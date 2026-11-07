@@ -56,16 +56,20 @@ func (actuator imageActuator) reconcileMembers(ctx context.Context, obj orcObjec
 		}
 	}
 
+	// A project only needs an ID to be a member. Projects which don't have one
+	// yet don't prevent removing members which are no longer listed.
 	projects, reconcileStatus := projectDependency.RequireDependencies(ctx, actuator.k8sClient, obj, func(project *orcv1alpha1.Project) bool {
-		return orcv1alpha1.IsAvailable(project) && project.Status.ID != nil
+		return project.Status.ID != nil
 	})
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+	if _, err := reconcileStatus.NeedsReschedule(); err != nil {
 		return reconcileStatus
 	}
 
 	desired := make([]string, 0, len(resource.Members))
 	for i := range resource.Members {
-		desired = append(desired, *projects[string(*resource.Members[i].ProjectRef)].Status.ID)
+		if project, ok := projects[string(*resource.Members[i].ProjectRef)]; ok {
+			desired = append(desired, *project.Status.ID)
+		}
 	}
 
 	current := osResource.Members
@@ -92,9 +96,9 @@ func (actuator imageActuator) reconcileMembers(ctx context.Context, obj orcObjec
 	}
 
 	if len(add) > 0 || len(remove) > 0 || osResource.Members == nil {
-		return progress.NeedsRefresh()
+		reconcileStatus = reconcileStatus.NeedsRefresh()
 	}
-	return nil
+	return reconcileStatus
 }
 
 // diffMembers returns the member IDs to add to and remove from current.

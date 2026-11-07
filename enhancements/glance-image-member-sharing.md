@@ -103,8 +103,8 @@ Added to `ImageResourceStatus`, so the owner side can see each member's real acc
 without needing cluster access to the member's own project/namespace:
 
 ```go
-// ImageMemberStatus reports one member's real Glance acceptance state.
-type ImageMemberStatus struct {
+// ImageMemberGrantStatus reports one member's real Glance acceptance state.
+type ImageMemberGrantStatus struct {
     // memberID is the Glance member id: a Keystone project id, or a user id on clouds keyed on
     // users.
     MemberID string `json:"memberID,omitempty"`
@@ -122,7 +122,7 @@ type ImageMemberStatus struct {
 // members reports the real Glance membership status of every project this image has been
 // granted to, independent of whether each has accepted yet.
 // +optional
-Members []ImageMemberStatus `json:"members,omitempty"`
+Members []ImageMemberGrantStatus `json:"members,omitempty"`
 ```
 
 Populated by the same grant reconciler above, from the same Glance member-list response that
@@ -131,13 +131,12 @@ already drives the diff - no extra API call.
 ### Accept: a new `ImageMember` resource
 
 ```go
-// +kubebuilder:validation:Enum:=accepted;rejected;pending
+// +kubebuilder:validation:Enum:=accepted;rejected
 type ImageMembershipStatus string
 
 const (
     ImageMembershipStatusAccepted ImageMembershipStatus = "accepted"
     ImageMembershipStatusRejected ImageMembershipStatus = "rejected"
-    ImageMembershipStatusPending  ImageMembershipStatus = "pending"
 )
 
 type ImageMemberResourceSpec struct {
@@ -188,6 +187,18 @@ On delete, the controller makes the same `PUT` call one more time with `{"status
 still using its own credential - this is a status *reset*, not a revoke (see "Revoke is
 owner-side only" under Risks and Edge Cases for why deletion deliberately doesn't call Glance's
 member-`DELETE` at all).
+
+### Implementation notes
+
+- The status type on `Image` is `ImageMemberGrantStatus`: `ImageMemberStatus` is the name of the
+  status type generated for the `ImageMember` kind.
+- `ImageMember.spec.resource.status` only accepts `accepted` and `rejected`. A `pending` member is
+  treated as not existing: setting `accepted` or `rejected` creates the `ImageMember`'s resource,
+  and deleting the object resets the status to `pending`.
+- An `ImageMember` can only be imported with `import.filter.imageRef`, since a member ID does not
+  identify the image.
+- A member changes its status without changing the `Image`, so `Image.status.resource.members`
+  shows the change at the Image's next reconcile, e.g. a periodic resync.
 
 ## Risks and Edge Cases
 
