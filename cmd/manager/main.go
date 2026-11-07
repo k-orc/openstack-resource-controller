@@ -37,6 +37,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/group"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/image"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/imagemember"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/keypair"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/limit"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/network"
@@ -127,6 +128,7 @@ func main() {
 		applicationcredential.New(scopeFactory),
 		endpoint.New(scopeFactory),
 		image.New(scopeFactory),
+		imagemember.New(scopeFactory),
 		network.New(scopeFactory),
 		subnet.New(scopeFactory),
 		subnetpool.New(scopeFactory),

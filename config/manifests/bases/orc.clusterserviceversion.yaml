@@ -64,6 +64,11 @@ spec:
       kind: Group
       name: groups.openstack.k-orc.cloud
       version: v1alpha1
+    - description: ImageMember is the Schema for an ORC resource.
+      displayName: Image Member
+      kind: ImageMember
+      name: imagemembers.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Image is the Schema for an ORC resource.
       displayName: Image
       kind: Image
