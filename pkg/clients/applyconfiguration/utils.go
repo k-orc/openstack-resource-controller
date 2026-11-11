@@ -88,6 +88,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.DNSZoneResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneResourceStatus"):
 		return &apiv1alpha1.DNSZoneResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneShare"):
+		return &apiv1alpha1.DNSZoneShareApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneShareFilter"):
+		return &apiv1alpha1.DNSZoneShareFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneShareImport"):
+		return &apiv1alpha1.DNSZoneShareImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneShareResourceSpec"):
+		return &apiv1alpha1.DNSZoneShareResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneShareResourceStatus"):
+		return &apiv1alpha1.DNSZoneShareResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneShareSpec"):
+		return &apiv1alpha1.DNSZoneShareSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneShareStatus"):
+		return &apiv1alpha1.DNSZoneShareStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneSpec"):
 		return &apiv1alpha1.DNSZoneSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneStatus"):
