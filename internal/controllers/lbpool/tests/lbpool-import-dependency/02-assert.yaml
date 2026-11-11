@@ -1,0 +1,34 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbpool-import-dependency
+      ref: lbpool1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbpool-import-dependency-not-this-one
+      ref: lbpool2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: lbpool-import-dependency
+      ref: loadBalancer
+assertAll:
+    - celExpr: "lbpool1.status.id != lbpool2.status.id"
+    - celExpr: "loadBalancer.status.id in lbpool1.status.resource.loadBalancerIDs"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
