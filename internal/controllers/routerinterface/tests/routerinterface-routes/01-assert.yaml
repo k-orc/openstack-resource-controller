@@ -1,0 +1,11 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RouterInterface
+      name: routerinterface-routes
+      ref: ri
+assertAll:
+    - celExpr: "ri.metadata.deletionTimestamp != 0"
+    - celExpr: "ri.status.conditions.exists(c, c.type == 'Progressing' && c.status == 'True' && c.message == 'Router interface is used by a route of the router')"
