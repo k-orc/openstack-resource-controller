@@ -1,0 +1,41 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-create-minimal
+status:
+  resource:
+    name: lbhealthmonitor-create-minimal
+    type: TCP
+    delay: 10
+    timeout: 5
+    maxRetries: 3
+    adminStateUp: true
+    provisioningStatus: ACTIVE
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 600
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBHealthMonitor
+      name: lbhealthmonitor-create-minimal
+      ref: monitor
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbhealthmonitor-create-minimal
+      ref: pool
+assertAll:
+    - celExpr: "monitor.status.id != ''"
+    - celExpr: "monitor.status.resource.poolID == pool.status.id"
+    - celExpr: "'openstack.k-orc.cloud/lbhealthmonitor' in pool.metadata.finalizers"
+    # Octavia's default
+    - celExpr: "monitor.status.resource.maxRetriesDown == 3"
+    - celExpr: "!has(monitor.status.resource.tags)"

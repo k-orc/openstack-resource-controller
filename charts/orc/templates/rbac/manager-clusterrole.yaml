@@ -31,7 +31,11 @@ rules:
   - groups
   - images
   - keypairs
+  - lbhealthmonitors
+  - lbpools
   - limits
+  - listeners
+  - loadbalancers
   - networks
   - ports
   - projects
@@ -74,7 +78,11 @@ rules:
   - groups/status
   - images/status
   - keypairs/status
+  - lbhealthmonitors/status
+  - lbpools/status
   - limits/status
+  - listeners/status
+  - loadbalancers/status
   - networks/status
   - ports/status
   - projects/status
