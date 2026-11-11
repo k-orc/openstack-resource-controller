@@ -258,6 +258,9 @@ var resources []templateFields = []templateFields{
 			},
 		},
 	},
+	{
+		Name: "LoadBalancer",
+	},
 }
 
 // These resources won't be generated

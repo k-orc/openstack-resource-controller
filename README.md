@@ -78,6 +78,7 @@ kubectl delete -f $ORC_RELEASE
 | image                       |    ✔    |    ✔    |     ✔    |
 | keypair                     |         |    ◐    |     ◐    |
 | limit                       |         |         |     ✔    |
+| load balancer               |         |         |     ◐    |
 | network                     |         |    ◐    |     ◐    |
 | port                        |         |    ◐    |     ◐    |
 | project                     |         |    ◐    |     ◐    |

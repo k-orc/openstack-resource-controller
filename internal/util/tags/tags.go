@@ -32,7 +32,7 @@ import (
 // StringTag is a constraint that includes all custom tag types defined in the API.
 // This allows a single generic function to work with any of them.
 type StringTag interface {
-	orcv1alpha1.NeutronTag | orcv1alpha1.ServerTag | orcv1alpha1.ImageTag | orcv1alpha1.KeystoneTag
+	orcv1alpha1.NeutronTag | orcv1alpha1.ServerTag | orcv1alpha1.ImageTag | orcv1alpha1.KeystoneTag | orcv1alpha1.LoadBalancerTag
 }
 
 // Join joins a slice of tags into a comma-separated list of tags.
@@ -45,6 +45,15 @@ func Join[T StringTag](tags []T) string {
 		b.WriteString(string(tags[i]))
 	}
 	return b.String()
+}
+
+// Strings converts a slice of tags into a slice of strings.
+func Strings[T StringTag](tags []T) []string {
+	out := make([]string, len(tags))
+	for i := range tags {
+		out[i] = string(tags[i])
+	}
+	return out
 }
 
 func ReconcileTags[orcObjectPT, osResourceT any, T StringTag](
