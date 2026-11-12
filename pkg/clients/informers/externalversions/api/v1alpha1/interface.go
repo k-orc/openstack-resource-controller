@@ -58,6 +58,8 @@ type Interface interface {
 	Regions() RegionInformer
 	// RegisteredLimits returns a RegisteredLimitInformer.
 	RegisteredLimits() RegisteredLimitInformer
+	// ResourceClasses returns a ResourceClassInformer.
+	ResourceClasses() ResourceClassInformer
 	// Roles returns a RoleInformer.
 	Roles() RoleInformer
 	// RoleAssignments returns a RoleAssignmentInformer.
@@ -184,6 +186,11 @@ func (v *version) Regions() RegionInformer {
 // RegisteredLimits returns a RegisteredLimitInformer.
 func (v *version) RegisteredLimits() RegisteredLimitInformer {
 	return &registeredLimitInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ResourceClasses returns a ResourceClassInformer.
+func (v *version) ResourceClasses() ResourceClassInformer {
+	return &resourceClassInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Roles returns a RoleInformer.

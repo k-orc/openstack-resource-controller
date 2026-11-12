@@ -62,6 +62,7 @@ type Scope interface {
 	NewNetworkClient() (osclients.NetworkClient, error)
 	NewRegionClient() (osclients.RegionClient, error)
 	NewRegisteredLimitClient() (osclients.RegisteredLimitClient, error)
+	NewResourceClassClient() (osclients.ResourceClassClient, error)
 	NewRoleClient() (osclients.RoleClient, error)
 	NewRoleAssignmentClient() (osclients.RoleAssignmentClient, error)
 	NewServiceClient() (osclients.ServiceClient, error)
