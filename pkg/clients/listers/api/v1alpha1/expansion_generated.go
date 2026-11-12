@@ -98,6 +98,14 @@ type KeyPairListerExpansion interface{}
 // KeyPairNamespaceLister.
 type KeyPairNamespaceListerExpansion interface{}
 
+// LeaseListerExpansion allows custom methods to be added to
+// LeaseLister.
+type LeaseListerExpansion interface{}
+
+// LeaseNamespaceListerExpansion allows custom methods to be added to
+// LeaseNamespaceLister.
+type LeaseNamespaceListerExpansion interface{}
+
 // LimitListerExpansion allows custom methods to be added to
 // LimitLister.
 type LimitListerExpansion interface{}
