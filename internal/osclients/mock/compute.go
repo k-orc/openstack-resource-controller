@@ -35,6 +35,7 @@ import (
 	servers "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	tags "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/tags"
 	volumeattach "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
+	osclients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -62,6 +63,20 @@ func (m *MockComputeClient) EXPECT() *MockComputeClientMockRecorder {
 	return m.recorder
 }
 
+// AddAccess mocks base method.
+func (m *MockComputeClient) AddAccess(ctx context.Context, flavorID string, opts flavors.AddAccessOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAccess", ctx, flavorID, opts)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAccess indicates an expected call of AddAccess.
+func (mr *MockComputeClientMockRecorder) AddAccess(ctx, flavorID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccess", reflect.TypeOf((*MockComputeClient)(nil).AddAccess), ctx, flavorID, opts)
+}
+
 // CreateAttachedInterface mocks base method.
 func (m *MockComputeClient) CreateAttachedInterface(ctx context.Context, serverID string, createOpts attachinterfaces.CreateOptsBuilder) (*attachinterfaces.Interface, error) {
 	m.ctrl.T.Helper()
@@ -78,10 +93,10 @@ func (mr *MockComputeClientMockRecorder) CreateAttachedInterface(ctx, serverID, 
 }
 
 // CreateFlavor mocks base method.
-func (m *MockComputeClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error) {
+func (m *MockComputeClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*osclients.FlavorExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateFlavor", ctx, opts)
-	ret0, _ := ret[0].(*flavors.Flavor)
+	ret0, _ := ret[0].(*osclients.FlavorExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -237,10 +252,10 @@ func (mr *MockComputeClientMockRecorder) DeleteVolumeAttachment(ctx, serverID, v
 }
 
 // GetFlavor mocks base method.
-func (m *MockComputeClient) GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error) {
+func (m *MockComputeClient) GetFlavor(ctx context.Context, id string) (*osclients.FlavorExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetFlavor", ctx, id)
-	ret0, _ := ret[0].(*flavors.Flavor)
+	ret0, _ := ret[0].(*osclients.FlavorExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -281,6 +296,21 @@ func (mr *MockComputeClientMockRecorder) GetServerGroup(ctx, serverGroupID any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServerGroup", reflect.TypeOf((*MockComputeClient)(nil).GetServerGroup), ctx, serverGroupID)
 }
 
+// ListAccesses mocks base method.
+func (m *MockComputeClient) ListAccesses(ctx context.Context, flavorID string) ([]flavors.FlavorAccess, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAccesses", ctx, flavorID)
+	ret0, _ := ret[0].([]flavors.FlavorAccess)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAccesses indicates an expected call of ListAccesses.
+func (mr *MockComputeClientMockRecorder) ListAccesses(ctx, flavorID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAccesses", reflect.TypeOf((*MockComputeClient)(nil).ListAccesses), ctx, flavorID)
+}
+
 // ListAttachedInterfaces mocks base method.
 func (m *MockComputeClient) ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error) {
 	m.ctrl.T.Helper()
@@ -297,10 +327,10 @@ func (mr *MockComputeClientMockRecorder) ListAttachedInterfaces(ctx, serverID an
 }
 
 // ListFlavors mocks base method.
-func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*osclients.FlavorExt, error] {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListFlavors", ctx, listOpts)
-	ret0, _ := ret[0].(iter.Seq2[*flavors.Flavor, error])
+	ret0, _ := ret[0].(iter.Seq2[*osclients.FlavorExt, error])
 	return ret0
 }
 
@@ -336,6 +366,20 @@ func (m *MockComputeClient) ListServers(ctx context.Context, listOpts servers.Li
 func (mr *MockComputeClientMockRecorder) ListServers(ctx, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServers", reflect.TypeOf((*MockComputeClient)(nil).ListServers), ctx, listOpts)
+}
+
+// RemoveAccess mocks base method.
+func (m *MockComputeClient) RemoveAccess(ctx context.Context, flavorID string, opts flavors.RemoveAccessOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveAccess", ctx, flavorID, opts)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveAccess indicates an expected call of RemoveAccess.
+func (mr *MockComputeClientMockRecorder) RemoveAccess(ctx, flavorID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAccess", reflect.TypeOf((*MockComputeClient)(nil).RemoveAccess), ctx, flavorID, opts)
 }
 
 // ReplaceAllServerAttributesTags mocks base method.

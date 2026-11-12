@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"slices"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
@@ -30,6 +31,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/tags"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
+	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
@@ -47,13 +49,22 @@ ORC requires the use of microversion 2.71 to support ServerGroups field in Serve
 */
 const NovaMinimumMicroversion = "2.71"
 
+type FlavorExt struct {
+	flavors.Flavor
+
+	ProjectIDs []string
+}
+
 type ComputeClient interface {
-	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error)
+	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*FlavorExt, error)
 	CreateFlavorExtraSpecs(ctx context.Context, id string, opts flavors.CreateExtraSpecsOptsBuilder) (map[string]string, error)
-	GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error)
+	GetFlavor(ctx context.Context, id string) (*FlavorExt, error)
 	DeleteFlavor(ctx context.Context, id string) error
 	DeleteFlavorExtraSpec(ctx context.Context, id, key string) error
-	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error]
+	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*FlavorExt, error]
+	AddAccess(ctx context.Context, flavorID string, opts flavors.AddAccessOpts) error
+	RemoveAccess(ctx context.Context, flavorID string, opts flavors.RemoveAccessOpts) error
+	ListAccesses(ctx context.Context, flavorID string) ([]flavors.FlavorAccess, error)
 
 	CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error)
 	DeleteServer(ctx context.Context, serverID string) error
@@ -101,12 +112,26 @@ func (c computeClient) ListAvailabilityZones(ctx context.Context) ([]availabilit
 	return availabilityzones.ExtractAvailabilityZones(allPages)
 }
 
-func (c computeClient) GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error) {
-	return flavors.Get(ctx, c.client, id).Extract()
+func (c computeClient) GetFlavor(ctx context.Context, id string) (*FlavorExt, error) {
+	f, err := flavors.Get(ctx, c.client, id).Extract()
+	if err != nil {
+		return nil, err
+	}
+
+	projectIDs, err := c.getProjectIDs(ctx, *f)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FlavorExt{Flavor: *f, ProjectIDs: projectIDs}, nil
 }
 
-func (c computeClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error) {
-	return flavors.Create(ctx, c.client, opts).Extract()
+func (c computeClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*FlavorExt, error) {
+	f, err := flavors.Create(ctx, c.client, opts).Extract()
+	if err != nil {
+		return nil, err
+	}
+	return &FlavorExt{Flavor: *f}, nil
 }
 
 func (c computeClient) CreateFlavorExtraSpecs(ctx context.Context, id string, opts flavors.CreateExtraSpecsOptsBuilder) (map[string]string, error) {
@@ -121,9 +146,65 @@ func (c computeClient) DeleteFlavorExtraSpec(ctx context.Context, id, key string
 	return flavors.DeleteExtraSpec(ctx, c.client, id, key).ExtractErr()
 }
 
-func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) iter.Seq2[*FlavorExt, error] {
+	extractFlavorsExt := func(r pagination.Page) ([]FlavorExt, error) {
+		fs, err := flavors.ExtractFlavors(r)
+		if err != nil {
+			return nil, err
+		}
+
+		flavorsExts := make([]FlavorExt, 0, len(fs))
+		for _, f := range fs {
+			projectIDs, err := c.getProjectIDs(ctx, f)
+			if err != nil {
+				return nil, err
+			}
+
+			flavorsExts = append(flavorsExts, FlavorExt{Flavor: f, ProjectIDs: projectIDs})
+		}
+
+		return flavorsExts, nil
+	}
 	pager := flavors.ListDetail(c.client, opts)
-	return listResources(ctx, pager, flavors.ExtractFlavors)
+	return listResources(ctx, pager, extractFlavorsExt)
+}
+
+func (c computeClient) AddAccess(ctx context.Context, flavorID string, opts flavors.AddAccessOpts) error {
+	_, err := flavors.AddAccess(ctx, c.client, flavorID, opts).Extract()
+	return err
+}
+
+func (c computeClient) RemoveAccess(ctx context.Context, flavorID string, opts flavors.RemoveAccessOpts) error {
+	_, err := flavors.RemoveAccess(ctx, c.client, flavorID, opts).Extract()
+	return err
+}
+
+func (c computeClient) ListAccesses(ctx context.Context, flavorID string) ([]flavors.FlavorAccess, error) {
+	p, err := flavors.ListAccesses(c.client, flavorID).AllPages(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return flavors.ExtractAccesses(p)
+}
+
+func (c computeClient) getProjectIDs(ctx context.Context, flavor flavors.Flavor) ([]string, error) {
+	if flavor.IsPublic {
+		return nil, nil
+	}
+
+	flavorAccesses, err := c.ListAccesses(ctx, flavor.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	projectIDs := make([]string, 0, len(flavorAccesses))
+	for _, p := range flavorAccesses {
+		projectIDs = append(projectIDs, p.TenantID)
+	}
+	slices.Sort(projectIDs)
+
+	return projectIDs, nil
 }
 
 func (c computeClient) CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
@@ -202,13 +283,13 @@ type computeErrorClient struct{ error }
 func NewComputeErrorClient(e error) ComputeClient {
 	return computeErrorClient{e}
 }
-func (e computeErrorClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error) {
+func (e computeErrorClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*FlavorExt, error) {
 	return nil, e.error
 }
 func (e computeErrorClient) CreateFlavorExtraSpecs(ctx context.Context, id string, opts flavors.CreateExtraSpecsOptsBuilder) (map[string]string, error) {
 	return nil, e.error
 }
-func (e computeErrorClient) GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error) {
+func (e computeErrorClient) GetFlavor(ctx context.Context, id string) (*FlavorExt, error) {
 	return nil, e.error
 }
 func (e computeErrorClient) DeleteFlavor(ctx context.Context, id string) error {
@@ -217,10 +298,21 @@ func (e computeErrorClient) DeleteFlavor(ctx context.Context, id string) error {
 func (e computeErrorClient) DeleteFlavorExtraSpec(ctx context.Context, id, key string) error {
 	return e.error
 }
-func (e computeErrorClient) ListFlavors(_ context.Context, _ flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
-	return func(yield func(*flavors.Flavor, error) bool) {
+func (e computeErrorClient) ListFlavors(_ context.Context, _ flavors.ListOptsBuilder) iter.Seq2[*FlavorExt, error] {
+	return func(yield func(*FlavorExt, error) bool) {
 		yield(nil, e.error)
 	}
+}
+func (e computeErrorClient) AddAccess(_ context.Context, _ string, _ flavors.AddAccessOpts) error {
+	return e.error
+}
+
+func (e computeErrorClient) RemoveAccess(_ context.Context, _ string, _ flavors.RemoveAccessOpts) error {
+	return e.error
+}
+
+func (e computeErrorClient) ListAccesses(_ context.Context, _ string) ([]flavors.FlavorAccess, error) {
+	return nil, e.error
 }
 
 func (e computeErrorClient) ListAvailabilityZones(_ context.Context) ([]availabilityzones.AvailabilityZone, error) {

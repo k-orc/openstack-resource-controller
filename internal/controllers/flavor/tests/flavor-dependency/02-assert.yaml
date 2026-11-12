@@ -6,6 +6,12 @@ resourceRefs:
       kind: Secret
       name: flavor-dependency
       ref: secret
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: flavor-dependency
+      ref: project
 assertAll:
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/flavor' in secret.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/flavor' in project.metadata.finalizers"

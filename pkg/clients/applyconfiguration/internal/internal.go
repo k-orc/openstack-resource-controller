@@ -895,6 +895,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: projectRefs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: ram
       type:
         scalar: numeric
@@ -928,6 +934,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: projectIDs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: ram
       type:
         scalar: numeric
