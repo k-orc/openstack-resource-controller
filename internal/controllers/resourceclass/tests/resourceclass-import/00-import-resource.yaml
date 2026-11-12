@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ResourceClass
+metadata:
+  name: resourceclass-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: resourceclass-import-external
+      description: ResourceClass resourceclass-import-external from "resourceclass-import" test
+      # TODO(scaffolding): Add all fields supported by the filter
