@@ -45,6 +45,7 @@ import (
 	recordsetcontroller "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/recordset"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/region"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/registeredlimit"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/resourceclass"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/role"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/roleassignment"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/router"
@@ -152,6 +153,7 @@ func main() {
 		group.New(scopeFactory),
 		region.New(scopeFactory),
 		registeredlimit.New(scopeFactory),
+		resourceclass.New(scopeFactory),
 		role.New(scopeFactory),
 		roleassignment.New(scopeFactory),
 		limit.New(scopeFactory),

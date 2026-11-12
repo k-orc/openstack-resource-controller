@@ -19,6 +19,7 @@ testDirs:
 - ./internal/controllers/recordset/tests/
 - ./internal/controllers/region/tests/
 - ./internal/controllers/registeredlimit/tests/
+- ./internal/controllers/resourceclass/tests/
 - ./internal/controllers/role/tests/
 - ./internal/controllers/roleassignment/tests/
 - ./internal/controllers/router/tests/
