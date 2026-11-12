@@ -7,3 +7,5 @@ commands:
     namespaced: true
   - command: kubectl delete secret group-dependency --wait=false
     namespaced: true
+  - command: kubectl delete user group-dependency --wait=false
+    namespaced: true

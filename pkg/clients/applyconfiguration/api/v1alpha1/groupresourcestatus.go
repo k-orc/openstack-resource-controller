@@ -21,9 +21,10 @@ package v1alpha1
 // GroupResourceStatusApplyConfiguration represents a declarative configuration of the GroupResourceStatus type for use
 // with apply.
 type GroupResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	DomainID    *string `json:"domainID,omitempty"`
+	Name        *string  `json:"name,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	DomainID    *string  `json:"domainID,omitempty"`
+	UserIDs     []string `json:"userIDs,omitempty"`
 }
 
 // GroupResourceStatusApplyConfiguration constructs a declarative configuration of the GroupResourceStatus type for use with
@@ -53,5 +54,15 @@ func (b *GroupResourceStatusApplyConfiguration) WithDescription(value string) *G
 // If called multiple times, the DomainID field is set to the value of the last call.
 func (b *GroupResourceStatusApplyConfiguration) WithDomainID(value string) *GroupResourceStatusApplyConfiguration {
 	b.DomainID = &value
+	return b
+}
+
+// WithUserIDs adds the given value to the UserIDs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the UserIDs field.
+func (b *GroupResourceStatusApplyConfiguration) WithUserIDs(values ...string) *GroupResourceStatusApplyConfiguration {
+	for i := range values {
+		b.UserIDs = append(b.UserIDs, values[i])
+	}
 	return b
 }

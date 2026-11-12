@@ -25,9 +25,10 @@ import (
 // GroupResourceSpecApplyConfiguration represents a declarative configuration of the GroupResourceSpec type for use
 // with apply.
 type GroupResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.KeystoneName      `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	DomainRef   *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
+	Name        *apiv1alpha1.KeystoneName       `json:"name,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	DomainRef   *apiv1alpha1.KubernetesNameRef  `json:"domainRef,omitempty"`
+	UserRefs    []apiv1alpha1.KubernetesNameRef `json:"userRefs,omitempty"`
 }
 
 // GroupResourceSpecApplyConfiguration constructs a declarative configuration of the GroupResourceSpec type for use with
@@ -57,5 +58,15 @@ func (b *GroupResourceSpecApplyConfiguration) WithDescription(value string) *Gro
 // If called multiple times, the DomainRef field is set to the value of the last call.
 func (b *GroupResourceSpecApplyConfiguration) WithDomainRef(value apiv1alpha1.KubernetesNameRef) *GroupResourceSpecApplyConfiguration {
 	b.DomainRef = &value
+	return b
+}
+
+// WithUserRefs adds the given value to the UserRefs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the UserRefs field.
+func (b *GroupResourceSpecApplyConfiguration) WithUserRefs(values ...apiv1alpha1.KubernetesNameRef) *GroupResourceSpecApplyConfiguration {
+	for i := range values {
+		b.UserRefs = append(b.UserRefs, values[i])
+	}
 	return b
 }

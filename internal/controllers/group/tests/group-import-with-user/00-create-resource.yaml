@@ -1,0 +1,23 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: group-import-with-user-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-import-with-user-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRefs:
+      - group-import-with-user-external

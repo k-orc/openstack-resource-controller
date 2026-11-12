@@ -7,3 +7,5 @@ commands:
   skipLogOutput: true
 - script: "! kubectl get secret group-dependency --namespace $NAMESPACE"
   skipLogOutput: true
+- script: "! kubectl get user group-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

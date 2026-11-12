@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-update-user
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Group
+    name: group-update-user
+    ref: group
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: User
+    name: group-update-user1
+    ref: user1
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: User
+    name: group-update-user2
+    ref: user2
+assertAll:
+    - celExpr: "!(user1.status.id in group.status.resource.userIDs)"
+    - celExpr: "user2.status.id in group.status.resource.userIDs"
