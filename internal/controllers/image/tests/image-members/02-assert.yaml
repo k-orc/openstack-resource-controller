@@ -1,0 +1,12 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: image-members
+      ref: image
+assertAll:
+    # The member which is no longer listed is removed without waiting for the new project
+    - celExpr: "!has(image.status.resource.members)"
+    - celExpr: "image.status.conditions.exists(c, c.type == 'Progressing' && c.status == 'True' && c.message.contains('Project/image-members-3'))"

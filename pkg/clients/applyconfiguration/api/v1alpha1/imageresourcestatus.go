@@ -21,14 +21,15 @@ package v1alpha1
 // ImageResourceStatusApplyConfiguration represents a declarative configuration of the ImageResourceStatus type for use
 // with apply.
 type ImageResourceStatusApplyConfiguration struct {
-	Name         *string                      `json:"name,omitempty"`
-	Status       *string                      `json:"status,omitempty"`
-	Protected    *bool                        `json:"protected,omitempty"`
-	Visibility   *string                      `json:"visibility,omitempty"`
-	Hash         *ImageHashApplyConfiguration `json:"hash,omitempty"`
-	SizeB        *int64                       `json:"sizeB,omitempty"`
-	VirtualSizeB *int64                       `json:"virtualSizeB,omitempty"`
-	Tags         []string                     `json:"tags,omitempty"`
+	Name         *string                                    `json:"name,omitempty"`
+	Status       *string                                    `json:"status,omitempty"`
+	Protected    *bool                                      `json:"protected,omitempty"`
+	Visibility   *string                                    `json:"visibility,omitempty"`
+	Hash         *ImageHashApplyConfiguration               `json:"hash,omitempty"`
+	SizeB        *int64                                     `json:"sizeB,omitempty"`
+	VirtualSizeB *int64                                     `json:"virtualSizeB,omitempty"`
+	Tags         []string                                   `json:"tags,omitempty"`
+	Members      []ImageMemberGrantStatusApplyConfiguration `json:"members,omitempty"`
 }
 
 // ImageResourceStatusApplyConfiguration constructs a declarative configuration of the ImageResourceStatus type for use with
@@ -99,6 +100,19 @@ func (b *ImageResourceStatusApplyConfiguration) WithVirtualSizeB(value int64) *I
 func (b *ImageResourceStatusApplyConfiguration) WithTags(values ...string) *ImageResourceStatusApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
+	}
+	return b
+}
+
+// WithMembers adds the given value to the Members field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Members field.
+func (b *ImageResourceStatusApplyConfiguration) WithMembers(values ...*ImageMemberGrantStatusApplyConfiguration) *ImageResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMembers")
+		}
+		b.Members = append(b.Members, *values[i])
 	}
 	return b
 }

@@ -81,6 +81,12 @@ func (imageStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		WithSizeB(osResource.SizeBytes).
 		WithTags(osResource.Tags...)
 
+	for i := range osResource.Members {
+		resourceStatus.WithMembers(orcapplyconfigv1alpha1.ImageMemberGrantStatus().
+			WithMemberID(osResource.Members[i].MemberID).
+			WithStatus(osResource.Members[i].Status))
+	}
+
 	osHashAlgo, _ := osResource.Properties[glanceOSHashAlgo].(string)
 	osHashValue, _ := osResource.Properties[glanceOSHashValue].(string)
 	if osHashAlgo != "" && osHashValue != "" {

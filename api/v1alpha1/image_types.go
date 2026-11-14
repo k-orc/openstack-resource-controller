@@ -313,6 +313,22 @@ type ImageHash struct {
 	Value string `json:"value,omitempty"`
 }
 
+// ImageMemberGrant identifies a project or user an image is shared with.
+// +kubebuilder:validation:XValidation:rule="has(self.projectRef) != has(self.userRef)",message="exactly one of projectRef or userRef must be set"
+type ImageMemberGrant struct {
+	// projectRef is a reference to a Project ORC object to share this image with.
+	// +optional
+	// +orc:kustomize:ref=Project
+	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
+
+	// userRef is a reference to a User ORC object to share this image with,
+	// for clouds whose Glance member policy is keyed on user_id instead of
+	// project_id. It is not supported yet.
+	// +optional
+	// +orc:kustomize:ref=User
+	UserRef *KubernetesNameRef `json:"userRef,omitempty"`
+}
+
 // ImageResourceSpec contains the desired state of a Glance image
 type ImageResourceSpec struct {
 	// name will be the name of the created Glance image. If not specified, the
@@ -339,6 +355,17 @@ type ImageResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="properties is immutable"
 	// +optional
 	Properties *ImageProperties `json:"properties,omitempty"`
+
+	// members is the list of projects or users the image is shared with. The
+	// image visibility must be shared. Members which are not in this list are
+	// removed from the image, including members added outside ORC: add
+	// existing members to this list before upgrading ORC to a version which
+	// supports it.
+	// +kubebuilder:validation:MaxItems:=256
+	// +kubebuilder:validation:XValidation:rule="self.all(x, self.exists_one(y, y == x))",message="members must be unique"
+	// +listType=atomic
+	// +optional
+	Members []ImageMemberGrant `json:"members,omitempty"`
 
 	// content specifies how to obtain the image content.
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="content is immutable"
@@ -407,6 +434,29 @@ type ImageResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
+
+	// members is the list of members of a shared image, with their
+	// acceptance status. Members change their status without changing the
+	// Image, so a change is only reported when the Image is next reconciled,
+	// e.g. by a periodic resync.
+	// +kubebuilder:validation:MaxItems:=1024
+	// +listType=atomic
+	// +optional
+	Members []ImageMemberGrantStatus `json:"members,omitempty"`
+}
+
+// ImageMemberGrantStatus is the observed state of an image member.
+type ImageMemberGrantStatus struct {
+	// memberID is the ID of the project or user the image is shared with.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	MemberID string `json:"memberID,omitempty"`
+
+	// status is the acceptance status of the member: pending, accepted or
+	// rejected.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Status string `json:"status,omitempty"`
 }
 
 type ImageStatusExtra struct {

@@ -1,0 +1,7 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# The ImageMember does not prevent deleting the image
+- script: "! kubectl get image imagemember-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

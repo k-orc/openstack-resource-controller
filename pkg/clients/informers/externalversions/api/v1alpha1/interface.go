@@ -42,6 +42,8 @@ type Interface interface {
 	Groups() GroupInformer
 	// Images returns a ImageInformer.
 	Images() ImageInformer
+	// ImageMembers returns a ImageMemberInformer.
+	ImageMembers() ImageMemberInformer
 	// KeyPairs returns a KeyPairInformer.
 	KeyPairs() KeyPairInformer
 	// Limits returns a LimitInformer.
@@ -144,6 +146,11 @@ func (v *version) Groups() GroupInformer {
 // Images returns a ImageInformer.
 func (v *version) Images() ImageInformer {
 	return &imageInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ImageMembers returns a ImageMemberInformer.
+func (v *version) ImageMembers() ImageMemberInformer {
+	return &imageMemberInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // KeyPairs returns a KeyPairInformer.

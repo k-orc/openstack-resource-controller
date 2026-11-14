@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ImageMember
+metadata:
+  name: imagemember-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: consumer
+    secretName: consumer-clouds
+  managementPolicy: managed
+  resource:
+    imageRef: imagemember-create-full
+    status: rejected

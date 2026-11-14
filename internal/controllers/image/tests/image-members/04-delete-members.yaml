@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      kubectl patch image image-members -n $NAMESPACE --type=json -p '[{"op": "remove", "path": "/spec/resource/members"}]'

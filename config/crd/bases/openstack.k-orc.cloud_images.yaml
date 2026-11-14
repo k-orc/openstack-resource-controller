@@ -262,6 +262,41 @@ spec:
                     x-kubernetes-validations:
                     - message: content is immutable
                       rule: self == oldSelf
+                  members:
+                    description: |-
+                      members is the list of projects or users the image is shared with. The
+                      image visibility must be shared. Members which are not in this list are
+                      removed from the image, including members added outside ORC: add
+                      existing members to this list before upgrading ORC to a version which
+                      supports it.
+                    items:
+                      description: ImageMemberGrant identifies a project or user an
+                        image is shared with.
+                      properties:
+                        projectRef:
+                          description: projectRef is a reference to a Project ORC
+                            object to share this image with.
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                        userRef:
+                          description: |-
+                            userRef is a reference to a User ORC object to share this image with,
+                            for clouds whose Glance member policy is keyed on user_id instead of
+                            project_id. It is not supported yet.
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                      type: object
+                      x-kubernetes-validations:
+                      - message: exactly one of projectRef or userRef must be set
+                        rule: has(self.projectRef) != has(self.userRef)
+                    maxItems: 256
+                    type: array
+                    x-kubernetes-list-type: atomic
+                    x-kubernetes-validations:
+                    - message: members must be unique
+                      rule: self.all(x, self.exists_one(y, y == x))
                   name:
                     description: |-
                       name will be the name of the created Glance image. If not specified, the
@@ -703,6 +738,31 @@ spec:
                     - algorithm
                     - value
                     type: object
+                  members:
+                    description: |-
+                      members is the list of members of a shared image, with their
+                      acceptance status. Members change their status without changing the
+                      Image, so a change is only reported when the Image is next reconciled,
+                      e.g. by a periodic resync.
+                    items:
+                      description: ImageMemberGrantStatus is the observed state of
+                        an image member.
+                      properties:
+                        memberID:
+                          description: memberID is the ID of the project or user the
+                            image is shared with.
+                          maxLength: 1024
+                          type: string
+                        status:
+                          description: |-
+                            status is the acceptance status of the member: pending, accepted or
+                            rejected.
+                          maxLength: 1024
+                          type: string
+                      type: object
+                    maxItems: 1024
+                    type: array
+                    x-kubernetes-list-type: atomic
                   name:
                     description: name is a Human-readable name for the image. Might
                       not be unique.

@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ImageMember
+metadata:
+  name: imagemember-import-import
+spec:
+  cloudCredentialsRef:
+    cloudName: consumer
+    secretName: consumer-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      imageRef: imagemember-import

@@ -19,6 +19,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [FloatingIP](#floatingip)
 - [Group](#group)
 - [Image](#image)
+- [ImageMember](#imagemember)
 - [KeyPair](#keypair)
 - [Limit](#limit)
 - [Network](#network)
@@ -523,6 +524,7 @@ _Appears in:_
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [GroupSpec](#groupspec)
+- [ImageMemberSpec](#imagememberspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
 - [LimitSpec](#limitspec)
@@ -2018,6 +2020,189 @@ _Appears in:_
 | `filter` _[ImageFilter](#imagefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
 
 
+#### ImageMember
+
+
+
+ImageMember is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ImageMember` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[ImageMemberSpec](#imagememberspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[ImageMemberStatus](#imagememberstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### ImageMemberFilter
+
+
+
+ImageMemberFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ImageMemberImport](#imagememberimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef is a reference to the ORC Image shared with the project of<br />this object's credentials. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### ImageMemberGrant
+
+
+
+ImageMemberGrant identifies a project or user an image is shared with.
+
+
+
+_Appears in:_
+- [ImageResourceSpec](#imageresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to a Project ORC object to share this image with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to a User ORC object to share this image with,<br />for clouds whose Glance member policy is keyed on user_id instead of<br />project_id. It is not supported yet. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### ImageMemberGrantStatus
+
+
+
+ImageMemberGrantStatus is the observed state of an image member.
+
+
+
+_Appears in:_
+- [ImageResourceStatus](#imageresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `memberID` _string_ | memberID is the ID of the project or user the image is shared with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `status` _string_ | status is the acceptance status of the member: pending, accepted or<br />rejected. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### ImageMemberImport
+
+
+
+ImageMemberImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ImageMemberSpec](#imagememberspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[ImageMemberFilter](#imagememberfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### ImageMemberResourceSpec
+
+
+
+ImageMemberResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ImageMemberSpec](#imagememberspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef is a reference to the ORC Image shared with the project of<br />this object's credentials. The Image's members must include that<br />project. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `status` _[ImageMembershipStatus](#imagemembershipstatus)_ | status is the membership status to set: accepted or rejected.<br />accepted makes the image appear in the project's image list, rejected<br />declines it. Deleting the object resets the status to pending; only the<br />image owner can remove the member. | accepted | Enum: [accepted rejected] <br />Optional: \{\} <br /> |
+
+
+#### ImageMemberResourceStatus
+
+
+
+ImageMemberResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ImageMemberStatus](#imagememberstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `imageID` _string_ | imageID is the ID of the shared image. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `memberID` _string_ | memberID is the ID of the project the image is shared with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `status` _string_ | status is the membership status: pending, accepted or rejected. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### ImageMemberSpec
+
+
+
+ImageMemberSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [ImageMember](#imagemember)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ImageMemberImport](#imagememberimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[ImageMemberResourceSpec](#imagememberresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### ImageMemberStatus
+
+
+
+ImageMemberStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [ImageMember](#imagemember)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[ImageMemberResourceStatus](#imagememberresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### ImageMembershipStatus
+
+_Underlying type:_ _string_
+
+ImageMembershipStatus is the status of an image member.
+
+_Validation:_
+- Enum: [accepted rejected]
+
+_Appears in:_
+- [ImageMemberResourceSpec](#imagememberresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `accepted` |  |
+| `rejected` |  |
+
+
 #### ImageProperties
 
 
@@ -2101,6 +2286,7 @@ _Appears in:_
 | `tags` _[ImageTag](#imagetag) array_ | tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `visibility` _[ImageVisibility](#imagevisibility)_ | visibility of the image |  | Enum: [public private shared community] <br />Optional: \{\} <br /> |
 | `properties` _[ImageProperties](#imageproperties)_ | properties is metadata available to consumers of the image |  | Optional: \{\} <br /> |
+| `members` _[ImageMemberGrant](#imagemembergrant) array_ | members is the list of projects or users the image is shared with. The<br />image visibility must be shared. Members which are not in this list are<br />removed from the image, including members added outside ORC: add<br />existing members to this list before upgrading ORC to a version which<br />supports it. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
 | `content` _[ImageContent](#imagecontent)_ | content specifies how to obtain the image content. |  | Optional: \{\} <br /> |
 
 
@@ -2125,6 +2311,7 @@ _Appears in:_
 | `sizeB` _integer_ | sizeB is the size of the image data, in bytes |  | Optional: \{\} <br /> |
 | `virtualSizeB` _integer_ | virtualSizeB is the size of the disk the image data represents, in bytes |  | Optional: \{\} <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `members` _[ImageMemberGrantStatus](#imagemembergrantstatus) array_ | members is the list of members of a shared image, with their<br />acceptance status. Members change their status without changing the<br />Image, so a change is only reported when the Image is next reconciled,<br />e.g. by a periodic resync. |  | MaxItems: 1024 <br />Optional: \{\} <br /> |
 
 
 #### ImageSpec
@@ -2436,6 +2623,9 @@ _Appears in:_
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
 - [HostID](#hostid)
+- [ImageMemberFilter](#imagememberfilter)
+- [ImageMemberGrant](#imagemembergrant)
+- [ImageMemberResourceSpec](#imagememberresourcespec)
 - [LimitFilter](#limitfilter)
 - [LimitResourceSpec](#limitresourcespec)
 - [NetworkFilter](#networkfilter)
@@ -2669,6 +2859,7 @@ _Appears in:_
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [GroupSpec](#groupspec)
+- [ImageMemberSpec](#imagememberspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
 - [LimitSpec](#limitspec)
@@ -2716,6 +2907,7 @@ _Appears in:_
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [GroupSpec](#groupspec)
+- [ImageMemberSpec](#imagememberspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
 - [LimitSpec](#limitspec)

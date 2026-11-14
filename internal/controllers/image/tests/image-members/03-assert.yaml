@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: image-members
+      ref: image
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: image-members-3
+      ref: project3
+assertAll:
+    - celExpr: "image.status.conditions.exists(c, c.type == 'Available' && c.status == 'True')"
+    - celExpr: "image.status.conditions.exists(c, c.type == 'Progressing' && c.status == 'False')"
+    - celExpr: "size(image.status.resource.members) == 1"
+    - celExpr: "image.status.resource.members[0].memberID == project3.status.id"

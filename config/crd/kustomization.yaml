@@ -12,6 +12,7 @@ resources:
 - bases/openstack.k-orc.cloud_floatingips.yaml
 - bases/openstack.k-orc.cloud_groups.yaml
 - bases/openstack.k-orc.cloud_images.yaml
+- bases/openstack.k-orc.cloud_imagemembers.yaml
 - bases/openstack.k-orc.cloud_keypairs.yaml
 - bases/openstack.k-orc.cloud_limits.yaml
 - bases/openstack.k-orc.cloud_networks.yaml

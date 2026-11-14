@@ -1,0 +1,23 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ImageMember
+      name: imagemember-import-import
+      ref: member
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: imagemember-import
+      ref: image
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: imagemember-import
+      ref: project
+assertAll:
+    - celExpr: "member.status.conditions.exists(c, c.type == 'Available' && c.status == 'True')"
+    - celExpr: "member.status.id == project.status.id"
+    - celExpr: "member.status.resource.memberID == project.status.id"
+    - celExpr: "member.status.resource.imageID == image.status.id"
+    - celExpr: "member.status.resource.status == 'accepted'"
+    - celExpr: "image.status.resource.members.exists(m, m.memberID == project.status.id && m.status == 'accepted')"
