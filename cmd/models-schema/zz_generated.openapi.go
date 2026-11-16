@@ -9651,13 +9651,6 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ResourceClassFilter(re
 							Format:      "",
 						},
 					},
-					"description": {
-						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 				},
 			},
 		},
@@ -9752,14 +9745,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ResourceClassResourceS
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"description": {
-						SchemaProps: spec.SchemaProps{
-							Description: "description is a human-readable description for the resource.",
+							Description: "name will be the name of the created resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -9780,13 +9766,6 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ResourceClassResourceS
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "name is a Human-readable name for the resource. Might not be unique.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"description": {
-						SchemaProps: spec.SchemaProps{
-							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

@@ -114,18 +114,3 @@ func (mr *MockResourceClassClientMockRecorder) ListResourceClasses(ctx any) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceClasses", reflect.TypeOf((*MockResourceClassClient)(nil).ListResourceClasses), ctx)
 }
-
-// UpdateResourceClass mocks base method.
-func (m *MockResourceClassClient) UpdateResourceClass(ctx context.Context, id string) (*resourceclasses.ResourceClass, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateResourceClass", ctx, id)
-	ret0, _ := ret[0].(*resourceclasses.ResourceClass)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateResourceClass indicates an expected call of UpdateResourceClass.
-func (mr *MockResourceClassClientMockRecorder) UpdateResourceClass(ctx, id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateResourceClass", reflect.TypeOf((*MockResourceClassClient)(nil).UpdateResourceClass), ctx, id)
-}
