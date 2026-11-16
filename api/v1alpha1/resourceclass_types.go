@@ -17,25 +17,11 @@ limitations under the License.
 package v1alpha1
 
 // ResourceClassResourceSpec contains the desired state of the resource.
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ResourceClassResourceSpec is immutable"
 type ResourceClassResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
+	// name will be the name of the created resource.
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/placement/v1/resourceclasses
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	Name *CustomResourceName `json:"name,omitempty"`
 }
 
 // ResourceClassFilter defines an existing resource by its properties
@@ -44,16 +30,6 @@ type ResourceClassFilter struct {
 	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/placement/v1/resourceclasses
 }
 
 // ResourceClassResourceStatus represents the observed state of the resource.
@@ -62,13 +38,4 @@ type ResourceClassResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Description string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ResourceClass structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/placement/v1/resourceclasses
 }

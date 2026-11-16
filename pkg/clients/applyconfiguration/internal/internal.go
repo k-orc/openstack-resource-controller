@@ -2893,9 +2893,6 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ResourceClassFilter
   map:
     fields:
-    - name: description
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string
@@ -2911,18 +2908,12 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ResourceClassResourceSpec
   map:
     fields:
-    - name: description
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ResourceClassResourceStatus
   map:
     fields:
-    - name: description
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string

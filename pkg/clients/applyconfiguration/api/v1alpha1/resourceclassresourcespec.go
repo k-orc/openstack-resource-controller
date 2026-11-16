@@ -25,8 +25,7 @@ import (
 // ResourceClassResourceSpecApplyConfiguration represents a declarative configuration of the ResourceClassResourceSpec type for use
 // with apply.
 type ResourceClassResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Description *string                    `json:"description,omitempty"`
+	Name *apiv1alpha1.CustomResourceName `json:"name,omitempty"`
 }
 
 // ResourceClassResourceSpecApplyConfiguration constructs a declarative configuration of the ResourceClassResourceSpec type for use with
@@ -38,15 +37,7 @@ func ResourceClassResourceSpec() *ResourceClassResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *ResourceClassResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ResourceClassResourceSpecApplyConfiguration {
+func (b *ResourceClassResourceSpecApplyConfiguration) WithName(value apiv1alpha1.CustomResourceName) *ResourceClassResourceSpecApplyConfiguration {
 	b.Name = &value
-	return b
-}
-
-// WithDescription sets the Description field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *ResourceClassResourceSpecApplyConfiguration) WithDescription(value string) *ResourceClassResourceSpecApplyConfiguration {
-	b.Description = &value
 	return b
 }

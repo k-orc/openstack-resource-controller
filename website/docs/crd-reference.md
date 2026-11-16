@@ -555,6 +555,22 @@ _Appears in:_
 | `cloudName` _string_ | cloudName specifies the name of the entry in the clouds.yaml file to use. |  | MaxLength: 256 <br />MinLength: 1 <br />Required: \{\} <br /> |
 
 
+#### CustomResourceName
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+- Pattern: `^CUSTOM_[A-Z0-9_]+$`
+
+_Appears in:_
+- [ResourceClassResourceSpec](#resourceclassresourcespec)
+
+
+
 #### DNSDomain
 
 _Underlying type:_ _string_
@@ -3048,7 +3064,6 @@ _Appears in:_
 - [RegionFilter](#regionfilter)
 - [RegionResourceSpec](#regionresourcespec)
 - [ResourceClassFilter](#resourceclassfilter)
-- [ResourceClassResourceSpec](#resourceclassresourcespec)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -4033,7 +4048,6 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### ResourceClassImport
@@ -4069,8 +4083,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `name` _[CustomResourceName](#customresourcename)_ | name will be the name of the created resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^CUSTOM_[A-Z0-9_]+$` <br />Optional: \{\} <br /> |
 
 
 #### ResourceClassResourceStatus
@@ -4087,7 +4100,6 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### ResourceClassSpec

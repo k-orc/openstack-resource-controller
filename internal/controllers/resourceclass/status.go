@@ -52,8 +52,5 @@ func (resourceclassStatusWriter) ApplyResourceStatus(log logr.Logger, osResource
 	resourceStatus := orcapplyconfigv1alpha1.ResourceClassResourceStatus().
 		WithName(osResource.Name)
 
-	// TODO(scaffolding): add all of the fields supported in the ResourceClassResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
 	statusApply.WithResource(resourceStatus)
 }
