@@ -22,14 +22,12 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/placement/v1/resourceclasses"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
@@ -55,7 +53,7 @@ var _ deleteResourceActuator = resourceclassActuator{}
 var _ reconcileResourceActuator = resourceclassActuator{}
 
 func (resourceclassActuator) GetResourceID(osResource *osResourceT) string {
-	return osResource.ID
+	return osResource.Name
 }
 
 func (actuator resourceclassActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
@@ -76,13 +74,9 @@ func (actuator resourceclassActuator) ListOSResourcesForAdoption(ctx context.Con
 	// of gophercloud does not support, it's possible to perform client-side filtering.
 	// Check osclients.ResourceFilter
 
-	listOpts := resourceclasses.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-		// TODO(scaffolding): Add more adoption filters
-	}
+	// TODO: Filter by name client-side
 
-	return actuator.osClient.ListResourceClasses(ctx, listOpts), true
+	return actuator.osClient.ListResourceClasses(ctx), true
 }
 
 func (actuator resourceclassActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
@@ -90,20 +84,14 @@ func (actuator resourceclassActuator) ListOSResourcesForImport(ctx context.Conte
 	// of gophercloud does not support, it's possible to perform client-side filtering.
 	// Check osclients.ResourceFilter
 
-	listOpts := resourceclasses.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
-	}
+	// TODO: Filter by name client-side
 
-	return actuator.osClient.ListResourceClasses(ctx, listOpts), nil
+	return actuator.osClient.ListResourceClasses(ctx), nil
 }
 
 func (actuator resourceclassActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
-	resource := obj.Spec.Resource
 	createOpts := resourceclasses.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
+		Name: getResourceName(obj),
 		// TODO(scaffolding): Add more fields
 	}
 
@@ -119,74 +107,11 @@ func (actuator resourceclassActuator) CreateResource(ctx context.Context, obj or
 }
 
 func (actuator resourceclassActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteResourceClass(ctx, resource.ID))
-}
-
-func (actuator resourceclassActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-
-	updateOpts := resourceclasses.UpdateOpts{}
-
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
-	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
-		return nil
-	}
-
-	_, err = actuator.osClient.UpdateResourceClass(ctx, osResource.ID, updateOpts)
-
-	if err != nil {
-		if !orcerrors.IsRetryable(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-		}
-		return progress.WrapError(err)
-	}
-
-	return progress.NeedsRefresh()
-}
-
-func needsUpdate(updateOpts resourceclasses.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToResourceClassUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["resource_classes"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *resourceclasses.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *resourceclasses.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
+	return progress.WrapError(actuator.osClient.DeleteResourceClass(ctx, resource.Name))
 }
 
 func (actuator resourceclassActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		actuator.updateResource,
-	}, nil
+	return []resourceReconciler{}, nil
 }
 
 type resourceclassHelperFactory struct{}

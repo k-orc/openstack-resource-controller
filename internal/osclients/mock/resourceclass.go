@@ -102,30 +102,30 @@ func (mr *MockResourceClassClientMockRecorder) GetResourceClass(ctx, resourceID 
 }
 
 // ListResourceClasses mocks base method.
-func (m *MockResourceClassClient) ListResourceClasses(ctx context.Context, listOpts resourceclasses.ListOptsBuilder) iter.Seq2[*resourceclasses.ResourceClass, error] {
+func (m *MockResourceClassClient) ListResourceClasses(ctx context.Context) iter.Seq2[*resourceclasses.ResourceClass, error] {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListResourceClasses", ctx, listOpts)
+	ret := m.ctrl.Call(m, "ListResourceClasses", ctx)
 	ret0, _ := ret[0].(iter.Seq2[*resourceclasses.ResourceClass, error])
 	return ret0
 }
 
 // ListResourceClasses indicates an expected call of ListResourceClasses.
-func (mr *MockResourceClassClientMockRecorder) ListResourceClasses(ctx, listOpts any) *gomock.Call {
+func (mr *MockResourceClassClientMockRecorder) ListResourceClasses(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceClasses", reflect.TypeOf((*MockResourceClassClient)(nil).ListResourceClasses), ctx, listOpts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceClasses", reflect.TypeOf((*MockResourceClassClient)(nil).ListResourceClasses), ctx)
 }
 
 // UpdateResourceClass mocks base method.
-func (m *MockResourceClassClient) UpdateResourceClass(ctx context.Context, id string, opts resourceclasses.UpdateOptsBuilder) (*resourceclasses.ResourceClass, error) {
+func (m *MockResourceClassClient) UpdateResourceClass(ctx context.Context, id string) (*resourceclasses.ResourceClass, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateResourceClass", ctx, id, opts)
+	ret := m.ctrl.Call(m, "UpdateResourceClass", ctx, id)
 	ret0, _ := ret[0].(*resourceclasses.ResourceClass)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateResourceClass indicates an expected call of UpdateResourceClass.
-func (mr *MockResourceClassClientMockRecorder) UpdateResourceClass(ctx, id, opts any) *gomock.Call {
+func (mr *MockResourceClassClientMockRecorder) UpdateResourceClass(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateResourceClass", reflect.TypeOf((*MockResourceClassClient)(nil).UpdateResourceClass), ctx, id, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateResourceClass", reflect.TypeOf((*MockResourceClassClient)(nil).UpdateResourceClass), ctx, id)
 }
