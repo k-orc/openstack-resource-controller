@@ -1,0 +1,15 @@
+---
+# The non-admin credentials can't list all projects (GET /v3/projects is forbidden): import the
+# credentials' own project by name.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-import-non-admin
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: demo
