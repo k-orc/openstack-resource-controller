@@ -14,9 +14,7 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: resourceclass-import-external-not-this-one
-    description: ResourceClass resourceclass-import-external from "resourceclass-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    name: CUSTOM_RESOURCE_CLASS_IMPORT_NOT_THIS_ONE
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ResourceClass

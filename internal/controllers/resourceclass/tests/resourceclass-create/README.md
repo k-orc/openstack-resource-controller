@@ -1,8 +1,8 @@
-# Create a ResourceClass with the minimum options
+# Create a ResourceClass
 
 ## Step 00
 
-Create a minimal ResourceClass, that sets only the required fields, and verify that the observed state corresponds to the spec.
+Create a ResourceClass and verify that the observed state corresponds to the spec.
 
 Also validate that the OpenStack resource uses the name of the ORC object when no name is explicitly specified.
 

@@ -11,7 +11,7 @@ resourceRefs:
       name: resourceclass-import-external-not-this-one
       ref: resourceclass2
 assertAll:
-    - celExpr: "resourceclass1.status.id != resourceclass2.status.id"
+    - celExpr: "resourceclass1.status.resource.name != resourceclass2.status.resource.name"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ResourceClass
@@ -28,6 +28,4 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: resourceclass-import-external
-    description: ResourceClass resourceclass-import-external from "resourceclass-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    name: CUSTOM_RESOURCE_CLASS_IMPORT
