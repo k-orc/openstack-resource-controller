@@ -70,29 +70,43 @@ func (actuator resourceclassActuator) ListOSResourcesForAdoption(ctx context.Con
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	// TODO: Filter by name client-side
+	// Add client-side filters
+	if resourceSpec.Name != nil {
+		filters = append(filters, func(f *resourceclasses.ResourceClass) bool {
+			return f.Name == *resourceSpec.Name
+		})
+	}
 
-	return actuator.osClient.ListResourceClasses(ctx), true
+	return actuator.listOSResources(ctx, filters), true
 }
 
 func (actuator resourceclassActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	filters := make([]osclients.ResourceFilter[osResourceT], 0, 1)
 
-	// TODO: Filter by name client-side
+	// Add client-side filters
+	if filter.Name != nil {
+		filters = append(filters, func(f *resourceclasses.ResourceClass) bool {
+			return f.Name == string(*filter.Name)
+		})
+	}
 
-	return actuator.osClient.ListResourceClasses(ctx), nil
+	return actuator.listOSResources(ctx, filters), nil
+}
+
+func (actuator resourceclassActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT]) iter.Seq2[*resourceclasses.ResourceClass, error] {
+	resourceClasses := actuator.osClient.ListResourceClasses(ctx)
+	return osclients.Filter(resourceClasses, filters...)
 }
 
 func (actuator resourceclassActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
+	if obj.Spec.Resource.Name == nil {
+		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: name must be set"))
+	}
+
 	createOpts := resourceclasses.CreateOpts{
 		Name: getResourceName(obj),
-		// TODO(scaffolding): Add more fields
 	}
 
 	osResource, err := actuator.osClient.CreateResourceClass(ctx, createOpts)
