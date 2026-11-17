@@ -17,7 +17,10 @@ limitations under the License.
 package apivalidations
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -94,12 +97,39 @@ var _ = Describe("ORC ResourceClass API validations", func() {
 		},
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should be immutable", func(ctx context.Context) {
+		obj := resourceclassStub(namespace)
+		patch := baseResourceClassPatch(obj)
+		patch.Spec.WithResource(testResourceClassResource().
+			WithName("CUSTOM_RESOURCE_CLASS"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testResourceClassResource().
+			WithName("CUSTOM_RESOURCE_CLASS_2"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("ResourceClassResourceSpec is immutable")))
+	})
+
+	It("should reject names without 'CUSTOM'", func(ctx context.Context) {
+		obj := resourceclassStub(namespace)
+		patch := baseResourceClassPatch(obj)
+
+		patch.Spec.WithResource(testResourceClassResource().WithName("resource_class"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("spec.resource.name: Invalid value")))
+	})
+
+	It("should reject non-caps names", func(ctx context.Context) {
+		obj := resourceclassStub(namespace)
+		patch := baseResourceClassPatch(obj)
+
+		patch.Spec.WithResource(testResourceClassResource().WithName("CUSTOM_resource_class"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("spec.resource.name: Invalid value")))
+	})
+
+	It("should accept valid names", func(ctx context.Context) {
+		obj := resourceclassStub(namespace)
+		patch := baseResourceClassPatch(obj)
+
+		patch.Spec.WithResource(testResourceClassResource().WithName("CUSTOM_RESOURCE_CLASS"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
 })
