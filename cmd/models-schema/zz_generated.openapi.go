@@ -138,6 +138,25 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.KeyPairResourceStatus":                 schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.KeyPairSpec":                           schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.KeyPairStatus":                         schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitor":                       schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitor(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorFilter":                 schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorImport":                 schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorList":                   schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorResourceSpec":           schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorResourceStatus":         schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorSpec":                   schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorStatus":                 schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPool":                                schema_openstack_resource_controller_v3_api_v1alpha1_LBPool(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolFilter":                          schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolImport":                          schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolList":                            schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolMemberSpec":                      schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolMemberSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolMemberStatus":                    schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolMemberStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolResourceSpec":                    schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolResourceStatus":                  schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSessionPersistence":              schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolSessionPersistence(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSpec":                            schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolStatus":                          schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Limit":                                 schema_openstack_resource_controller_v3_api_v1alpha1_Limit(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitFilter":                           schema_openstack_resource_controller_v3_api_v1alpha1_LimitFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitImport":                           schema_openstack_resource_controller_v3_api_v1alpha1_LimitImport(ref),
@@ -146,6 +165,24 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitResourceStatus":                   schema_openstack_resource_controller_v3_api_v1alpha1_LimitResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitSpec":                             schema_openstack_resource_controller_v3_api_v1alpha1_LimitSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitStatus":                           schema_openstack_resource_controller_v3_api_v1alpha1_LimitStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Listener":                              schema_openstack_resource_controller_v3_api_v1alpha1_Listener(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerFilter":                        schema_openstack_resource_controller_v3_api_v1alpha1_ListenerFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTS":                          schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTS(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTSStatus":                    schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTSStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerImport":                        schema_openstack_resource_controller_v3_api_v1alpha1_ListenerImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerList":                          schema_openstack_resource_controller_v3_api_v1alpha1_ListenerList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerResourceSpec":                  schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerResourceStatus":                schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerSpec":                          schema_openstack_resource_controller_v3_api_v1alpha1_ListenerSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerStatus":                        schema_openstack_resource_controller_v3_api_v1alpha1_ListenerStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancer":                          schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancer(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerFilter":                    schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerImport":                    schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerList":                      schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerResourceSpec":              schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerResourceStatus":            schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerSpec":                      schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerStatus":                    schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions":                        schema_openstack_resource_controller_v3_api_v1alpha1_ManagedOptions(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Network":                               schema_openstack_resource_controller_v3_api_v1alpha1_Network(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.NetworkFilter":                         schema_openstack_resource_controller_v3_api_v1alpha1_NetworkFilter(ref),
@@ -5876,6 +5913,1621 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairStatus(ref comm
 	}
 }
 
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitor(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitor is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitorFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"poolRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "poolRef filters by the LBPool the health monitor checks.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type filters by the type of health monitor.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitorImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitorList contains a list of LBHealthMonitor.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of LBHealthMonitor.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitor"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitor", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitorResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"poolRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "poolRef is a reference to the ORC LBPool which this health monitor checks. A pool has at most one health monitor.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the type of health monitor.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"delay": {
+						SchemaProps: spec.SchemaProps{
+							Description: "delay is the time, in seconds, between probes to members.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeout": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeout is the maximum time, in seconds, that a probe waits to connect. It must be less than delay.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetries": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetries is the number of successful checks before a member's operating status changes to ONLINE.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetriesDown": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetriesDown is the number of failed checks before a member's operating status changes to ERROR. Octavia's default is 3.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"httpMethod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpMethod is the HTTP method of the probe, for HTTP and HTTPS monitors. Octavia's default is GET.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"httpVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpVersion is the HTTP version of the probe, for HTTP and HTTPS monitors. Octavia's default is 1.0.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"expectedCodes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "expectedCodes are the HTTP status codes of a healthy member: a single code (200), a list (200,202) or a range (200-204). Octavia's default is 200.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"urlPath": {
+						SchemaProps: spec.SchemaProps{
+							Description: "urlPath is the path of the probe, for HTTP and HTTPS monitors. Octavia's default is /.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainName is injected into the Host header of the probe, for HTTP and HTTPS monitors. Requires Octavia API 2.10.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the health monitor, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the health monitor.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"poolRef", "type", "delay", "timeout", "maxRetries"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitorResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"poolID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "poolID is the ID of the pool the health monitor checks.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the type of health monitor.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"delay": {
+						SchemaProps: spec.SchemaProps{
+							Description: "delay is the time, in seconds, between probes.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeout": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeout is the maximum time, in seconds, that a probe waits to connect.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetries": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetries is the number of successful checks before a member is ONLINE.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxRetriesDown": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxRetriesDown is the number of failed checks before a member is in ERROR.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"httpMethod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpMethod is the HTTP method of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"httpVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "httpVersion is the HTTP version of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"expectedCodes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "expectedCodes are the HTTP status codes of a healthy member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"urlPath": {
+						SchemaProps: spec.SchemaProps{
+							Description: "urlPath is the path of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainName is the Host header of the probe.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the health monitor.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the health monitor. See https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the health monitor. See https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitorSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorResourceSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBHealthMonitorStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBHealthMonitorStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBHealthMonitorResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPool(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPool is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerRef filters by the LoadBalancer this pool is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"listenerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "listenerRef filters by the Listener this pool is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef filters by the Project this pool is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"lbAlgorithm": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lbAlgorithm filters by the load balancing algorithm.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol filters by the protocol used by the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolList contains a list of LBPool.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of LBPool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPool"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPool", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolMemberSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolMemberSpec defines a member of an LB pool.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a human-readable name for the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"address": {
+						SchemaProps: spec.SchemaProps{
+							Description: "address is the IP address of the member to receive traffic.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocolPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocolPort is the port on which the member application is listening.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"subnetRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "subnetRef is a reference to the ORC Subnet where the member resides.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"weight": {
+						SchemaProps: spec.SchemaProps{
+							Description: "weight is the relative portion of traffic this member should receive. A member with weight 10 receives 5x the traffic of a member with weight 2. Default is 1.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"backup": {
+						SchemaProps: spec.SchemaProps{
+							Description: "backup indicates whether this is a backup member. Backup members only receive traffic when all non-backup members are down.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the member (up=true, down=false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"monitorAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorAddress is an alternate IP address used for health monitoring the member. If not specified, the member's address is monitored.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"monitorPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorPort is an alternate port used for health monitoring the member. If not specified, the member's protocolPort is monitored.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the member.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"address", "protocolPort"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolMemberStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolMemberStatus represents the observed state of a pool member.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the member in OpenStack.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the human-readable name for the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"address": {
+						SchemaProps: spec.SchemaProps{
+							Description: "address is the IP address of the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocolPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocolPort is the port on which the member is listening.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"subnetID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "subnetID is the ID of the subnet the member is on.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"weight": {
+						SchemaProps: spec.SchemaProps{
+							Description: "weight is the weight of the member for load balancing.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"backup": {
+						SchemaProps: spec.SchemaProps{
+							Description: "backup indicates whether this is a backup member.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the member.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"monitorAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorAddress is the alternate IP address used for health monitoring.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"monitorPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "monitorPort is the alternate port used for health monitoring.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the member.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"lbAlgorithm": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lbAlgorithm is the load balancing algorithm used to distribute traffic to the pool's members.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol is the protocol used by the pool and its members for traffic.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerRef is a reference to the ORC LoadBalancer which this pool is associated with. Either loadBalancerRef or listenerRef must be specified.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"listenerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "listenerRef is a reference to the ORC Listener which this pool is associated with as the default pool. Either loadBalancerRef or listenerRef must be specified.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the pool, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"sessionPersistence": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sessionPersistence is the session persistence configuration for the pool.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSessionPersistence"),
+						},
+					},
+					"tlsEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsEnabled enables backend re-encryption when set to true.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tlsContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsContainerURL is the URL of a Barbican secret or container with the PKCS12 client certificate/key bundle for backend re-encryption.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"caTLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "caTLSContainerURL is the URL of a Barbican secret with the CA certificate used to verify the members.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"crlContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "crlContainerURL is the URL of a Barbican secret with the CA revocation list used to verify the members.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsCiphers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsCiphers is a colon-separated list of ciphers for backend TLS connections.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsVersions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsVersions is a list of TLS protocol versions to be used for backend TLS connections.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"alpnProtocols": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "alpnProtocols is a list of ALPN protocols for backend TLS connections. Available protocols: h2, http/1.0, http/1.1.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the pool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"members": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "members is a list of backend members for this pool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolMemberSpec"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"lbAlgorithm", "protocol"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolMemberSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSessionPersistence"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"lbAlgorithm": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lbAlgorithm is the load balancing algorithm used by the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol is the protocol used by the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerIDs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerIDs is the list of LoadBalancer IDs this pool is associated with.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"listenerIDs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "listenerIDs is the list of Listener IDs this pool is associated with.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the Project this pool is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the pool, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"healthMonitorID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "healthMonitorID is the ID of the health monitor associated with this pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"members": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "members is the list of members in this pool with their details.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolMemberStatus"),
+									},
+								},
+							},
+						},
+					},
+					"sessionPersistence": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sessionPersistence is the session persistence configuration.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSessionPersistence"),
+						},
+					},
+					"tlsEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsEnabled indicates whether backend re-encryption is enabled.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tlsContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsContainerURL is the URL of the client certificate bundle.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"caTLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "caTLSContainerURL is the URL of the CA certificate.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"crlContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "crlContainerURL is the URL of the CA revocation list.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsCiphers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsCiphers is the list of TLS ciphers for backend connections.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsVersions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsVersions is the list of TLS versions for backend connections.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"alpnProtocols": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "alpnProtocols is the list of ALPN protocols for backend connections.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolMemberStatus", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolSessionPersistence"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolSessionPersistence(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolSessionPersistence represents session persistence configuration for a pool.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the type of session persistence.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"cookieName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cookieName is the name of the cookie if persistence type is APP_COOKIE. Required when type is APP_COOKIE.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolResourceSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LBPoolStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LBPoolResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
 func schema_openstack_resource_controller_v3_api_v1alpha1_Limit(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -6296,6 +7948,1603 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LimitStatus(ref common
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_Listener(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "Listener is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerFilter defines an existing resource by its properties.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerRef filters by the LoadBalancer this listener belongs to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol filters by the protocol used by the listener.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocolPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocolPort filters by the port used by the listener.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTS(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerHSTS represents HTTP Strict Transport Security configuration.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"maxAge": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxAge is the maximum time in seconds that the browser should remember that this site is only to be accessed using HTTPS.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"includeSubDomains": {
+						SchemaProps: spec.SchemaProps{
+							Description: "includeSubDomains specifies whether this rule applies to all subdomains.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"preload": {
+						SchemaProps: spec.SchemaProps{
+							Description: "preload specifies whether the domain should be included in browsers' preload list.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTSStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerHSTSStatus is the observed HTTP Strict Transport Security configuration.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"maxAge": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxAge is the HSTS max-age in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"includeSubDomains": {
+						SchemaProps: spec.SchemaProps{
+							Description: "includeSubDomains is whether HSTS applies to subdomains.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"preload": {
+						SchemaProps: spec.SchemaProps{
+							Description: "preload is whether the domain may be included in the browsers' preload list.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerList contains a list of Listener.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of Listener.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Listener"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Listener", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerRef is a reference to the LoadBalancer this listener belongs to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol is the protocol the listener will use.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocolPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocolPort is the port on which the listener will accept connections.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the listener, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"connectionLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "connectionLimit is the maximum number of connections permitted for this listener. Default value is -1 which represents infinite connections.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"defaultTLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultTLSContainerURL is the URL of a Barbican secret or container with the PKCS12 certificate/key bundle for TERMINATED_HTTPS listeners.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"sniContainerURLs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "sniContainerURLs are the URLs of Barbican secrets or containers with the PKCS12 certificate/key bundles for TERMINATED_HTTPS listeners using SNI.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"defaultPoolRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultPoolRef is a reference to the LBPool that receives the traffic not handled by an L7 policy. Use it with a pool created on the load balancer (loadBalancerRef); a pool created with listenerRef becomes the listener's default pool by itself.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"insertHeaders": {
+						SchemaProps: spec.SchemaProps{
+							Description: "insertHeaders is a dictionary of optional headers to insert into the request before it is sent to the backend member.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"timeoutClientData": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutClientData is the frontend client inactivity timeout in milliseconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeoutMemberConnect": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutMemberConnect is the backend member connection timeout in milliseconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeoutMemberData": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutMemberData is the backend member inactivity timeout in milliseconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeoutTCPInspect": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutTCPInspect is the time in milliseconds to wait for additional TCP packets for content inspection.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"allowedCIDRs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "allowedCIDRs is a list of IPv4/IPv6 CIDRs that are permitted to connect to this listener.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tlsCiphers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsCiphers is a colon-separated list of ciphers for TLS-terminated listeners.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsVersions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsVersions is a list of TLS protocol versions to be used by the listener.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"alpnProtocols": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "alpnProtocols is a list of ALPN protocols for TLS-enabled listeners.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"clientAuthentication": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientAuthentication is the TLS client authentication mode.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientCATLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientCATLSContainerURL is the URL of a Barbican secret with the CA certificate for client authentication.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientCRLContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientCRLContainerURL is the URL of a Barbican secret with the CA revocation list for client authentication.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"hsts": {
+						SchemaProps: spec.SchemaProps{
+							Description: "hsts is the HTTP Strict Transport Security configuration.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTS"),
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the listener.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"loadBalancerRef", "protocol", "protocolPort"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTS"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a human-readable name for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerID is the ID of the LoadBalancer this listener belongs to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol is the protocol used by the listener.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocolPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocolPort is the port used by the listener.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the listener, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"connectionLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "connectionLimit is the maximum number of connections permitted for this listener.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"defaultPoolID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultPoolID is the ID of the default pool for this listener.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the listener.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the listener.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"allowedCIDRs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "allowedCIDRs is the list of CIDRs permitted to connect to this listener.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"timeoutClientData": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutClientData is the frontend client inactivity timeout in milliseconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeoutMemberConnect": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutMemberConnect is the backend member connection timeout in milliseconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeoutMemberData": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutMemberData is the backend member inactivity timeout in milliseconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"timeoutTCPInspect": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timeoutTCPInspect is the time to wait for additional TCP packets in milliseconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"insertHeaders": {
+						SchemaProps: spec.SchemaProps{
+							Description: "insertHeaders is a dictionary of headers inserted into the request.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"defaultTLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultTLSContainerURL is the URL of the default TLS certificate bundle.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"sniContainerURLs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "sniContainerURLs are the URLs of the SNI certificate bundles.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tlsCiphers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsCiphers is the colon-separated list of TLS ciphers.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsVersions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsVersions is the list of TLS protocol versions.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"alpnProtocols": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "alpnProtocols is the list of ALPN protocols.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"clientAuthentication": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientAuthentication is the TLS client authentication mode.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientCATLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientCATLSContainerURL is the URL of the client authentication CA certificate.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientCRLContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientCRLContainerURL is the URL of the client authentication revocation list.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"hsts": {
+						SchemaProps: spec.SchemaProps{
+							Description: "hsts is the HTTP Strict Transport Security configuration.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTSStatus"),
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTSStatus"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerResourceSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancer(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancer is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipSubnetRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipSubnetRef filters by the subnet on which the load balancer's address is allocated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipNetworkRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipNetworkRef filters by the network on which the load balancer's address is allocated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipPortRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipPortRef filters by the neutron port used for the VIP.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone filters by the Octavia availability zone of the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provider filters by the name of the load balancer provider.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipAddress filters by the IP address of the load balancer's VIP.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp filters by the administrative state of the load balancer.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerList contains a list of LoadBalancer.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of LoadBalancer.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancer"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancer", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipSubnetRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipSubnetRef is the subnet on which to allocate the load balancer's address.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipNetworkRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipNetworkRef is the network on which to allocate the load balancer's address.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipPortRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipPortRef is a reference to a neutron port to use for the VIP. If the port has more than one subnet you must specify either vipSubnetRef or vipAddress to clarify which address should be used for the VIP.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the load balancer, which is up (true) or down (false)",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the name of an Octavia availability zone, which the cloud operator creates. It is not a compute availability zone.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provider is the name of the load balancer provider.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipAddress is the specific IP address to use for the VIP (optional). If not specified, one is allocated automatically from the subnet.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the load balancer.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipSubnetID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipSubnetID is the ID of the Subnet to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipNetworkID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipNetworkID is the ID of the Network to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipPortID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipPortID is the ID of the Port to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"flavorID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "flavorID is the ID of the Octavia flavor of the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the Project to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the load balancer, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the Octavia availability zone of the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the load balancer. See https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the load balancer. See https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provider is the name of the load balancer provider.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipAddress is the IP address of the load balancer's VIP.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerResourceSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LoadBalancerStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LoadBalancerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 

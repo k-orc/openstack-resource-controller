@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for LBPool/lbhealthmonitor-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for LBPool/lbhealthmonitor-import-dependency to be ready
+      status: "True"
+      reason: Progressing
