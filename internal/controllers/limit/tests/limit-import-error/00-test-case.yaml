@@ -1,4 +1,5 @@
-# Skip limit import tests due to a Keystone API issue (list limit) in older versions
+# Skip limit import tests due to a Keystone API issue (list limit) in older versions.
+# This test also needs admin credentials: skipped by test runs labelled admin=false.
 apiVersion: kuttl.dev/v1beta1
 kind: TestCase
 testRunSelector:
@@ -7,3 +8,6 @@ testRunSelector:
     operator: NotIn
     values:
     - "true"
+  - key: admin
+    operator: NotIn
+    values: ["false"]

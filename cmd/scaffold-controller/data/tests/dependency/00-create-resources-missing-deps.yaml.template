@@ -10,6 +10,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    # An admin test also needs a 00-test-case.yaml, see https://k-orc.cloud/development/writing-tests/#admin-credentials
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
@@ -26,6 +27,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    # An admin test also needs a 00-test-case.yaml, see https://k-orc.cloud/development/writing-tests/#admin-credentials
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
@@ -48,6 +50,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    # An admin test also needs a 00-test-case.yaml, see https://k-orc.cloud/development/writing-tests/#admin-credentials
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
@@ -66,6 +69,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    # An admin test also needs a 00-test-case.yaml, see https://k-orc.cloud/development/writing-tests/#admin-credentials
     cloudName: openstack
     secretName: {{ .PackageName }}-dependency
   managementPolicy: managed
