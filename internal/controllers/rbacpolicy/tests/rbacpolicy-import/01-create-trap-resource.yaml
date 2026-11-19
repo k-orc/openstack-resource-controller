@@ -1,0 +1,30 @@
+---
+# This `rbacpolicy-import-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource with a different
+#   targetProjectID (i.e. it's not being adopted)
+# - ensure that importing a resource with the filter's targetProjectID will not
+#   pick this one, since it was created with a different targetProjectID.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: rbacpolicy-import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: rbacpolicy-import-not-this-one
+    action: access_as_shared
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000017"
