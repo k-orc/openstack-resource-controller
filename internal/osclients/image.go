@@ -18,15 +18,18 @@ package osclients
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
+	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/imagedata"
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/imageimport"
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
+	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/members"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
@@ -39,6 +42,12 @@ type ImageClient interface {
 	UploadData(ctx context.Context, id string, data io.Reader) error
 	GetImportInfo(ctx context.Context) (*imageimport.ImportInfo, error)
 	CreateImport(ctx context.Context, id string, createOpts imageimport.CreateOptsBuilder) error
+	ListImageMembers(ctx context.Context, imageID string) iter.Seq2[*members.Member, error]
+	CreateImageMember(ctx context.Context, imageID, memberID string) (*members.Member, error)
+	DeleteImageMember(ctx context.Context, imageID, memberID string) error
+	GetImageMember(ctx context.Context, imageID, memberID string) (*members.Member, error)
+	UpdateImageMember(ctx context.Context, imageID, memberID string, opts members.UpdateOptsBuilder) (*members.Member, error)
+	GetAuthenticatedProjectID() (string, error)
 }
 
 type imageClient struct{ client *gophercloud.ServiceClient }
@@ -98,6 +107,47 @@ func (c imageClient) CreateImport(ctx context.Context, id string, createOpts ima
 	return imageimport.Create(ctx, c.client, id, createOpts).ExtractErr()
 }
 
+func (c imageClient) ListImageMembers(ctx context.Context, imageID string) iter.Seq2[*members.Member, error] {
+	pager := members.List(c.client, imageID)
+	return listResources(ctx, pager, members.ExtractMembers)
+}
+
+func (c imageClient) CreateImageMember(ctx context.Context, imageID, memberID string) (*members.Member, error) {
+	return members.Create(ctx, c.client, imageID, memberID).Extract()
+}
+
+func (c imageClient) DeleteImageMember(ctx context.Context, imageID, memberID string) error {
+	return members.Delete(ctx, c.client, imageID, memberID).ExtractErr()
+}
+
+func (c imageClient) GetImageMember(ctx context.Context, imageID, memberID string) (*members.Member, error) {
+	return members.Get(ctx, c.client, imageID, memberID).Extract()
+}
+
+func (c imageClient) UpdateImageMember(ctx context.Context, imageID, memberID string, opts members.UpdateOptsBuilder) (*members.Member, error) {
+	return members.Update(ctx, c.client, imageID, memberID, opts).Extract()
+}
+
+// GetAuthenticatedProjectID returns the ID of the project of the token
+func (c imageClient) GetAuthenticatedProjectID() (string, error) {
+	r := c.client.GetAuthResult()
+	if r == nil {
+		return "", errors.New("no AuthResult available")
+	}
+	result, ok := r.(tokens.CreateResult)
+	if !ok {
+		return "", errors.New("wrong AuthResult version")
+	}
+	project, err := result.ExtractProject()
+	if err != nil {
+		return "", err
+	}
+	if project == nil {
+		return "", errors.New("token is not project scoped")
+	}
+	return project.ID, nil
+}
+
 type imageErrorClient struct{ error }
 
 // NewImageErrorClient returns an ImageClient in which every method returns the given error.
@@ -137,4 +187,30 @@ func (e imageErrorClient) GetImportInfo(_ context.Context) (*imageimport.ImportI
 
 func (e imageErrorClient) CreateImport(_ context.Context, _ string, _ imageimport.CreateOptsBuilder) error {
 	return e.error
+}
+
+func (e imageErrorClient) ListImageMembers(_ context.Context, _ string) iter.Seq2[*members.Member, error] {
+	return func(yield func(*members.Member, error) bool) {
+		yield(nil, e.error)
+	}
+}
+
+func (e imageErrorClient) CreateImageMember(_ context.Context, _, _ string) (*members.Member, error) {
+	return nil, e.error
+}
+
+func (e imageErrorClient) DeleteImageMember(_ context.Context, _, _ string) error {
+	return e.error
+}
+
+func (e imageErrorClient) GetImageMember(_ context.Context, _, _ string) (*members.Member, error) {
+	return nil, e.error
+}
+
+func (e imageErrorClient) UpdateImageMember(_ context.Context, _, _ string, _ members.UpdateOptsBuilder) (*members.Member, error) {
+	return nil, e.error
+}
+
+func (e imageErrorClient) GetAuthenticatedProjectID() (string, error) {
+	return "", e.error
 }

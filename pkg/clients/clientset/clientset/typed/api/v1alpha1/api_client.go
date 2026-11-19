@@ -37,6 +37,7 @@ type OpenstackV1alpha1Interface interface {
 	FloatingIPsGetter
 	GroupsGetter
 	ImagesGetter
+	ImageMembersGetter
 	KeyPairsGetter
 	LimitsGetter
 	NetworksGetter
@@ -101,6 +102,10 @@ func (c *OpenstackV1alpha1Client) Groups(namespace string) GroupInterface {
 
 func (c *OpenstackV1alpha1Client) Images(namespace string) ImageInterface {
 	return newImages(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) ImageMembers(namespace string) ImageMemberInterface {
+	return newImageMembers(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) KeyPairs(namespace string) KeyPairInterface {

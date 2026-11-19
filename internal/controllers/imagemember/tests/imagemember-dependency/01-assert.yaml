@@ -1,0 +1,26 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ImageMember
+metadata:
+  name: imagemember-dependency
+status:
+  conditions:
+    - type: Available
+      message: Waiting for the image owner to add the project as a member
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for the image owner to add the project as a member
+      status: "True"
+      reason: Progressing
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: imagemember-dependency
+      ref: image
+assertAll:
+    # The image owner must always be able to delete the image
+    - celExpr: "!('openstack.k-orc.cloud/imagemember' in image.metadata.finalizers)"

@@ -23,6 +23,7 @@ rules:
   - floatingips
   - groups
   - images
+  - imagemembers
   - keypairs
   - limits
   - networks

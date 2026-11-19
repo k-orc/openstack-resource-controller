@@ -196,6 +196,24 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ImageHashApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImageImport"):
 		return &apiv1alpha1.ImageImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMember"):
+		return &apiv1alpha1.ImageMemberApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberFilter"):
+		return &apiv1alpha1.ImageMemberFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberGrant"):
+		return &apiv1alpha1.ImageMemberGrantApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberGrantStatus"):
+		return &apiv1alpha1.ImageMemberGrantStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberImport"):
+		return &apiv1alpha1.ImageMemberImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberResourceSpec"):
+		return &apiv1alpha1.ImageMemberResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberResourceStatus"):
+		return &apiv1alpha1.ImageMemberResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberSpec"):
+		return &apiv1alpha1.ImageMemberSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImageMemberStatus"):
+		return &apiv1alpha1.ImageMemberStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImageProperties"):
 		return &apiv1alpha1.ImagePropertiesApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImagePropertiesHardware"):

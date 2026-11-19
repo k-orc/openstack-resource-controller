@@ -70,7 +70,7 @@ func TestHandleNameUpdate(t *testing.T) {
 				},
 			}
 
-			osResource := &images.Image{Name: tt.existingValue}
+			osResource := &osResourceT{Image: images.Image{Name: tt.existingValue}}
 			updateOpts := images.UpdateOpts{}
 
 			updateOpts = handleNameUpdate(updateOpts, resource, osResource)
@@ -124,7 +124,7 @@ func TestHandleVisibilityUpdate(t *testing.T) {
 			resource := &orcv1alpha1.ImageResourceSpec{
 				Visibility: tt.newValue,
 			}
-			osResource := &images.Image{Visibility: tt.existingValue}
+			osResource := &osResourceT{Image: images.Image{Visibility: tt.existingValue}}
 			updateOpts := images.UpdateOpts{}
 
 			updateOpts = handleVisibilityUpdate(updateOpts, resource, osResource)
@@ -184,7 +184,7 @@ func TestHandleProtectedUpdate(t *testing.T) {
 				Protected: tt.newValue,
 			}
 
-			osResource := &images.Image{Protected: tt.existingValue}
+			osResource := &osResourceT{Image: images.Image{Protected: tt.existingValue}}
 
 			updateOpts := images.UpdateOpts{}
 			updateOpts = handleProtectedUpdate(updateOpts, resource, osResource)
@@ -283,7 +283,7 @@ func TestHandleTagsUpdate(t *testing.T) {
 			resource := &orcv1alpha1.ImageResourceSpec{
 				Tags: tt.newValue,
 			}
-			osResource := &images.Image{Tags: tt.existingValue}
+			osResource := &osResourceT{Image: images.Image{Tags: tt.existingValue}}
 			updateOpts := images.UpdateOpts{}
 
 			updateOpts = handleTagsUpdate(updateOpts, resource, osResource)
@@ -297,16 +297,16 @@ func TestHandleTagsUpdate(t *testing.T) {
 }
 
 func TestHashMatches(t *testing.T) {
-	sha512Image := &images.Image{
+	sha512Image := &osResourceT{Image: images.Image{
 		Checksum: "md5-value",
 		Properties: map[string]any{
 			glanceOSHashAlgo:  "sha512",
 			glanceOSHashValue: "sha512-value",
 		},
-	}
+	}}
 	testCases := []struct {
 		name  string
-		image *images.Image
+		image *osResourceT
 		hash  orcv1alpha1.ImageHash
 		want  bool
 	}{
@@ -315,7 +315,7 @@ func TestHashMatches(t *testing.T) {
 		{name: "Same md5", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmMD5, Value: "md5-value"}, want: true},
 		{name: "Different md5", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmMD5, Value: "other"}, want: false},
 		{name: "Algorithm not stored by Glance", image: sha512Image, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmSHA256, Value: "other"}, want: true},
-		{name: "Not uploaded yet", image: &images.Image{}, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmSHA512, Value: "other"}, want: true},
+		{name: "Not uploaded yet", image: &osResourceT{}, hash: orcv1alpha1.ImageHash{Algorithm: orcv1alpha1.ImageHashAlgorithmSHA512, Value: "other"}, want: true},
 	}
 
 	for _, tt := range testCases {
