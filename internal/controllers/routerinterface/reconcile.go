@@ -17,13 +17,14 @@ limitations under the License.
 package routerinterface
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"slices"
-	"strings"
 
 	"github.com/go-logr/logr"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -419,15 +420,26 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, log 
 // isInUseByRoute returns true if Neutron refused to remove a router interface
 // because a route of the router uses it.
 func isInUseByRoute(err error) bool {
-	return orcerrors.IsConflict(err) && strings.Contains(err.Error(), "RouterInterfaceInUseByRoute")
+	if !orcerrors.IsConflict(err) {
+		return false
+	}
+
+	var responseErr gophercloud.ErrUnexpectedResponseCode
+	if !errors.As(err, &responseErr) {
+		return false
+	}
+
+	return bytes.Contains(responseErr.Body, []byte("RouterInterfaceInUseByRoute"))
 }
 
 // handleInUseByRoute handles a router interface which can't be removed because
-// a route of the router uses it. If the router is being deleted, we remove its
-// routes: the router can't be deleted before its interfaces. Otherwise the route
-// must be removed from the router spec first.
+// a route of the router uses it. If the router is being deleted and we manage
+// it, we remove its routes: the router can't be deleted before its interfaces.
+// Otherwise the route must be removed first.
 func (r *orcRouterInterfaceReconciler) handleInUseByRoute(ctx context.Context, log logr.Logger, router *orcv1alpha1.Router, networkClient osclients.NetworkClient) progress.ReconcileStatus {
-	if router.GetDeletionTimestamp().IsZero() {
+	if router.GetDeletionTimestamp().IsZero() ||
+		router.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged ||
+		router.Spec.ManagedOptions.GetOnDelete() == orcv1alpha1.OnDeleteDetach {
 		return progress.NewReconcileStatus().
 			WithProgressMessage("Router interface is used by a route of the router").
 			WithRequeue(portStatusPollingPeriod)
