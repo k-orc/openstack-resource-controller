@@ -1,0 +1,7 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # Neutron refuses to remove the interface while a route uses it
+  - command: kubectl delete routerinterface routerinterface-routes --wait=false
+    namespaced: true

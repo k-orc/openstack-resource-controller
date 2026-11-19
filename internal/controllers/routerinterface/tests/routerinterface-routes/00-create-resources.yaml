@@ -1,0 +1,51 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: routerinterface-routes
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: routerinterface-routes
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: routerinterface-routes
+    cidr: 192.0.2.0/24
+    ipVersion: 4
+    gateway:
+      type: IP
+      ip: 192.0.2.1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: routerinterface-routes
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    routes:
+      - destination: 203.0.113.0/24
+        nextHop: 192.0.2.10
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-routes
+spec:
+  type: Subnet
+  routerRef: routerinterface-routes
+  subnetRef: routerinterface-routes

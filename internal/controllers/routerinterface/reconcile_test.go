@@ -18,9 +18,13 @@ package routerinterface
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"iter"
+	"net/http"
 	"testing"
 
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	"go.uber.org/mock/gomock"
@@ -97,5 +101,29 @@ func TestReconcile_DeletesInterfaceOfNotAvailableRouter(t *testing.T) {
 	r := orcRouterInterfaceReconciler{client: k8sClient, scopeFactory: scopeFactory}
 	if _, err := r.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKeyFromObject(router)}); err != nil {
 		t.Fatalf("Reconcile() error = %v", err)
+	}
+}
+
+func TestIsInUseByRoute(t *testing.T) {
+	conflict := func(body string) error {
+		return gophercloud.ErrUnexpectedResponseCode{Actual: http.StatusConflict, Body: []byte(body)}
+	}
+	testCases := []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{name: "in use by route", err: conflict(`{"NeutronError": {"type": "RouterInterfaceInUseByRoute"}}`), want: true},
+		{name: "wrapped", err: fmt.Errorf("removing router interface: %w", conflict(`{"NeutronError": {"type": "RouterInterfaceInUseByRoute"}}`)), want: true},
+		{name: "other conflict", err: conflict(`{"NeutronError": {"type": "RouterInUse"}}`)},
+		{name: "not a conflict", err: gophercloud.ErrUnexpectedResponseCode{Actual: http.StatusBadRequest, Body: []byte("RouterInterfaceInUseByRoute")}},
+		{name: "other error", err: errors.New("RouterInterfaceInUseByRoute")},
+	}
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isInUseByRoute(tt.err); got != tt.want {
+				t.Errorf("isInUseByRoute() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

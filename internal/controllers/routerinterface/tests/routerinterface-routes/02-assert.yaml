@@ -1,0 +1,9 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# Deleting the router removes its routes, so its interface can be removed
+- script: "! kubectl get routerinterface routerinterface-routes --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get router routerinterface-routes --namespace $NAMESPACE"
+  skipLogOutput: true
