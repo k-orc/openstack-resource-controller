@@ -34,6 +34,7 @@ rules:
   - recordsets
   - regions
   - registeredlimits
+  - resourceclasses
   - roleassignments
   - roles
   - routerinterfaces
@@ -77,6 +78,7 @@ rules:
   - recordsets/status
   - regions/status
   - registeredlimits/status
+  - resourceclasses/status
   - roleassignments/status
   - roles/status
   - routerinterfaces/status

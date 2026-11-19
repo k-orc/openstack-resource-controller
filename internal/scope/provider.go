@@ -260,6 +260,12 @@ func (s *providerScope) NewRecordSetClient() (clients.RecordSetClient, error) {
 	return client, err
 }
 
+func (s *providerScope) NewResourceClassClient() (clients.ResourceClassClient, error) {
+	client, err := clients.NewResourceClassClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
+}
+
 func (s *providerScope) NewEndpointClient() (clients.EndpointClient, error) {
 	client, err := clients.NewEndpointClient(s.providerClient, s.providerClientOpts)
 	s.checkNewClientError(err)

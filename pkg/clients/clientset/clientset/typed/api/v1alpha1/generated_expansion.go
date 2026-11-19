@@ -52,6 +52,8 @@ type RegionExpansion interface{}
 
 type RegisteredLimitExpansion interface{}
 
+type ResourceClassExpansion interface{}
+
 type RoleExpansion interface{}
 
 type RoleAssignmentExpansion interface{}

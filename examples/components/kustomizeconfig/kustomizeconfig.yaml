@@ -214,6 +214,8 @@ nameReference:
     path: spec/cloudCredentialsRef/secretName
   - kind: RegisteredLimit
     path: spec/cloudCredentialsRef/secretName
+  - kind: ResourceClass
+    path: spec/cloudCredentialsRef/secretName
   - kind: Role
     path: spec/cloudCredentialsRef/secretName
   - kind: RoleAssignment

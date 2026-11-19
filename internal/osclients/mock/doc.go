@@ -68,6 +68,9 @@ import (
 //go:generate mockgen -package mock -destination=registeredlimit.go -source=../registeredlimit.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock RegisteredLimitClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt registeredlimit.go > _registeredlimit.go && mv _registeredlimit.go registeredlimit.go"
 
+//go:generate mockgen -package mock -destination=resourceclass.go -source=../resourceclass.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock ResourceClassClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt resourceclass.go > _resourceclass.go && mv _resourceclass.go resourceclass.go"
+
 //go:generate mockgen -package mock -destination=role.go -source=../role.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock RoleClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt role.go > _role.go && mv _role.go role.go"
 
