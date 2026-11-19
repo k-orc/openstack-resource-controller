@@ -1,0 +1,9 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # Leave the subnet without the load balancer deletion guard: the guard isn't removed when the
+  # load balancer object is deleted, only when the subnet itself is.
+  - script: |
+      fins=$(kubectl get subnet.openstack.k-orc.cloud loadbalancer-adopt --namespace $NAMESPACE -o go-template='{{range .metadata.finalizers}}{{if ne . "openstack.k-orc.cloud/loadbalancer"}}"{{.}}",{{end}}{{end}}')
+      kubectl patch subnet.openstack.k-orc.cloud loadbalancer-adopt --namespace $NAMESPACE --type=merge -p "{\"metadata\":{\"finalizers\":[${fins%,}]}}"
