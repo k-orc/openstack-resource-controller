@@ -45,6 +45,8 @@ type MockScopeFactory struct {
 	IdentityClient              *mock.MockIdentityClient
 	ImageClient                 *mock.MockImageClient
 	KeyPairClient               *mock.MockKeyPairClient
+	LoadBalancerClient          *mock.MockLoadBalancerClient
+	ListenerClient              *mock.MockListenerClient
 	NetworkClient               *mock.MockNetworkClient
 	RegionClient                *mock.MockRegionClient
 	RegisteredLimitClient       *mock.MockRegisteredLimitClient
@@ -73,6 +75,8 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
+	loadBalancerClient := mock.NewMockLoadBalancerClient(mockCtrl)
+	listenerClient := mock.NewMockListenerClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	regionClient := mock.NewMockRegionClient(mockCtrl)
 	registeredLimitClient := mock.NewMockRegisteredLimitClient(mockCtrl)
@@ -98,6 +102,8 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		IdentityClient:              identityClient,
 		ImageClient:                 imageClient,
 		KeyPairClient:               keypairClient,
+		LoadBalancerClient:          loadBalancerClient,
+		ListenerClient:              listenerClient,
 		NetworkClient:               networkClient,
 		RegionClient:                regionClient,
 		RegisteredLimitClient:       registeredLimitClient,
@@ -210,6 +216,14 @@ func (f *MockScopeFactory) NewEndpointClient() (osclients.EndpointClient, error)
 
 func (f *MockScopeFactory) NewApplicationCredentialClient() (osclients.ApplicationCredentialClient, error) {
 	return f.ApplicationCredentialClient, nil
+}
+
+func (f *MockScopeFactory) NewLoadBalancerClient() (osclients.LoadBalancerClient, error) {
+	return f.LoadBalancerClient, nil
+}
+
+func (f *MockScopeFactory) NewListenerClient() (osclients.ListenerClient, error) {
+	return f.ListenerClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

@@ -21,6 +21,8 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Image](#image)
 - [KeyPair](#keypair)
 - [Limit](#limit)
+- [Listener](#listener)
+- [LoadBalancer](#loadbalancer)
 - [Network](#network)
 - [Port](#port)
 - [Project](#project)
@@ -526,6 +528,8 @@ _Appears in:_
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
 - [LimitSpec](#limitspec)
+- [ListenerSpec](#listenerspec)
+- [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -1793,6 +1797,8 @@ _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [RouterRoute](#routerroute)
 - [SubnetFilter](#subnetfilter)
 - [SubnetGateway](#subnetgateway)
@@ -2438,6 +2444,10 @@ _Appears in:_
 - [HostID](#hostid)
 - [LimitFilter](#limitfilter)
 - [LimitResourceSpec](#limitresourcespec)
+- [ListenerFilter](#listenerfilter)
+- [ListenerResourceSpec](#listenerresourcespec)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
@@ -2622,6 +2632,478 @@ _Appears in:_
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
+#### Listener
+
+
+
+Listener is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Listener` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[ListenerSpec](#listenerspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[ListenerStatus](#listenerstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### ListenerClientAuthentication
+
+_Underlying type:_ _string_
+
+ListenerClientAuthentication represents TLS client authentication mode.
+
+_Validation:_
+- Enum: [NONE OPTIONAL MANDATORY]
+
+_Appears in:_
+- [ListenerResourceSpec](#listenerresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `NONE` |  |
+| `OPTIONAL` |  |
+| `MANDATORY` |  |
+
+
+#### ListenerFilter
+
+
+
+ListenerFilter defines an existing resource by its properties.
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ListenerImport](#listenerimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description of the existing resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `loadBalancerRef` _[KubernetesNameRef](#kubernetesnameref)_ | loadBalancerRef filters by the LoadBalancer this listener belongs to. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `protocol` _[ListenerProtocol](#listenerprotocol)_ | protocol filters by the protocol used by the listener. |  | Enum: [HTTP HTTPS SCTP PROMETHEUS TCP TERMINATED_HTTPS UDP] <br />Optional: \{\} <br /> |
+| `protocolPort` _integer_ | protocolPort filters by the port used by the listener. |  | Maximum: 65535 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+| `tags` _[ListenerTag](#listenertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tagsAny` _[ListenerTag](#listenertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTags` _[ListenerTag](#listenertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTagsAny` _[ListenerTag](#listenertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### ListenerHSTS
+
+
+
+ListenerHSTS represents HTTP Strict Transport Security configuration.
+
+
+
+_Appears in:_
+- [ListenerResourceSpec](#listenerresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `maxAge` _integer_ | maxAge is the maximum time in seconds that the browser should remember<br />that this site is only to be accessed using HTTPS. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `includeSubDomains` _boolean_ | includeSubDomains specifies whether this rule applies to all subdomains. |  | Optional: \{\} <br /> |
+| `preload` _boolean_ | preload specifies whether the domain should be included in browsers' preload list. |  | Optional: \{\} <br /> |
+
+
+#### ListenerHSTSStatus
+
+
+
+ListenerHSTSStatus is the observed HTTP Strict Transport Security configuration.
+
+
+
+_Appears in:_
+- [ListenerResourceStatus](#listenerresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `maxAge` _integer_ | maxAge is the HSTS max-age in seconds. |  | Optional: \{\} <br /> |
+| `includeSubDomains` _boolean_ | includeSubDomains is whether HSTS applies to subdomains. |  | Optional: \{\} <br /> |
+| `preload` _boolean_ | preload is whether the domain may be included in the browsers' preload list. |  | Optional: \{\} <br /> |
+
+
+#### ListenerImport
+
+
+
+ListenerImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ListenerSpec](#listenerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[ListenerFilter](#listenerfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### ListenerProtocol
+
+_Underlying type:_ _string_
+
+ListenerProtocol represents the protocol used by a listener.
+
+_Validation:_
+- Enum: [HTTP HTTPS SCTP PROMETHEUS TCP TERMINATED_HTTPS UDP]
+
+_Appears in:_
+- [ListenerFilter](#listenerfilter)
+- [ListenerResourceSpec](#listenerresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `HTTP` |  |
+| `HTTPS` |  |
+| `SCTP` |  |
+| `PROMETHEUS` |  |
+| `TCP` |  |
+| `TERMINATED_HTTPS` |  |
+| `UDP` |  |
+
+
+#### ListenerResourceSpec
+
+
+
+ListenerResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ListenerSpec](#listenerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `loadBalancerRef` _[KubernetesNameRef](#kubernetesnameref)_ | loadBalancerRef is a reference to the LoadBalancer this listener belongs to. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `protocol` _[ListenerProtocol](#listenerprotocol)_ | protocol is the protocol the listener will use. |  | Enum: [HTTP HTTPS SCTP PROMETHEUS TCP TERMINATED_HTTPS UDP] <br />Required: \{\} <br /> |
+| `protocolPort` _integer_ | protocolPort is the port on which the listener will accept connections. |  | Maximum: 65535 <br />Minimum: 1 <br />Required: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the listener, which is up (true) or down (false). |  | Optional: \{\} <br /> |
+| `connectionLimit` _integer_ | connectionLimit is the maximum number of connections permitted for this listener.<br />Default value is -1 which represents infinite connections. |  | Minimum: -1 <br />Optional: \{\} <br /> |
+| `defaultTLSContainerURL` _string_ | defaultTLSContainerURL is the URL of a Barbican secret or container with the<br />PKCS12 certificate/key bundle for TERMINATED_HTTPS listeners. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `sniContainerURLs` _string array_ | sniContainerURLs are the URLs of Barbican secrets or containers with the<br />PKCS12 certificate/key bundles for TERMINATED_HTTPS listeners using SNI. |  | MaxItems: 25 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
+| `insertHeaders` _object (keys:string, values:string)_ | insertHeaders is a dictionary of optional headers to insert into the request<br />before it is sent to the backend member. |  | Optional: \{\} <br /> |
+| `timeoutClientData` _integer_ | timeoutClientData is the frontend client inactivity timeout in milliseconds. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `timeoutMemberConnect` _integer_ | timeoutMemberConnect is the backend member connection timeout in milliseconds. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `timeoutMemberData` _integer_ | timeoutMemberData is the backend member inactivity timeout in milliseconds. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `timeoutTCPInspect` _integer_ | timeoutTCPInspect is the time in milliseconds to wait for additional TCP packets<br />for content inspection. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `allowedCIDRs` _string array_ | allowedCIDRs is a list of IPv4/IPv6 CIDRs that are permitted to connect to this listener. |  | MaxItems: 256 <br />items:MaxLength: 64 <br />Optional: \{\} <br /> |
+| `tlsCiphers` _string_ | tlsCiphers is a colon-separated list of ciphers for TLS-terminated listeners. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
+| `tlsVersions` _[ListenerTLSVersion](#listenertlsversion) array_ | tlsVersions is a list of TLS protocol versions to be used by the listener. |  | Enum: [SSLv3 TLSv1 TLSv1.1 TLSv1.2 TLSv1.3] <br />MaxItems: 10 <br />Optional: \{\} <br /> |
+| `alpnProtocols` _string array_ | alpnProtocols is a list of ALPN protocols for TLS-enabled listeners. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `clientAuthentication` _[ListenerClientAuthentication](#listenerclientauthentication)_ | clientAuthentication is the TLS client authentication mode. |  | Enum: [NONE OPTIONAL MANDATORY] <br />Optional: \{\} <br /> |
+| `clientCATLSContainerURL` _string_ | clientCATLSContainerURL is the URL of a Barbican secret with the CA<br />certificate for client authentication. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `clientCRLContainerURL` _string_ | clientCRLContainerURL is the URL of a Barbican secret with the CA<br />revocation list for client authentication. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `hsts` _[ListenerHSTS](#listenerhsts)_ | hsts is the HTTP Strict Transport Security configuration. |  | Optional: \{\} <br /> |
+| `tags` _[ListenerTag](#listenertag) array_ | tags is a list of tags which will be applied to the listener. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### ListenerResourceStatus
+
+
+
+ListenerResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ListenerStatus](#listenerstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a human-readable name for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `loadBalancerID` _string_ | loadBalancerID is the ID of the LoadBalancer this listener belongs to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `protocol` _string_ | protocol is the protocol used by the listener. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `protocolPort` _integer_ | protocolPort is the port used by the listener. |  | Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the listener,<br />which is up (true) or down (false). |  | Optional: \{\} <br /> |
+| `connectionLimit` _integer_ | connectionLimit is the maximum number of connections permitted for this listener. |  | Optional: \{\} <br /> |
+| `defaultPoolID` _string_ | defaultPoolID is the ID of the default pool for this listener. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the listener. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the listener. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `allowedCIDRs` _string array_ | allowedCIDRs is the list of CIDRs permitted to connect to this listener. |  | MaxItems: 256 <br />items:MaxLength: 64 <br />Optional: \{\} <br /> |
+| `timeoutClientData` _integer_ | timeoutClientData is the frontend client inactivity timeout in milliseconds. |  | Optional: \{\} <br /> |
+| `timeoutMemberConnect` _integer_ | timeoutMemberConnect is the backend member connection timeout in milliseconds. |  | Optional: \{\} <br /> |
+| `timeoutMemberData` _integer_ | timeoutMemberData is the backend member inactivity timeout in milliseconds. |  | Optional: \{\} <br /> |
+| `timeoutTCPInspect` _integer_ | timeoutTCPInspect is the time to wait for additional TCP packets in milliseconds. |  | Optional: \{\} <br /> |
+| `insertHeaders` _object (keys:string, values:string)_ | insertHeaders is a dictionary of headers inserted into the request. |  | Optional: \{\} <br /> |
+| `defaultTLSContainerURL` _string_ | defaultTLSContainerURL is the URL of the default TLS certificate bundle. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `sniContainerURLs` _string array_ | sniContainerURLs are the URLs of the SNI certificate bundles. |  | MaxItems: 25 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `tlsCiphers` _string_ | tlsCiphers is the colon-separated list of TLS ciphers. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
+| `tlsVersions` _string array_ | tlsVersions is the list of TLS protocol versions. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `alpnProtocols` _string array_ | alpnProtocols is the list of ALPN protocols. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `clientAuthentication` _string_ | clientAuthentication is the TLS client authentication mode. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `clientCATLSContainerURL` _string_ | clientCATLSContainerURL is the URL of the client authentication CA certificate. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `clientCRLContainerURL` _string_ | clientCRLContainerURL is the URL of the client authentication revocation list. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `hsts` _[ListenerHSTSStatus](#listenerhstsstatus)_ | hsts is the HTTP Strict Transport Security configuration. |  | Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
+
+
+#### ListenerSpec
+
+
+
+ListenerSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Listener](#listener)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ListenerImport](#listenerimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[ListenerResourceSpec](#listenerresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### ListenerStatus
+
+
+
+ListenerStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Listener](#listener)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[ListenerResourceStatus](#listenerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### ListenerTLSVersion
+
+_Underlying type:_ _string_
+
+ListenerTLSVersion is a TLS protocol version.
+
+_Validation:_
+- Enum: [SSLv3 TLSv1 TLSv1.1 TLSv1.2 TLSv1.3]
+
+_Appears in:_
+- [ListenerResourceSpec](#listenerresourcespec)
+
+
+
+#### ListenerTag
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [ListenerFilter](#listenerfilter)
+- [ListenerResourceSpec](#listenerresourcespec)
+
+
+
+#### LoadBalancer
+
+
+
+LoadBalancer is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `LoadBalancer` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[LoadBalancerSpec](#loadbalancerspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[LoadBalancerStatus](#loadbalancerstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### LoadBalancerFilter
+
+
+
+LoadBalancerFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [LoadBalancerImport](#loadbalancerimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipSubnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipSubnetRef filters by the subnet on which the load balancer's address is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipNetworkRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipNetworkRef filters by the network on which the load balancer's address is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipPortRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipPortRef filters by the neutron port used for the VIP. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `availabilityZone` _string_ | availabilityZone filters by the Octavia availability zone of the load balancer. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `provider` _string_ | provider filters by the name of the load balancer provider. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `vipAddress` _[IPvAny](#ipvany)_ | vipAddress filters by the IP address of the load balancer's VIP. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp filters by the administrative state of the load balancer. |  | Optional: \{\} <br /> |
+| `tags` _[LoadBalancerTag](#loadbalancertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tagsAny` _[LoadBalancerTag](#loadbalancertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTags` _[LoadBalancerTag](#loadbalancertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTagsAny` _[LoadBalancerTag](#loadbalancertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LoadBalancerImport
+
+
+
+LoadBalancerImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [LoadBalancerSpec](#loadbalancerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[LoadBalancerFilter](#loadbalancerfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### LoadBalancerResourceSpec
+
+
+
+LoadBalancerResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [LoadBalancerSpec](#loadbalancerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipSubnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipSubnetRef is the subnet on which to allocate the load balancer's address. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipNetworkRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipNetworkRef is the network on which to allocate the load balancer's address. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipPortRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipPortRef is a reference to a neutron port to use for the VIP. If the port<br />has more than one subnet you must specify either vipSubnetRef or vipAddress<br />to clarify which address should be used for the VIP. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the load balancer, which is up (true) or down (false) |  | Optional: \{\} <br /> |
+| `availabilityZone` _string_ | availabilityZone is the name of an Octavia availability zone, which the<br />cloud operator creates. It is not a compute availability zone. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `provider` _string_ | provider is the name of the load balancer provider. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `vipAddress` _[IPvAny](#ipvany)_ | vipAddress is the specific IP address to use for the VIP (optional).<br />If not specified, one is allocated automatically from the subnet. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tags` _[LoadBalancerTag](#loadbalancertag) array_ | tags is a list of tags which will be applied to the load balancer. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LoadBalancerResourceStatus
+
+
+
+LoadBalancerResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [LoadBalancerStatus](#loadbalancerstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipSubnetID` _string_ | vipSubnetID is the ID of the Subnet to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipNetworkID` _string_ | vipNetworkID is the ID of the Network to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipPortID` _string_ | vipPortID is the ID of the Port to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `flavorID` _string_ | flavorID is the ID of the Octavia flavor of the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the Project to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the load balancer,<br />which is up (true) or down (false). |  | Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
+| `availabilityZone` _string_ | availabilityZone is the Octavia availability zone of the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the load balancer. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#provisioning-status-codes |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the load balancer. See<br />https://docs.openstack.org/api-ref/load-balancer/v2/#operating-status-codes |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `provider` _string_ | provider is the name of the load balancer provider. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipAddress` _string_ | vipAddress is the IP address of the load balancer's VIP. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+
+
+#### LoadBalancerSpec
+
+
+
+LoadBalancerSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [LoadBalancer](#loadbalancer)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[LoadBalancerImport](#loadbalancerimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[LoadBalancerResourceSpec](#loadbalancerresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### LoadBalancerStatus
+
+
+
+LoadBalancerStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [LoadBalancer](#loadbalancer)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[LoadBalancerResourceStatus](#loadbalancerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### LoadBalancerTag
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
+
+
+
 #### MAC
 
 _Underlying type:_ _string_
@@ -2672,6 +3154,8 @@ _Appears in:_
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
 - [LimitSpec](#limitspec)
+- [ListenerSpec](#listenerspec)
+- [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -2719,6 +3203,8 @@ _Appears in:_
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
 - [LimitSpec](#limitspec)
+- [ListenerSpec](#listenerspec)
+- [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -3037,6 +3523,10 @@ _Appears in:_
 - [ImageResourceSpec](#imageresourcespec)
 - [KeyPairFilter](#keypairfilter)
 - [KeyPairResourceSpec](#keypairresourcespec)
+- [ListenerFilter](#listenerfilter)
+- [ListenerResourceSpec](#listenerresourcespec)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
