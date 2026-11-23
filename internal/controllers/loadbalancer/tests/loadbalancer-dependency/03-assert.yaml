@@ -1,0 +1,18 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 300
+commands:
+# Dependencies that were prevented deletion before should now be gone
+- script: "! kubectl get subnet loadbalancer-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get subnet loadbalancer-dependency-subnet --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get network loadbalancer-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get port loadbalancer-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get project loadbalancer-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get secret loadbalancer-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

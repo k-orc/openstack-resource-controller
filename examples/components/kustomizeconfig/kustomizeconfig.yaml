@@ -68,10 +68,20 @@ nameReference:
     path: spec/resource/keypairRef
   kind: KeyPair
 - fieldSpecs:
+  - kind: Listener
+    path: spec/import/filter/loadBalancerRef
+  - kind: Listener
+    path: spec/resource/loadBalancerRef
+  kind: LoadBalancer
+- fieldSpecs:
   - kind: FloatingIP
     path: spec/import/filter/floatingNetworkRef
   - kind: FloatingIP
     path: spec/resource/floatingNetworkRef
+  - kind: LoadBalancer
+    path: spec/import/filter/vipNetworkRef
+  - kind: LoadBalancer
+    path: spec/resource/vipNetworkRef
   - kind: Port
     path: spec/import/filter/networkRef
   - kind: Port
@@ -90,6 +100,10 @@ nameReference:
     path: spec/import/filter/portRef
   - kind: FloatingIP
     path: spec/resource/portRef
+  - kind: LoadBalancer
+    path: spec/import/filter/vipPortRef
+  - kind: LoadBalancer
+    path: spec/resource/vipPortRef
   - kind: RouterInterface
     path: spec/portRef
   - kind: Server
@@ -113,6 +127,10 @@ nameReference:
   - kind: Limit
     path: spec/import/filter/projectRef
   - kind: Limit
+    path: spec/resource/projectRef
+  - kind: LoadBalancer
+    path: spec/import/filter/projectRef
+  - kind: LoadBalancer
     path: spec/resource/projectRef
   - kind: Network
     path: spec/import/filter/projectRef
@@ -202,6 +220,10 @@ nameReference:
     path: spec/cloudCredentialsRef/secretName
   - kind: Limit
     path: spec/cloudCredentialsRef/secretName
+  - kind: Listener
+    path: spec/cloudCredentialsRef/secretName
+  - kind: LoadBalancer
+    path: spec/cloudCredentialsRef/secretName
   - kind: Network
     path: spec/cloudCredentialsRef/secretName
   - kind: Port
@@ -282,6 +304,10 @@ nameReference:
 - fieldSpecs:
   - kind: FloatingIP
     path: spec/resource/floatingSubnetRef
+  - kind: LoadBalancer
+    path: spec/import/filter/vipSubnetRef
+  - kind: LoadBalancer
+    path: spec/resource/vipSubnetRef
   - kind: Port
     path: spec/resource/addresses[]/subnetRef
   - kind: RouterInterface
