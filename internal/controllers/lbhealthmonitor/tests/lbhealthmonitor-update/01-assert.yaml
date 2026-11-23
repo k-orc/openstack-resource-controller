@@ -1,0 +1,27 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-update
+status:
+  resource:
+    name: lbhealthmonitor-update-updated
+    delay: 20
+    timeout: 10
+    maxRetries: 5
+    maxRetriesDown: 6
+    httpMethod: HEAD
+    httpVersion: "1.1"
+    expectedCodes: "200,202"
+    urlPath: /healthz
+    domainName: example.com
+    adminStateUp: false
+    tags:
+      - updated
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

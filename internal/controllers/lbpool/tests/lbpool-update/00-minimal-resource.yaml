@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    loadBalancerRef: lbpool-update
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+    adminStateUp: true

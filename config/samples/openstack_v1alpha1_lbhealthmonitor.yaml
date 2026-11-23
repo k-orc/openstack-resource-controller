@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    poolRef: lbpool-sample
+    type: HTTP
+    delay: 10
+    timeout: 5
+    maxRetries: 3
+    urlPath: /healthz
+    expectedCodes: "200"

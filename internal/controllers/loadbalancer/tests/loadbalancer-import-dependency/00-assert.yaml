@@ -1,0 +1,23 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Network/loadbalancer-import-dependency to be ready
+        Waiting for Project/loadbalancer-import-dependency to be ready
+        Waiting for Subnet/loadbalancer-import-dependency to be ready
+        Waiting for Port/loadbalancer-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Network/loadbalancer-import-dependency to be ready
+        Waiting for Project/loadbalancer-import-dependency to be ready
+        Waiting for Subnet/loadbalancer-import-dependency to be ready
+        Waiting for Port/loadbalancer-import-dependency to be ready
+      status: "True"
+      reason: Progressing

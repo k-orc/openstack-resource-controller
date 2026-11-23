@@ -1,0 +1,19 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-update
+status:
+  resource:
+    name: lbhealthmonitor-update
+    delay: 10
+    timeout: 5
+    maxRetries: 3
+    adminStateUp: true
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

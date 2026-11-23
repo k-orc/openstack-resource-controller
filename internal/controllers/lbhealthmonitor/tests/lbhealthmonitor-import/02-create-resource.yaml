@@ -1,0 +1,31 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbhealthmonitor-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    loadBalancerRef: lbhealthmonitor-import
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBHealthMonitor
+metadata:
+  name: lbhealthmonitor-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    poolRef: lbhealthmonitor-import-external
+    type: HTTP
+    delay: 10
+    timeout: 5
+    maxRetries: 3
