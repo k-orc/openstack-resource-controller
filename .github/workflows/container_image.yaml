@@ -30,10 +30,8 @@ jobs:
     - name: Build and push images
       run: |
         docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io # zizmor: ignore[secrets-outside-env]
-        # Ensure we source identical build arguments for both builds
-        source hack/version.sh && version::get_git_vars && version::get_build_date && \
-          make docker-buildx IMG=${{ env.image_tag_branch }} && \
-          make docker-buildx IMG=${{ env.image_tag_commit }}
+        make docker-buildx IMG=${{ env.image_tag_branch }} \
+          DOCKER_BUILD_ARGS="--tag ${{ env.image_tag_commit }}"
 
     - name: Set expiration on commit image
       env:
