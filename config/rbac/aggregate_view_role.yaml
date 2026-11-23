@@ -20,6 +20,7 @@ rules:
   - addressscopes
   - applicationcredentials
   - dnszones
+  - dnszoneshares
   - domains
   - endpoints
   - flavors
@@ -59,6 +60,7 @@ rules:
   - addressscopes/status
   - applicationcredentials/status
   - dnszones/status
+  - dnszoneshares/status
   - domains/status
   - endpoints/status
   - flavors/status

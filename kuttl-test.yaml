@@ -5,6 +5,7 @@ testDirs:
 - ./internal/controllers/addressscope/tests/
 - ./internal/controllers/applicationcredential/tests/
 - ./internal/controllers/dnszone/tests/
+- ./internal/controllers/dnszoneshare/tests/
 - ./internal/controllers/domain/tests/
 - ./internal/controllers/endpoint/tests/
 - ./internal/controllers/flavor/tests/
