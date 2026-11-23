@@ -38,7 +38,13 @@ type ImageExpansion interface{}
 
 type KeyPairExpansion interface{}
 
+type LBPoolExpansion interface{}
+
 type LimitExpansion interface{}
+
+type ListenerExpansion interface{}
+
+type LoadBalancerExpansion interface{}
 
 type NetworkExpansion interface{}
 

@@ -1,0 +1,21 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-update
+spec:
+  resource:
+    name: listener-update-updated
+    description: listener-update-updated
+    adminStateUp: false
+    connectionLimit: 500
+    timeoutClientData: 20000
+    timeoutMemberConnect: 3000
+    timeoutMemberData: 20000
+    timeoutTCPInspect: 100
+    allowedCIDRs:
+      - "10.0.0.0/8"
+    insertHeaders:
+      X-Forwarded-For: "true"
+    tags:
+      - "updated"
