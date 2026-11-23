@@ -9,8 +9,7 @@ picks it up on a later pass rather than only at creation.
 
 ## Step 01
 
-Clear the router's routes before the test ends - Neutron refuses to remove the interface while
-a route depends on it.
+Clear the router's routes and verify that they are removed from status.
 
 ## Reference
 
