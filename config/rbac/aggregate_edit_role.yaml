@@ -28,6 +28,7 @@ rules:
   - networks
   - ports
   - projects
+  - rbacpolicies
   - recordsets
   - regions
   - registeredlimits

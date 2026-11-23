@@ -1,0 +1,25 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RBACPolicy
+      name: rbacpolicy-update
+      ref: rbacpolicy
+assertAll:
+    - celExpr: "rbacpolicy.status.resource.targetProjectID == '3fac9d0b0e0e4b0e9b0e000000000019'"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-update
+status:
+  resource:
+    action: access_as_shared
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

@@ -1,0 +1,55 @@
+---
+# Two distinct networks: Neutron rejects an exact duplicate RBAC policy (same
+# object_id+action+target_tenant, confirmed live against a real cloud), so to get
+# two OpenStack resources that both match the same (action, targetProjectID) import
+# filter - which doesn't look at the network at all, see rbacpolicy_types.go's
+# RBACPolicyFilter - they must point at different networks.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: rbacpolicy-import-error-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: rbacpolicy-import-error-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: rbacpolicy-import-error-1
+    action: access_as_shared
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000015"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: rbacpolicy-import-error-2
+    action: access_as_shared
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000015"

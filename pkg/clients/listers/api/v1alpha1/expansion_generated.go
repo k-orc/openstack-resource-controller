@@ -130,6 +130,14 @@ type ProjectListerExpansion interface{}
 // ProjectNamespaceLister.
 type ProjectNamespaceListerExpansion interface{}
 
+// RBACPolicyListerExpansion allows custom methods to be added to
+// RBACPolicyLister.
+type RBACPolicyListerExpansion interface{}
+
+// RBACPolicyNamespaceListerExpansion allows custom methods to be added to
+// RBACPolicyNamespaceLister.
+type RBACPolicyNamespaceListerExpansion interface{}
+
 // RecordSetListerExpansion allows custom methods to be added to
 // RecordSetLister.
 type RecordSetListerExpansion interface{}

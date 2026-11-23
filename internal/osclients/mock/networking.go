@@ -32,6 +32,7 @@ import (
 	attributestags "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	floatingips "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/floatingips"
 	routers "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
+	rbacpolicies "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/rbacpolicies"
 	groups "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	rules "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	trunks "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
@@ -139,6 +140,21 @@ func (m *MockNetworkClient) CreatePort(ctx context.Context, opts ports.CreateOpt
 func (mr *MockNetworkClientMockRecorder) CreatePort(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePort", reflect.TypeOf((*MockNetworkClient)(nil).CreatePort), ctx, opts)
+}
+
+// CreateRBACPolicy mocks base method.
+func (m *MockNetworkClient) CreateRBACPolicy(ctx context.Context, opts rbacpolicies.CreateOptsBuilder) (*rbacpolicies.RBACPolicy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRBACPolicy", ctx, opts)
+	ret0, _ := ret[0].(*rbacpolicies.RBACPolicy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateRBACPolicy indicates an expected call of CreateRBACPolicy.
+func (mr *MockNetworkClientMockRecorder) CreateRBACPolicy(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRBACPolicy", reflect.TypeOf((*MockNetworkClient)(nil).CreateRBACPolicy), ctx, opts)
 }
 
 // CreateRouter mocks base method.
@@ -258,6 +274,20 @@ func (mr *MockNetworkClientMockRecorder) DeletePort(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePort", reflect.TypeOf((*MockNetworkClient)(nil).DeletePort), ctx, id)
 }
 
+// DeleteRBACPolicy mocks base method.
+func (m *MockNetworkClient) DeleteRBACPolicy(ctx context.Context, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRBACPolicy", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteRBACPolicy indicates an expected call of DeleteRBACPolicy.
+func (mr *MockNetworkClientMockRecorder) DeleteRBACPolicy(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRBACPolicy", reflect.TypeOf((*MockNetworkClient)(nil).DeleteRBACPolicy), ctx, id)
+}
+
 // DeleteRouter mocks base method.
 func (m *MockNetworkClient) DeleteRouter(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
@@ -371,6 +401,21 @@ func (m *MockNetworkClient) GetPort(ctx context.Context, id string) (*osclients.
 func (mr *MockNetworkClientMockRecorder) GetPort(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPort", reflect.TypeOf((*MockNetworkClient)(nil).GetPort), ctx, id)
+}
+
+// GetRBACPolicy mocks base method.
+func (m *MockNetworkClient) GetRBACPolicy(ctx context.Context, id string) (*rbacpolicies.RBACPolicy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRBACPolicy", ctx, id)
+	ret0, _ := ret[0].(*rbacpolicies.RBACPolicy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRBACPolicy indicates an expected call of GetRBACPolicy.
+func (mr *MockNetworkClientMockRecorder) GetRBACPolicy(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRBACPolicy", reflect.TypeOf((*MockNetworkClient)(nil).GetRBACPolicy), ctx, id)
 }
 
 // GetRouter mocks base method.
@@ -488,6 +533,20 @@ func (m *MockNetworkClient) ListPort(ctx context.Context, opts ports.ListOptsBui
 func (mr *MockNetworkClientMockRecorder) ListPort(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPort", reflect.TypeOf((*MockNetworkClient)(nil).ListPort), ctx, opts)
+}
+
+// ListRBACPolicy mocks base method.
+func (m *MockNetworkClient) ListRBACPolicy(ctx context.Context, opts rbacpolicies.ListOptsBuilder) iter.Seq2[*rbacpolicies.RBACPolicy, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListRBACPolicy", ctx, opts)
+	ret0, _ := ret[0].(iter.Seq2[*rbacpolicies.RBACPolicy, error])
+	return ret0
+}
+
+// ListRBACPolicy indicates an expected call of ListRBACPolicy.
+func (mr *MockNetworkClientMockRecorder) ListRBACPolicy(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRBACPolicy", reflect.TypeOf((*MockNetworkClient)(nil).ListRBACPolicy), ctx, opts)
 }
 
 // ListRouter mocks base method.
@@ -648,6 +707,21 @@ func (m *MockNetworkClient) UpdatePort(ctx context.Context, id string, opts port
 func (mr *MockNetworkClientMockRecorder) UpdatePort(ctx, id, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePort", reflect.TypeOf((*MockNetworkClient)(nil).UpdatePort), ctx, id, opts)
+}
+
+// UpdateRBACPolicy mocks base method.
+func (m *MockNetworkClient) UpdateRBACPolicy(ctx context.Context, id string, opts rbacpolicies.UpdateOptsBuilder) (*rbacpolicies.RBACPolicy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRBACPolicy", ctx, id, opts)
+	ret0, _ := ret[0].(*rbacpolicies.RBACPolicy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateRBACPolicy indicates an expected call of UpdateRBACPolicy.
+func (mr *MockNetworkClientMockRecorder) UpdateRBACPolicy(ctx, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRBACPolicy", reflect.TypeOf((*MockNetworkClient)(nil).UpdateRBACPolicy), ctx, id, opts)
 }
 
 // UpdateRouter mocks base method.
