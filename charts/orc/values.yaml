@@ -22,6 +22,12 @@ resources:
 # Extra arguments passed to the manager binary.
 extraArgs: []
 
+# Additional volumes added to the manager pod.
+extraVolumes: []
+
+# Additional volume mounts added to the manager container.
+extraVolumeMounts: []
+
 serviceAccount:
   # name overrides the generated service account name.
   name: ""
