@@ -28,6 +28,8 @@ helm install orc oci://quay.io/orc/helm/orc \
 | `replicaCount` | `1` | Number of controller replicas |
 | `resources` | `{limits: {cpu: 500m, memory: 256Mi}, requests: {cpu: 10m, memory: 64Mi}}` | Container resource requests/limits |
 | `extraArgs` | `[]` | Extra arguments passed to the manager binary |
+| `extraVolumes` | `[]` | Additional volumes added to the manager pod |
+| `extraVolumeMounts` | `[]` | Additional volume mounts added to the manager container |
 | `serviceAccount.name` | `""` (generated) | Override service account name |
 | `serviceAccount.annotations` | `{}` | Service account annotations |
 | `metrics.enabled` | `true` | Enable metrics endpoint |
