@@ -1,198 +1,189 @@
-# Enhancement: Versioned API Compatibility for ORC v3
+# Enhancement: API Compatibility for ORC v3
 
 | Field | Value |
 |-------|-------|
 | **Status** | Draft |
 | **Author(s)** | mandre |
 | **Created** | 2026-11-05 |
-| **Last Updated** | 2026-11-05 |
+| **Last Updated** | 2026-11-24 |
 | **Tracking Issue** | TBD |
 
 ## Summary
 
-Introduce `openstack.k-orc.cloud/v1alpha2` before stable ORC v3.0.0. Restore
-compatibility with the v2.6.0 `v1alpha1` API without losing fields written by
-v3 prereleases.
-
-Both v2.6.0 and v3.0.0-pre1 use `v1alpha1`, but define different fields. The
-upgrade needs to support objects created by either release. Future breaking
-Kubernetes API changes will use a new API version instead of redefining
-`v1alpha1`.
+Restore the v2.6.0 `openstack.k-orc.cloud/v1alpha1` desired-state contract
+before stable ORC v3.0.0. Preserve live objects and their OpenStack resource
+associations during supported upgrades. Whether v3 needs `v1alpha2` depends
+on whether we want to keep the new Server field layout and which prerelease
+clients we intend to support.
 
 ## Motivation
 
-ORC's compatibility policy protects Kubernetes and exported Go APIs within a
-stable major release, but allows breaking changes across major releases and
-during prereleases. In v3.0.0-pre1, Server `serverGroupRef` moved under
-`schedulerHints`, but the API remained `v1alpha1`.
-
-The version no longer tells clients which fields to expect. v2.6.0 manifests
-need to keep working, and pre1 objects must not lose their newer fields.
-Introducing `v1alpha2` before stable v3.0.0 gives clients a way to distinguish
-these APIs.
+Both v2.6.0 and v3.0.0-pre1 use `v1alpha1`, but pre1 moved Server
+`spec.resource.serverGroupRef` under `schedulerHints`. The API version no
+longer tells clients which shape to expect. The published pre1 Port CRD also
+reduced the per-item length limit on `spec.resource.securityGroupRefs` from
+255 to 253 characters. These changes affect existing manifests and live
+objects regardless of what the ORC release or Go module version permits.
 
 ## Goals
 
-- Introduce `v1alpha2` for incompatible Kubernetes API changes before stable
-  v3.0.0.
-- Restore the removed v2.6.0 fields in `v1alpha1` with compatible field
-  behavior, validation, and immutability rules.
-- Preserve data written using the v3.0.0-pre1 `v1alpha1` schema.
-- Convert between the served API versions without losing data.
-- Migrate existing objects in place, keeping their identity and leaving
-  OpenStack resources unchanged.
-- Test upgrades from both v2.6.0 and v3.0.0-pre1 and document when users can
-  still roll back.
+- Keep valid v2.6.0 manifests usable without edits. Restore the top-level
+  Server group reference in `v1alpha1`, keep its effective-value immutability
+  behavior, and restore the Port reference item limit to 255 characters.
+  Restoring that limit does not make a longer string a valid Kubernetes
+  object name.
+- Keep compatible additions, including the other Server scheduler hints and
+  Network `spec.resource.segments`. Restore the compatibility contract, not
+  the exact historical CRDs or Go types.
+- Upgrade objects in place. Keep desired state, UIDs, finalizers, management
+  policies, and OpenStack resource associations. Do not delete and recreate
+  CRs or CRDs as part of migration.
+- Make any pre1 upgrade and rollback commitments explicit. If an in-place
+  upgrade from pre1 is supported, preserve its desired state and associations
+  through a tested procedure.
 
 ## Non-Goals
 
-- Graduate the API to beta or stable.
-- Revert every Go type change, additive feature, or controller bug fix in v3.
+- Graduate the API to beta or stable or revert unrelated Go-only changes.
 - Make old controllers understand features introduced after their release.
+- Guarantee that an old typed client can replace an object and retain fields
+  its type does not know about. This is a separate support commitment from
+  accepting old manifests and is only considered in alternative C.
+- Guarantee lossless observed status round trips or preserve omissions on
+  legacy `/status` writes.
 
 ## Proposal
 
-### API compatibility policy
+### Compatibility policy
 
-ORC releases and exported Go APIs still follow semantic versioning, including
-prerelease rules. Breaking changes to a released Kubernetes API need a new
-API version and a conversion and migration plan, regardless of the ORC release.
+ORC releases and exported Go APIs continue to follow semantic versioning.
+After this repair, use a new Kubernetes API version and an upgrade plan for
+incompatible changes to the supported desired-state API. Decide separately
+whether prerelease clients need ongoing support and when to retire a served
+API version.
 
-Decide separately how long to support `v1alpha1` and when to retire it.
+### Status compatibility versus upgrade safety
 
-### Supporting both v1alpha1 schemas
+Observed status is not a stable API contract for this transition. Network
+`status.resource.provider` may be removed, including from `v1alpha1`. Document
+that readers should use `status.resource.segments`. Keep the complete segment
+list where it is exposed. Do not archive `provider` in an annotation or
+reconstruct it from a segment: the two observations are not equivalent.
 
-Restore these fields for v2.6.0 clients and use the new fields in `v1alpha2`:
-
-| Resource | v2.6.0 field to restore in `v1alpha1` | `v1alpha2` field |
-| --- | --- | --- |
-| Server | `spec.resource.serverGroupRef` | `spec.resource.schedulerHints.serverGroupRef` |
-| Network | `status.resource.provider` | `status.resource.segments` |
-
-Keep pre1 fields such as Server `schedulerHints` and Network `segments` in
-`v1alpha1` too. Clients from both releases must be able to read and update
-objects without losing information; `apiVersion` cannot identify which
-release created them.
-
-Keep additive features that preserve existing behavior. Compatibility
-includes validation and field behavior, but does not require reverting
-Go-only changes.
-
-Before implementation, decide whether to introduce `v1alpha2` for all ORC
-kinds or only those with incompatible changes.
-
-### Conversion and reconciliation
-
-Use a CRD conversion webhook between the two versions and a common form for
-reconciliation. Both versions must use the same reconciliation implementation
-and produce the same OpenStack behavior.
-
-Conversion must preserve spec, status, object identity, finalizers, and
-unrelated metadata. It must not perform OpenStack operations or replace
-Secret references with the Secrets' current contents.
-
-Two cases need further design:
-
-- **Server group references:** map `serverGroupRef` to
-  `schedulerHints.serverGroupRef`. Define how edits work when both fields are
-  present, including old-client updates. Do not silently pick one if they
-  differ. New immutability rules must not block a migration that only moves
-  data between fields.
-- **Network segments:** the old `provider` field cannot hold multiple
-  segments. Keep the full list when converting to `v1alpha1` and back, using
-  additional fields or conversion annotations. Do not keep only the first
-  segment.
-
-The compatibility fields, conversion annotations, limits, and ownership
-rules remain undecided. Annotations must have size limits and validation,
-and must not contain private credentials.
-
-A future KeyPair API might accept a Secret reference as an alternative to an
-inline public key. Conversion would need to keep the reference, not resolve
-it or copy private key material into annotations or status.
-
-### Rollout and storage migration
-
-1. Capture CRD and object fixtures from v2.6.0 and v3.0.0-pre1 before changing
-   schemas. Include spec, status, finalizers, and management policies.
-2. Update `v1alpha1` to accept and preserve fields from both releases. Test
-   upgrades from both before removing fields or tightening their validation.
-3. Deploy the conversion webhook before configuring CRDs to use it. Serve
-   `v1alpha2` alongside `v1alpha1`, keeping the current storage version. Verify
-   that clients can use both versions. Update clients, examples, and GitOps
-   source manifests.
-4. After a release with both versions has been tested, switch storage to
-   `v1alpha2` and rewrite existing objects using a supported storage-migration
-   procedure. Keep UIDs, finalizers, status IDs, and OpenStack associations.
-   Verify that all objects have been rewritten before marking migration
-   complete. Setting `storage: true` or reading objects is not enough.
-5. Keep conversion for the old version as long as stored objects or supported
-   clients need it. Remove its entry from CRD `status.storedVersions` only
-   after verifying migration. Retiring the API version and removing temporary
-   fields can happen later; neither is required to introduce `v1alpha2`.
-
-Do not delete and recreate CRs or CRDs to migrate them. Test and publish
-release-specific upgrade instructions covering installation order, webhook
-readiness, backups, and recovery.
-
-### Tests and release requirements
-
-Add upgrade tests using the historical CRD and object fixtures. Keep these
-separate from validation and reconciliation tests for the current API.
-
-Cover:
-
-- Upgrades from both v2.6.0 and pre1.
-- Converting spec and status to the other version and back, including absent
-  fields, explicit false values, multiple segments, and conflicting inputs.
-- Creates, edits, and status-subresource writes through both versions. Include
-  updates by old clients that do not know about newer fields, not only
-  conversions of unchanged objects.
-- CEL validation and immutability checks when moving data between fields.
-- Preservation of metadata, UIDs, finalizers, status IDs, and import/detach
-  policies, with no unintended OpenStack changes during migration.
-- Storage rewrites, completion checks, and interrupted or retried migrations.
-- Webhook readiness, certificate handling, failures, and recovery.
-- Rollback at each supported stage. Reject unsupported downgrades or document
-  them before users reach a point where they cannot roll back.
-
-Do not ship this transition in stable v3.0.0 until these tests pass and the
-tested upgrade procedure is published.
-
-## Risks and Edge Cases
-
-- **Data loss:** old schemas can drop pre1 fields. Keep support for those
-  fields until migration is verified, and back up objects before changing CRDs.
-- **Conflicting inputs:** an object may contain both `serverGroupRef` and
-  `schedulerHints.serverGroupRef`. Define how edits to either field affect the
-  other, including edits by old clients.
-- **Webhook outages:** API conversion depends on webhook availability. Set up
-  certificate management, readiness checks, upgrade ordering, and recovery
-  before enabling it.
-- **Rollback and GitOps:** document which releases users can roll back to at
-  each stage. Old binaries may not understand new fields, and GitOps sources
-  must be updated so old manifests do not undo the migration.
-- **Scope:** versioning affects code generation, clients, CRDs, reconciliation
-  adapters, packaging, and documentation. Inventory the work in each before
-  estimating effort or committing to a release schedule.
+Preserve operational state through supported upgrades. The generic reconciler
+uses `status.id` to find the existing OpenStack resource before considering
+import, adoption, or creation. Other controllers rely on compound
+associations, such as the RoleAssignment role, actor, and scope tuple, or on
+checkpoints, such as the Image download-attempt count and the User applied
+password reference. Retain these and any dependency inputs that would make
+reconciliation unsafe if lost. This is an upgrade invariant, not a promise
+that old clients can safely replace `/status`. None of the alternatives
+requires a `/status` preservation webhook or routing controller status writes
+through a new API version for the sake of that webhook.
 
 ## Alternatives Considered
 
-- **Keep changing `v1alpha1` at ORC major releases:** follows the existing
-  release policy, but clients still cannot tell which fields `v1alpha1`
-  supports, and existing objects still need migration.
-- **Restore the exact v2.6.0 schema:** supports old clients but loses pre1
-  fields and leaves pre1 users without an upgrade path.
-- **Add `v1alpha2` without restoring compatibility:** gives the new fields
-  their own version but leaves v2.6.0 compatibility and preservation of
-  existing objects unresolved.
-- **Keep both sets of fields in one version permanently:** avoids a conversion
-  webhook, but leaves duplicate inputs and conflicts in the API. We need both
-  sets temporarily for pre1 users, not as the long-term API.
+### A. Restore `v1alpha1` only
+
+Keep `spec.resource.serverGroupRef` as the canonical field. Retain other
+scheduler hints. If supporting pre1 upgrades, provide a one-time transition
+schema that accepts both paths. With writers that still use the pre1 path
+paused, move each affected live reference in place, verify its effective
+value, and update source manifests before installing the final schema. Reject
+conflicting aliases instead of picking one. The migration must keep unrelated
+hints and must not loosen immutability for actual placement changes.
+
+This avoids a second served version, conversion, and write-preservation
+admission. It is the lowest-cost option if the nested spelling is not worth
+keeping as a long-term API. Pre1 clients do not retain ongoing support.
+
+### B. Restore `v1alpha1` and introduce `v1alpha2` with a bounded pre1 transition
+
+Keep the top-level reference in the final `v1alpha1` schema and the nested
+reference in `v1alpha2`. Use a CRD conversion webhook to map between them and a
+single reconciliation implementation. Conversion must preserve desired state
+and operational state without calling OpenStack or resolving Secret
+references. Decide whether to serve `v1alpha2` for Server alone or for all
+kinds as a consistent set. Keep `v1alpha1` as storage for the first release
+serving both versions; defer storage migration and version retirement.
+
+If supporting pre1 upgrades, accept both historical shapes during the
+transition. Normalize live references to a representation the final storage
+schema can retain before tightening it. Pre1 users then update **custom
+resource manifests** and clients to `v1alpha2`; ORC supplies the CRDs. There
+is no continuing promise that the pre1 `v1alpha1` spelling works, and no
+write-preservation admission for old clients.
+
+Choose this option if the nested reference is worth retaining. It adds a
+conversion webhook and its deployment and recovery requirements without
+adding a second compatibility policy for updates.
+
+### C. Support both historical `v1alpha1` client shapes during the transition
+
+Serve `v1alpha2` as in alternative B, but keep both Server aliases in
+`v1alpha1` for a defined support window. Treat equal aliases as one logical
+value and reject unequal aliases. If existing objects must expose both aliases
+to `v1alpha1` readers, explicitly normalize them: a direct read at the storage
+version does not do that for objects already stored in that version.
+
+If the support commitment includes legacy full-object writes, protect a
+reviewed set of desired-state fields on `v1alpha1` main-resource updates. An
+omission can mean either that the client does not know the field or that it
+wants to remove it. Preserving the value by default changes historical
+omission-based removal behavior. Require `v1alpha2` for intentional removal
+of protected values. Do not make `/status` fields sticky.
+
+Choose this option only if both legacy client shapes need ongoing support
+and the changed removal semantics are acceptable. It has the largest
+validation, admission, and rollout surface.
+
+## Risks and Edge Cases
+
+- **Pruning during a partial migration:** A rewrite can drop fields that the
+  CRD schema no longer recognizes. Back up live objects and verify the migrated
+  references before dropping either field. Account for GitOps or other writers
+  that could restore the old representation.
+- **Serving versus storage:** Serving a new version or editing a manifest's
+  `apiVersion` does not rewrite live objects. Applying the edited manifest
+  writes through the selected version, but the CRD still controls the storage
+  version. Changing that storage version does not rewrite existing records.
+- **Conflicting aliases or unintended placement changes:** Reject unequal
+  aliases. Test that a representation-only move is allowed but does not
+  authorize a change to the effective group.
+- **Unsafe downgrade:** Document supported recovery steps for each release
+  stage. Do not recommend reinstalling historical CRDs as a generic rollback.
+- **Webhook failure in dual-version deployments:** Deploy the webhook before
+  configuring CRDs to call it. Verify API-server trust and availability, not
+  only that the webhook process reports ready.
+
+## Release Gates
+
+**All alternatives:** Use historical CRDs and representative object fixtures
+to test an in-place upgrade from v2.6.0. Check manifest validation, desired
+state, UIDs, finalizers, management policies, and OpenStack associations. Verify
+that omitted observations do not affect reconciliation safety. If supporting
+pre1, test the published migration order, including retry after interruption
+and preservation of the live reference before tightening its schema. If no
+tested procedure ships, explicitly state in the release notes that in-place
+upgrade from v3.0.0-pre1 is unsupported.
+
+- **A:** Test the one-time field move against the final `v1alpha1` schema if
+  pre1 migration is supported. Verify that other scheduler hints and effective
+  placement survive. No conversion webhook or storage rewrite is required.
+- **B:** Test cross-version reads and writes, preservation of logical spec
+  and operational state, and SSA behavior across the rename. Validate
+  conversion webhook deployment, API-server trust, certificate handling,
+  readiness, outage behavior, and recovery. A storage rewrite is not a gate
+  for the first dual-version release.
+- **C:** In addition to the dual-version gates, test both historical client
+  shapes. If spec-write preservation is promised, test replacements, patches,
+  same-owner SSA, conflicts, admission failure and recovery, and intentional
+  removal through `v1alpha2` without resurrection or bypassing validation.
 
 ## Implementation History
 
 - 2026-11-05: Initial draft.
+- 2026-11-24: Separated the release alternatives and their upgrade requirements.
 
 ## References
 
