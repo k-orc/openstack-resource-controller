@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-update
+spec:
+  resource:
+    name: swiftcontainer-update-updated
+    description: swiftcontainer-update-updated
+    # TODO(scaffolding): update all mutable fields

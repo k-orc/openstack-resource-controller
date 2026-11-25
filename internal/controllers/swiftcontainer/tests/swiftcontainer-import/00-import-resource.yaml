@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: swiftcontainer-import-external
+      description: SwiftContainer swiftcontainer-import-external from "swiftcontainer-import" test
+      # TODO(scaffolding): Add all fields supported by the filter
