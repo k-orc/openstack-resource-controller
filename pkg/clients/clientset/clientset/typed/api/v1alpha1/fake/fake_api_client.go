@@ -140,6 +140,10 @@ func (c *FakeOpenstackV1alpha1) SubnetPools(namespace string) v1alpha1.SubnetPoo
 	return newFakeSubnetPools(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) SwiftContainers(namespace string) v1alpha1.SwiftContainerInterface {
+	return newFakeSwiftContainers(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Trunks(namespace string) v1alpha1.TrunkInterface {
 	return newFakeTrunks(c, namespace)
 }

@@ -45,6 +45,7 @@ rules:
   - sharenetworks
   - subnets
   - subnetpools
+  - swiftcontainers
   - trunks
   - users
   - volumes
@@ -84,6 +85,7 @@ rules:
   - sharenetworks/status
   - subnets/status
   - subnetpools/status
+  - swiftcontainers/status
   - trunks/status
   - users/status
   - volumes/status

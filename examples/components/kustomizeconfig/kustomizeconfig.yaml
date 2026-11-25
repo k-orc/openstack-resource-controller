@@ -236,6 +236,8 @@ nameReference:
     path: spec/cloudCredentialsRef/secretName
   - kind: SubnetPool
     path: spec/cloudCredentialsRef/secretName
+  - kind: SwiftContainer
+    path: spec/cloudCredentialsRef/secretName
   - kind: Trunk
     path: spec/cloudCredentialsRef/secretName
   - kind: User

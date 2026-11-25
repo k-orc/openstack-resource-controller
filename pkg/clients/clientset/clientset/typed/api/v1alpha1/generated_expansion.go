@@ -74,6 +74,8 @@ type SubnetExpansion interface{}
 
 type SubnetPoolExpansion interface{}
 
+type SwiftContainerExpansion interface{}
+
 type TrunkExpansion interface{}
 
 type UserExpansion interface{}

@@ -80,6 +80,8 @@ type Interface interface {
 	Subnets() SubnetInformer
 	// SubnetPools returns a SubnetPoolInformer.
 	SubnetPools() SubnetPoolInformer
+	// SwiftContainers returns a SwiftContainerInformer.
+	SwiftContainers() SwiftContainerInformer
 	// Trunks returns a TrunkInformer.
 	Trunks() TrunkInformer
 	// Users returns a UserInformer.
@@ -239,6 +241,11 @@ func (v *version) Subnets() SubnetInformer {
 // SubnetPools returns a SubnetPoolInformer.
 func (v *version) SubnetPools() SubnetPoolInformer {
 	return &subnetPoolInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// SwiftContainers returns a SwiftContainerInformer.
+func (v *version) SwiftContainers() SwiftContainerInformer {
+	return &swiftContainerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Trunks returns a TrunkInformer.
