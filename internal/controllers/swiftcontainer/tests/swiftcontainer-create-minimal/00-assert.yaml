@@ -4,16 +4,20 @@ kind: SwiftContainer
 metadata:
   name: swiftcontainer-create-minimal
 status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+      message: OpenStack resource is available
+    - type: Progressing
+      status: "False"
+      reason: Success
+      message: OpenStack resource is up to date
+  id: swiftcontainer-create-minimal
   resource:
     name: swiftcontainer-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
-  conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+    bytesUsed: 0
+    objectCount: 0
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
@@ -21,7 +25,8 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SwiftContainer
       name: swiftcontainer-create-minimal
-      ref: swiftcontainer
+      ref: container
 assertAll:
-    - celExpr: "swiftcontainer.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "!has(container.status.resource.readACL)"
+    - celExpr: "!has(container.status.resource.writeACL)"
+    - celExpr: "!has(container.status.resource.metadata)"

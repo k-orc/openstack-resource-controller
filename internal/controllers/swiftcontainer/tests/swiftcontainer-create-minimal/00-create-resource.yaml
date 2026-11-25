@@ -1,15 +1,16 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl create secret generic openstack-clouds --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
 metadata:
   name: swiftcontainer-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    # An admin test also needs a 00-test-case.yaml, see https://k-orc.cloud/development/writing-tests/#admin-credentials
     cloudName: openstack
     secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
   resource: {}

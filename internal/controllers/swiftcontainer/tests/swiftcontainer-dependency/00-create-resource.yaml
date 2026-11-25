@@ -1,13 +1,9 @@
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
 metadata:
-  name: swiftcontainer-import-error
+  name: swiftcontainer-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      description: SwiftContainer from "import error" test
+  resource: {}

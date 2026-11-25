@@ -4795,9 +4795,6 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerFilter
   map:
     fields:
-    - name: description
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string
@@ -4810,22 +4807,72 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerMetadata
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerMetadataStatus
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerResourceSpec
   map:
     fields:
-    - name: description
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerMetadata
+          elementRelationship: associative
+          keys:
+          - name
+    - name: name
       type:
         scalar: string
-    - name: name
+    - name: readACL
+      type:
+        scalar: string
+    - name: storagePolicy
+      type:
+        scalar: string
+    - name: writeACL
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerResourceStatus
   map:
     fields:
-    - name: description
+    - name: bytesUsed
+      type:
+        scalar: numeric
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerMetadataStatus
+          elementRelationship: atomic
+    - name: name
       type:
         scalar: string
-    - name: name
+    - name: objectCount
+      type:
+        scalar: numeric
+    - name: readACL
+      type:
+        scalar: string
+    - name: storagePolicy
+      type:
+        scalar: string
+    - name: writeACL
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.SwiftContainerSpec

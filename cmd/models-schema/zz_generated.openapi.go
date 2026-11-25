@@ -305,6 +305,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerFilter":                  schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerImport":                  schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerList":                    schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerMetadata":                schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerMetadata(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerMetadataStatus":          schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerMetadataStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerResourceSpec":            schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerResourceStatus":          schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerSpec":                    schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerSpec(ref),
@@ -15507,14 +15509,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerFilter(r
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"description": {
-						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
+							Description: "name is the exact name of the Swift container.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -15604,11 +15599,66 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerList(ref
 	}
 }
 
+func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SwiftContainerMetadata is a container metadata property.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the metadata property, without the X-Container-Meta- prefix.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the metadata property.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"name", "value"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerMetadataStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SwiftContainerMetadataStatus is an observed container metadata property.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the metadata property.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the metadata property.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "SwiftContainerResourceSpec contains the desired state of the resource.",
+				Description: "SwiftContainerResourceSpec contains the desired state of a Swift container.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"name": {
@@ -15618,9 +15668,45 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerResource
 							Format:      "",
 						},
 					},
-					"description": {
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"name",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
-							Description: "description is a human-readable description for the resource.",
+							Description: "metadata contains the X-Container-Meta-* properties of the container.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerMetadata"),
+									},
+								},
+							},
+						},
+					},
+					"readACL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "readACL is the X-Container-Read access control list.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"writeACL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "writeACL is the X-Container-Write access control list.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"storagePolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "storagePolicy is the name of the Swift storage policy for the container.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -15628,6 +15714,8 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerResource
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerMetadata"},
 	}
 }
 
@@ -15640,21 +15728,70 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SwiftContainerResource
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Description: "name is the name of the container in Swift.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"description": {
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
-							Description: "description is a human-readable description for the resource.",
+							Description: "metadata contains the X-Container-Meta-* properties of the container. TempURL keys are not reported.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerMetadataStatus"),
+									},
+								},
+							},
+						},
+					},
+					"readACL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "readACL is the X-Container-Read access control list.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"writeACL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "writeACL is the X-Container-Write access control list.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"storagePolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "storagePolicy is the name of the Swift storage policy for the container.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"bytesUsed": {
+						SchemaProps: spec.SchemaProps{
+							Description: "bytesUsed is the total number of bytes stored in the container.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"objectCount": {
+						SchemaProps: spec.SchemaProps{
+							Description: "objectCount is the number of objects stored in the container.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SwiftContainerMetadataStatus"},
 	}
 }
 

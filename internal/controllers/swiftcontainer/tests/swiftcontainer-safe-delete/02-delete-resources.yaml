@@ -1,0 +1,7 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl delete swiftcontainer swiftcontainer-safe-delete-empty --timeout=60s
+    namespaced: true
+  - command: kubectl delete swiftcontainer swiftcontainer-safe-delete-nonempty --wait=false
+    namespaced: true

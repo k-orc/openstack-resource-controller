@@ -1,18 +1,5 @@
-# Import SwiftContainer
+# SwiftContainer import test
 
-## Step 00
-
-Import a swiftcontainer that matches all fields in the filter, and verify it is waiting for the external resource to be created.
-
-## Step 01
-
-Create a swiftcontainer whose name is a superstring of the one specified in the import filter, otherwise matching the filter, and verify that it's not being imported.
-
-## Step 02
-
-Create a swiftcontainer matching the filter and verify that the observed status on the imported swiftcontainer corresponds to the spec of the created swiftcontainer.
-Also, confirm that it does not adopt any swiftcontainer whose name is a superstring of its own.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#import
+00. Import a container by name. Verify that ORC waits for it to be created.
+01. Create a container whose name starts with the name in the import filter. Verify that ORC does not import it.
+02. Create the container with the exact name. Verify that ORC imports it and reports its attributes.

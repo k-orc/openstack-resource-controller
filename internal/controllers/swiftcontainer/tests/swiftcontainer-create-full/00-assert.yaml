@@ -4,17 +4,26 @@ kind: SwiftContainer
 metadata:
   name: swiftcontainer-create-full
 status:
-  resource:
-    name: swiftcontainer-create-full-override
-    description: SwiftContainer from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+    - type: Available
+      status: "True"
+      reason: Success
+      message: OpenStack resource is available
+    - type: Progressing
+      status: "False"
+      reason: Success
+      message: OpenStack resource is up to date
+  id: orc-swiftcontainer-create-full
+  resource:
+    name: orc-swiftcontainer-create-full
+    readACL: ".r:-example.invalid"
+    writeACL: "orc-e2e-unused-role"
+    storagePolicy: Policy-0
+    metadata:
+      - name: Owner
+        value: orc-e2e
+    bytesUsed: 0
+    objectCount: 0
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
@@ -22,7 +31,6 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SwiftContainer
       name: swiftcontainer-create-full
-      ref: swiftcontainer
+      ref: container
 assertAll:
-    - celExpr: "swiftcontainer.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "'openstack.k-orc.cloud/swiftcontainer' in container.metadata.finalizers"

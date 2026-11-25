@@ -5,12 +5,14 @@ metadata:
   name: swiftcontainer-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    # An admin test also needs a 00-test-case.yaml, see https://k-orc.cloud/development/writing-tests/#admin-credentials
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: swiftcontainer-create-full-override
-    description: SwiftContainer from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    name: orc-swiftcontainer-create-full
+    readACL: ".r:-example.invalid"
+    writeACL: "orc-e2e-unused-role"
+    storagePolicy: Policy-0
+    metadata:
+      - name: Owner
+        value: orc-e2e

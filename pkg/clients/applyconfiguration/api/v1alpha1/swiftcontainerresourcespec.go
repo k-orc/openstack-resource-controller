@@ -25,8 +25,11 @@ import (
 // SwiftContainerResourceSpecApplyConfiguration represents a declarative configuration of the SwiftContainerResourceSpec type for use
 // with apply.
 type SwiftContainerResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Description *string                    `json:"description,omitempty"`
+	Name          *apiv1alpha1.OpenStackName                 `json:"name,omitempty"`
+	Metadata      []SwiftContainerMetadataApplyConfiguration `json:"metadata,omitempty"`
+	ReadACL       *string                                    `json:"readACL,omitempty"`
+	WriteACL      *string                                    `json:"writeACL,omitempty"`
+	StoragePolicy *string                                    `json:"storagePolicy,omitempty"`
 }
 
 // SwiftContainerResourceSpecApplyConfiguration constructs a declarative configuration of the SwiftContainerResourceSpec type for use with
@@ -43,10 +46,39 @@ func (b *SwiftContainerResourceSpecApplyConfiguration) WithName(value apiv1alpha
 	return b
 }
 
-// WithDescription sets the Description field in the declarative configuration to the given value
+// WithMetadata adds the given value to the Metadata field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Metadata field.
+func (b *SwiftContainerResourceSpecApplyConfiguration) WithMetadata(values ...*SwiftContainerMetadataApplyConfiguration) *SwiftContainerResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMetadata")
+		}
+		b.Metadata = append(b.Metadata, *values[i])
+	}
+	return b
+}
+
+// WithReadACL sets the ReadACL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *SwiftContainerResourceSpecApplyConfiguration) WithDescription(value string) *SwiftContainerResourceSpecApplyConfiguration {
-	b.Description = &value
+// If called multiple times, the ReadACL field is set to the value of the last call.
+func (b *SwiftContainerResourceSpecApplyConfiguration) WithReadACL(value string) *SwiftContainerResourceSpecApplyConfiguration {
+	b.ReadACL = &value
+	return b
+}
+
+// WithWriteACL sets the WriteACL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the WriteACL field is set to the value of the last call.
+func (b *SwiftContainerResourceSpecApplyConfiguration) WithWriteACL(value string) *SwiftContainerResourceSpecApplyConfiguration {
+	b.WriteACL = &value
+	return b
+}
+
+// WithStoragePolicy sets the StoragePolicy field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the StoragePolicy field is set to the value of the last call.
+func (b *SwiftContainerResourceSpecApplyConfiguration) WithStoragePolicy(value string) *SwiftContainerResourceSpecApplyConfiguration {
+	b.StoragePolicy = &value
 	return b
 }

@@ -11,5 +11,3 @@ spec:
   import:
     filter:
       name: swiftcontainer-import-external
-      description: SwiftContainer swiftcontainer-import-external from "swiftcontainer-import" test
-      # TODO(scaffolding): Add all fields supported by the filter

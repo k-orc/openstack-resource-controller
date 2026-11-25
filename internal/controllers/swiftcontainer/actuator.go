@@ -19,24 +19,23 @@ package swiftcontainer
 import (
 	"context"
 	"iter"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 // OpenStack resource types
 type (
-	osResourceT = containers.Container
+	osResourceT = osclients.SwiftContainer
 
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
@@ -45,17 +44,21 @@ type (
 	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
+// The frequency to poll when waiting for a container to be emptied
+const swiftcontainerDeletingPollingPeriod = 10 * time.Second
+
 type swiftcontainerActuator struct {
-	osClient  osclients.SwiftContainerClient
-	k8sClient client.Client
+	osClient osclients.SwiftContainerClient
 }
 
-var _ createResourceActuator = swiftcontainerActuator{}
-var _ deleteResourceActuator = swiftcontainerActuator{}
-var _ reconcileResourceActuator = swiftcontainerActuator{}
+var (
+	_ createResourceActuator    = swiftcontainerActuator{}
+	_ deleteResourceActuator    = swiftcontainerActuator{}
+	_ reconcileResourceActuator = swiftcontainerActuator{}
+)
 
 func (swiftcontainerActuator) GetResourceID(osResource *osResourceT) string {
-	return osResource.ID
+	return osResource.Name
 }
 
 func (actuator swiftcontainerActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
@@ -67,47 +70,45 @@ func (actuator swiftcontainerActuator) GetOSResourceByID(ctx context.Context, id
 }
 
 func (actuator swiftcontainerActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
-	resourceSpec := orcObject.Spec.Resource
-	if resourceSpec == nil {
+	if orcObject.Spec.Resource == nil {
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	listOpts := containers.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-		// TODO(scaffolding): Add more adoption filters
-	}
-
-	return actuator.osClient.ListSwiftContainers(ctx, listOpts), true
+	return actuator.listOSResources(ctx, getResourceName(orcObject)), true
 }
 
 func (actuator swiftcontainerActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	return actuator.listOSResources(ctx, string(ptr.Deref(filter.Name, ""))), nil
+}
 
-	listOpts := containers.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+// listOSResources returns the container with the given name. Swift can only
+// filter container listings by prefix.
+func (actuator swiftcontainerActuator) listOSResources(ctx context.Context, name string) iter.Seq2[*osResourceT, error] {
+	listOpts := containers.ListOpts{Prefix: name}
+	filters := []osclients.ResourceFilter[osResourceT]{
+		func(container *osResourceT) bool {
+			return container.Name == name
+		},
 	}
-
-	return actuator.osClient.ListSwiftContainers(ctx, listOpts), nil
+	return osclients.Filter(actuator.osClient.ListSwiftContainers(ctx, listOpts), filters...)
 }
 
 func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
-	createOpts := containers.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+
+	metadata := make(map[string]string, len(resource.Metadata))
+	for _, m := range resource.Metadata {
+		metadata[m.Name] = m.Value
 	}
 
-	osResource, err := actuator.osClient.CreateSwiftContainer(ctx, createOpts)
+	createOpts := containers.CreateOpts{
+		Metadata:       metadata,
+		ContainerRead:  resource.ReadACL,
+		ContainerWrite: resource.WriteACL,
+		StoragePolicy:  resource.StoragePolicy,
+	}
+
+	osResource, err := actuator.osClient.CreateSwiftContainer(ctx, getResourceName(obj), createOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -119,74 +120,20 @@ func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj o
 }
 
 func (actuator swiftcontainerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteSwiftContainer(ctx, resource.ID))
-}
-
-func (actuator swiftcontainerActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-
-	updateOpts := containers.UpdateOpts{}
-
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	err := actuator.osClient.DeleteSwiftContainer(ctx, resource.Name)
+	// Swift returns a conflict when the container is not empty. ORC never
+	// deletes objects, so wait for the container to be emptied.
+	if orcerrors.IsConflict(err) {
+		return progress.NewReconcileStatus().
+			WithProgressMessage("Waiting for the Swift container to be emptied before deletion").
+			WithRequeue(swiftcontainerDeletingPollingPeriod)
 	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
-		return nil
-	}
-
-	_, err = actuator.osClient.UpdateSwiftContainer(ctx, osResource.ID, updateOpts)
-
-	if err != nil {
-		if !orcerrors.IsRetryable(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-		}
-		return progress.WrapError(err)
-	}
-
-	return progress.NeedsRefresh()
-}
-
-func needsUpdate(updateOpts containers.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToContainerUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["swift_container"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *containers.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *containers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
+	return progress.WrapError(err)
 }
 
 func (actuator swiftcontainerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		actuator.updateResource,
-	}, nil
+	// SwiftContainer is immutable
+	return nil, nil
 }
 
 type swiftcontainerHelperFactory struct{}
@@ -212,8 +159,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.SwiftContainer, con
 	}
 
 	return swiftcontainerActuator{
-		osClient:  osClient,
-		k8sClient: controller.GetK8sClient(),
+		osClient: osClient,
 	}, nil
 }
 

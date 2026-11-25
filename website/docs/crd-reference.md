@@ -5942,8 +5942,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `name` _[OpenStackName](#openstackname)_ | name is the exact name of the Swift container. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 
 
 #### SwiftContainerImport
@@ -5966,11 +5965,45 @@ _Appears in:_
 | `filter` _[SwiftContainerFilter](#swiftcontainerfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
 
 
+#### SwiftContainerMetadata
+
+
+
+SwiftContainerMetadata is a container metadata property.
+
+
+
+_Appears in:_
+- [SwiftContainerResourceSpec](#swiftcontainerresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the metadata property, without the<br />X-Container-Meta- prefix. |  | MaxLength: 128 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `value` _string_ | value is the value of the metadata property. |  | MaxLength: 256 <br />MinLength: 1 <br />Required: \{\} <br /> |
+
+
+#### SwiftContainerMetadataStatus
+
+
+
+SwiftContainerMetadataStatus is an observed container metadata property.
+
+
+
+_Appears in:_
+- [SwiftContainerResourceStatus](#swiftcontainerresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the metadata property. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `value` _string_ | value is the value of the metadata property. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
 #### SwiftContainerResourceSpec
 
 
 
-SwiftContainerResourceSpec contains the desired state of the resource.
+SwiftContainerResourceSpec contains the desired state of a Swift container.
 
 
 
@@ -5980,7 +6013,10 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `metadata` _[SwiftContainerMetadata](#swiftcontainermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 90 <br />Optional: \{\} <br /> |
+| `readACL` _string_ | readACL is the X-Container-Read access control list. |  | MaxLength: 1024 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `writeACL` _string_ | writeACL is the X-Container-Write access control list. |  | MaxLength: 1024 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `storagePolicy` _string_ | storagePolicy is the name of the Swift storage policy for the container. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### SwiftContainerResourceStatus
@@ -5996,8 +6032,13 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `name` _string_ | name is the name of the container in Swift. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `metadata` _[SwiftContainerMetadataStatus](#swiftcontainermetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br />Optional: \{\} <br /> |
+| `readACL` _string_ | readACL is the X-Container-Read access control list. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `writeACL` _string_ | writeACL is the X-Container-Write access control list. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `storagePolicy` _string_ | storagePolicy is the name of the Swift storage policy for the container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `bytesUsed` _integer_ | bytesUsed is the total number of bytes stored in the container. |  | Optional: \{\} <br /> |
+| `objectCount` _integer_ | objectCount is the number of objects stored in the container. |  | Optional: \{\} <br /> |
 
 
 #### SwiftContainerSpec

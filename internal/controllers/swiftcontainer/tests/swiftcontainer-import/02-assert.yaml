@@ -4,14 +4,14 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SwiftContainer
-      name: swiftcontainer-import-external
-      ref: swiftcontainer1
+      name: swiftcontainer-import
+      ref: imported
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SwiftContainer
       name: swiftcontainer-import-external-not-this-one
-      ref: swiftcontainer2
+      ref: trap
 assertAll:
-    - celExpr: "swiftcontainer1.status.id != swiftcontainer2.status.id"
+    - celExpr: "imported.status.id != trap.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
@@ -27,7 +27,11 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+  id: swiftcontainer-import-external
   resource:
     name: swiftcontainer-import-external
-    description: SwiftContainer swiftcontainer-import-external from "swiftcontainer-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    metadata:
+      - name: Owner
+        value: orc-e2e
+    bytesUsed: 0
+    objectCount: 0

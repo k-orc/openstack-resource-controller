@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,19 +20,33 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"strings"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
+	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
+// SwiftContainer is a Swift container. Swift returns container attributes as
+// response headers, which gophercloud does not combine with the name.
+type SwiftContainer struct {
+	Name string
+
+	// Header is nil until the container has been read, e.g. after it is
+	// listed or created.
+	Header *containers.GetHeader
+
+	// Metadata contains the X-Container-Meta-* headers, except TempURL keys.
+	Metadata map[string]string
+}
+
 type SwiftContainerClient interface {
-	ListSwiftContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*containers.Container, error]
-	CreateSwiftContainer(ctx context.Context, opts containers.CreateOptsBuilder) (*containers.Container, error)
-	DeleteSwiftContainer(ctx context.Context, resourceID string) error
-	GetSwiftContainer(ctx context.Context, resourceID string) (*containers.Container, error)
-	UpdateSwiftContainer(ctx context.Context, id string, opts containers.UpdateOptsBuilder) (*containers.Container, error)
+	ListSwiftContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*SwiftContainer, error]
+	CreateSwiftContainer(ctx context.Context, name string, opts containers.CreateOptsBuilder) (*SwiftContainer, error)
+	DeleteSwiftContainer(ctx context.Context, name string) error
+	GetSwiftContainer(ctx context.Context, name string) (*SwiftContainer, error)
 }
 
 type swiftcontainerClient struct{ client *gophercloud.ServiceClient }
@@ -51,25 +65,57 @@ func NewSwiftContainerClient(providerClient *gophercloud.ProviderClient, provide
 	return &swiftcontainerClient{client}, nil
 }
 
-func (c swiftcontainerClient) ListSwiftContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*containers.Container, error] {
+func (c swiftcontainerClient) ListSwiftContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*SwiftContainer, error] {
 	pager := containers.List(c.client, listOpts)
-	return listResources(ctx, pager, containers.ExtractContainers)
+	return listResources(ctx, pager, func(page pagination.Page) ([]SwiftContainer, error) {
+		names, err := containers.ExtractNames(page)
+		if err != nil {
+			return nil, err
+		}
+		result := make([]SwiftContainer, len(names))
+		for i := range names {
+			result[i].Name = names[i]
+		}
+		return result, nil
+	})
 }
 
-func (c swiftcontainerClient) CreateSwiftContainer(ctx context.Context, opts containers.CreateOptsBuilder) (*containers.Container, error) {
-	return containers.Create(ctx, c.client, opts).Extract()
+// CreateSwiftContainer creates a container. The response to a Swift PUT does
+// not contain the container's attributes, so only the name is returned.
+func (c swiftcontainerClient) CreateSwiftContainer(ctx context.Context, name string, opts containers.CreateOptsBuilder) (*SwiftContainer, error) {
+	if err := containers.Create(ctx, c.client, name, opts).Err; err != nil {
+		return nil, err
+	}
+	return &SwiftContainer{Name: name}, nil
 }
 
-func (c swiftcontainerClient) DeleteSwiftContainer(ctx context.Context, resourceID string) error {
-	return containers.Delete(ctx, c.client, resourceID).ExtractErr()
+func (c swiftcontainerClient) DeleteSwiftContainer(ctx context.Context, name string) error {
+	return containers.Delete(ctx, c.client, name).Err
 }
 
-func (c swiftcontainerClient) GetSwiftContainer(ctx context.Context, resourceID string) (*containers.Container, error) {
-	return containers.Get(ctx, c.client, resourceID).Extract()
+func (c swiftcontainerClient) GetSwiftContainer(ctx context.Context, name string) (*SwiftContainer, error) {
+	return newSwiftContainer(name, containers.Get(ctx, c.client, name, nil))
 }
 
-func (c swiftcontainerClient) UpdateSwiftContainer(ctx context.Context, id string, opts containers.UpdateOptsBuilder) (*containers.Container, error) {
-	return containers.Update(ctx, c.client, id, opts).Extract()
+func newSwiftContainer(name string, result containers.GetResult) (*SwiftContainer, error) {
+	header, err := result.Extract()
+	if err != nil {
+		return nil, err
+	}
+	metadata, err := result.ExtractMetadata()
+	if err != nil {
+		return nil, err
+	}
+
+	// TempURL keys are secrets used to sign URLs. Don't expose them.
+	header.TempURLKey, header.TempURLKey2 = "", ""
+	for key := range metadata {
+		if strings.EqualFold(key, "Temp-URL-Key") || strings.EqualFold(key, "Temp-URL-Key-2") {
+			delete(metadata, key)
+		}
+	}
+
+	return &SwiftContainer{Name: name, Header: header, Metadata: metadata}, nil
 }
 
 type swiftcontainerErrorClient struct{ error }
@@ -79,13 +125,13 @@ func NewSwiftContainerErrorClient(e error) SwiftContainerClient {
 	return swiftcontainerErrorClient{e}
 }
 
-func (e swiftcontainerErrorClient) ListSwiftContainers(_ context.Context, _ containers.ListOptsBuilder) iter.Seq2[*containers.Container, error] {
-	return func(yield func(*containers.Container, error) bool) {
+func (e swiftcontainerErrorClient) ListSwiftContainers(_ context.Context, _ containers.ListOptsBuilder) iter.Seq2[*SwiftContainer, error] {
+	return func(yield func(*SwiftContainer, error) bool) {
 		yield(nil, e.error)
 	}
 }
 
-func (e swiftcontainerErrorClient) CreateSwiftContainer(_ context.Context, _ containers.CreateOptsBuilder) (*containers.Container, error) {
+func (e swiftcontainerErrorClient) CreateSwiftContainer(_ context.Context, _ string, _ containers.CreateOptsBuilder) (*SwiftContainer, error) {
 	return nil, e.error
 }
 
@@ -93,10 +139,6 @@ func (e swiftcontainerErrorClient) DeleteSwiftContainer(_ context.Context, _ str
 	return e.error
 }
 
-func (e swiftcontainerErrorClient) GetSwiftContainer(_ context.Context, _ string) (*containers.Container, error) {
-	return nil, e.error
-}
-
-func (e swiftcontainerErrorClient) UpdateSwiftContainer(_ context.Context, _ string, _ containers.UpdateOptsBuilder) (*containers.Container, error) {
+func (e swiftcontainerErrorClient) GetSwiftContainer(_ context.Context, _ string) (*SwiftContainer, error) {
 	return nil, e.error
 }

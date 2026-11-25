@@ -5,10 +5,14 @@ metadata:
   name: swiftcontainer-sample
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Sample SwiftContainer
-    # TODO(scaffolding): Add all fields the resource supports
+    name: swiftcontainer-sample
+    readACL: "example-project-id:*"
+    writeACL: "example-project-id:example-user-id"
+    storagePolicy: Policy-0
+    metadata:
+      - name: Owner
+        value: example

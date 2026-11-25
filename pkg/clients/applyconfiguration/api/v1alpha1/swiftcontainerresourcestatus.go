@@ -21,8 +21,13 @@ package v1alpha1
 // SwiftContainerResourceStatusApplyConfiguration represents a declarative configuration of the SwiftContainerResourceStatus type for use
 // with apply.
 type SwiftContainerResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Name          *string                                          `json:"name,omitempty"`
+	Metadata      []SwiftContainerMetadataStatusApplyConfiguration `json:"metadata,omitempty"`
+	ReadACL       *string                                          `json:"readACL,omitempty"`
+	WriteACL      *string                                          `json:"writeACL,omitempty"`
+	StoragePolicy *string                                          `json:"storagePolicy,omitempty"`
+	BytesUsed     *int64                                           `json:"bytesUsed,omitempty"`
+	ObjectCount   *int64                                           `json:"objectCount,omitempty"`
 }
 
 // SwiftContainerResourceStatusApplyConfiguration constructs a declarative configuration of the SwiftContainerResourceStatus type for use with
@@ -39,10 +44,55 @@ func (b *SwiftContainerResourceStatusApplyConfiguration) WithName(value string) 
 	return b
 }
 
-// WithDescription sets the Description field in the declarative configuration to the given value
+// WithMetadata adds the given value to the Metadata field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Metadata field.
+func (b *SwiftContainerResourceStatusApplyConfiguration) WithMetadata(values ...*SwiftContainerMetadataStatusApplyConfiguration) *SwiftContainerResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMetadata")
+		}
+		b.Metadata = append(b.Metadata, *values[i])
+	}
+	return b
+}
+
+// WithReadACL sets the ReadACL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *SwiftContainerResourceStatusApplyConfiguration) WithDescription(value string) *SwiftContainerResourceStatusApplyConfiguration {
-	b.Description = &value
+// If called multiple times, the ReadACL field is set to the value of the last call.
+func (b *SwiftContainerResourceStatusApplyConfiguration) WithReadACL(value string) *SwiftContainerResourceStatusApplyConfiguration {
+	b.ReadACL = &value
+	return b
+}
+
+// WithWriteACL sets the WriteACL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the WriteACL field is set to the value of the last call.
+func (b *SwiftContainerResourceStatusApplyConfiguration) WithWriteACL(value string) *SwiftContainerResourceStatusApplyConfiguration {
+	b.WriteACL = &value
+	return b
+}
+
+// WithStoragePolicy sets the StoragePolicy field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the StoragePolicy field is set to the value of the last call.
+func (b *SwiftContainerResourceStatusApplyConfiguration) WithStoragePolicy(value string) *SwiftContainerResourceStatusApplyConfiguration {
+	b.StoragePolicy = &value
+	return b
+}
+
+// WithBytesUsed sets the BytesUsed field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the BytesUsed field is set to the value of the last call.
+func (b *SwiftContainerResourceStatusApplyConfiguration) WithBytesUsed(value int64) *SwiftContainerResourceStatusApplyConfiguration {
+	b.BytesUsed = &value
+	return b
+}
+
+// WithObjectCount sets the ObjectCount field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ObjectCount field is set to the value of the last call.
+func (b *SwiftContainerResourceStatusApplyConfiguration) WithObjectCount(value int64) *SwiftContainerResourceStatusApplyConfiguration {
+	b.ObjectCount = &value
 	return b
 }

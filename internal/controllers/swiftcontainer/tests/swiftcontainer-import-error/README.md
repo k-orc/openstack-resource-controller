@@ -1,13 +1,3 @@
-# Import SwiftContainer with more than one matching resources
+# SwiftContainer import error
 
-## Step 00
-
-Create two SwiftContainers with identical specs.
-
-## Step 01
-
-Ensure that an imported SwiftContainer with a filter matching the resources returns an error.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#import-error
+00. Import a missing Swift container by ID and verify that ORC reports a terminal error rather than creating it or waiting for it to appear.

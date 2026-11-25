@@ -17,6 +17,10 @@ limitations under the License.
 package swiftcontainer
 
 import (
+	"maps"
+	"slices"
+	"strings"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -45,6 +49,12 @@ func (swiftcontainerStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1
 			return metav1.ConditionUnknown, nil
 		}
 	}
+
+	// A newly created container has not been read yet
+	if osResource.Header == nil {
+		return metav1.ConditionFalse, progress.NeedsRefresh()
+	}
+
 	return metav1.ConditionTrue, nil
 }
 
@@ -52,11 +62,24 @@ func (swiftcontainerStatusWriter) ApplyResourceStatus(log logr.Logger, osResourc
 	resourceStatus := orcapplyconfigv1alpha1.SwiftContainerResourceStatus().
 		WithName(osResource.Name)
 
-	// TODO(scaffolding): add all of the fields supported in the SwiftContainerResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if header := osResource.Header; header != nil {
+		resourceStatus.
+			WithStoragePolicy(header.StoragePolicy).
+			WithBytesUsed(header.BytesUsed).
+			WithObjectCount(header.ObjectCount)
 
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
+		if readACL := strings.Join(header.Read, ","); readACL != "" {
+			resourceStatus.WithReadACL(readACL)
+		}
+		if writeACL := strings.Join(header.Write, ","); writeACL != "" {
+			resourceStatus.WithWriteACL(writeACL)
+		}
+	}
+
+	for _, name := range slices.Sorted(maps.Keys(osResource.Metadata)) {
+		resourceStatus.WithMetadata(orcapplyconfigv1alpha1.SwiftContainerMetadataStatus().
+			WithName(name).
+			WithValue(osResource.Metadata[name]))
 	}
 
 	statusApply.WithResource(resourceStatus)

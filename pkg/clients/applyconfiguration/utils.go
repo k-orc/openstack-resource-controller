@@ -524,6 +524,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SwiftContainerFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerImport"):
 		return &apiv1alpha1.SwiftContainerImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerMetadata"):
+		return &apiv1alpha1.SwiftContainerMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerMetadataStatus"):
+		return &apiv1alpha1.SwiftContainerMetadataStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerResourceSpec"):
 		return &apiv1alpha1.SwiftContainerResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerResourceStatus"):

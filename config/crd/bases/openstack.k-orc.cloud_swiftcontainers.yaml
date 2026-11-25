@@ -91,17 +91,15 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
-                      description:
-                        description: description of the existing resource
-                        maxLength: 255
-                        minLength: 1
-                        type: string
                       name:
-                        description: name of the existing resource
+                        description: name is the exact name of the Swift container.
                         maxLength: 255
                         minLength: 1
                         pattern: ^[^,]+$
                         type: string
+                        x-kubernetes-validations:
+                        - message: Swift container names cannot contain '/'
+                          rule: '!self.contains(''/'')'
                     type: object
                   id:
                     description: |-
@@ -150,12 +148,34 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
-                  description:
-                    description: description is a human-readable description for the
-                      resource.
-                    maxLength: 255
-                    minLength: 1
-                    type: string
+                  metadata:
+                    description: metadata contains the X-Container-Meta-* properties
+                      of the container.
+                    items:
+                      description: SwiftContainerMetadata is a container metadata
+                        property.
+                      properties:
+                        name:
+                          description: |-
+                            name is the name of the metadata property, without the
+                            X-Container-Meta- prefix.
+                          maxLength: 128
+                          minLength: 1
+                          type: string
+                        value:
+                          description: value is the value of the metadata property.
+                          maxLength: 256
+                          minLength: 1
+                          type: string
+                      required:
+                      - name
+                      - value
+                      type: object
+                    maxItems: 90
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -164,7 +184,30 @@ spec:
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
+                    x-kubernetes-validations:
+                    - message: Swift container names cannot contain '/'
+                      rule: '!self.contains(''/'')'
+                  readACL:
+                    description: readACL is the X-Container-Read access control list.
+                    maxLength: 1024
+                    minLength: 1
+                    type: string
+                  storagePolicy:
+                    description: storagePolicy is the name of the Swift storage policy
+                      for the container.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
+                  writeACL:
+                    description: writeACL is the X-Container-Write access control
+                      list.
+                    maxLength: 1024
+                    minLength: 1
+                    type: string
                 type: object
+                x-kubernetes-validations:
+                - message: SwiftContainerResourceSpec is immutable
+                  rule: self == oldSelf
               resyncPeriod:
                 description: |-
                   resyncPeriod defines how frequently the controller will re-reconcile
@@ -284,14 +327,52 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
-                  description:
-                    description: description is a human-readable description for the
-                      resource.
+                  bytesUsed:
+                    description: bytesUsed is the total number of bytes stored in
+                      the container.
+                    format: int64
+                    type: integer
+                  metadata:
+                    description: |-
+                      metadata contains the X-Container-Meta-* properties of the container.
+                      TempURL keys are not reported.
+                    items:
+                      description: SwiftContainerMetadataStatus is an observed container
+                        metadata property.
+                      properties:
+                        name:
+                          description: name is the name of the metadata property.
+                          maxLength: 1024
+                          type: string
+                        value:
+                          description: value is the value of the metadata property.
+                          maxLength: 1024
+                          type: string
+                      type: object
+                    maxItems: 128
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  name:
+                    description: name is the name of the container in Swift.
                     maxLength: 1024
                     type: string
-                  name:
-                    description: name is a Human-readable name for the resource. Might
-                      not be unique.
+                  objectCount:
+                    description: objectCount is the number of objects stored in the
+                      container.
+                    format: int64
+                    type: integer
+                  readACL:
+                    description: readACL is the X-Container-Read access control list.
+                    maxLength: 1024
+                    type: string
+                  storagePolicy:
+                    description: storagePolicy is the name of the Swift storage policy
+                      for the container.
+                    maxLength: 1024
+                    type: string
+                  writeACL:
+                    description: writeACL is the X-Container-Write access control
+                      list.
                     maxLength: 1024
                     type: string
                 type: object

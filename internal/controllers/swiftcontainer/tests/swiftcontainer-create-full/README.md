@@ -1,11 +1,3 @@
-# Create a SwiftContainer with all the options
+# SwiftContainer creation full test
 
-## Step 00
-
-Create a SwiftContainer using all available fields, and verify that the observed state corresponds to the spec.
-
-Also validate that the OpenStack resource uses the name from the spec when it is specified.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#create-full
+00. Create a managed SwiftContainer with an explicit name, ACLs, storage policy, and metadata. Verify the observed Swift attributes and the controller finalizer.
