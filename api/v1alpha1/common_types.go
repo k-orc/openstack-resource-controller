@@ -101,3 +101,8 @@ type KubernetesNameRef string
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=64
 type KeystoneName string
+
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=255
+// +kubebuilder:validation:Pattern=`^CUSTOM_[A-Z0-9_]+$`
+type CustomResourceName string

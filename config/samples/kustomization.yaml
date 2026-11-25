@@ -18,6 +18,7 @@ resources:
 - openstack_v1alpha1_recordset.yaml
 - openstack_v1alpha1_region.yaml
 - openstack_v1alpha1_registeredlimit.yaml
+- openstack_v1alpha1_resourceclass.yaml
 - openstack_v1alpha1_role.yaml
 - openstack_v1alpha1_roleassignment.yaml
 - openstack_v1alpha1_router.yaml

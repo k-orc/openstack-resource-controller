@@ -1,0 +1,31 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ResourceClass
+      name: resourceclass-import-external
+      ref: resourceclass1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ResourceClass
+      name: resourceclass-import-external-not-this-one
+      ref: resourceclass2
+assertAll:
+    - celExpr: "resourceclass1.status.resource.name != resourceclass2.status.resource.name"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ResourceClass
+metadata:
+  name: resourceclass-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: CUSTOM_RESOURCE_CLASS_IMPORT

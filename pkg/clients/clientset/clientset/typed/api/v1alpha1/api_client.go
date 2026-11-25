@@ -45,6 +45,7 @@ type OpenstackV1alpha1Interface interface {
 	RecordSetsGetter
 	RegionsGetter
 	RegisteredLimitsGetter
+	ResourceClassesGetter
 	RolesGetter
 	RoleAssignmentsGetter
 	RoutersGetter
@@ -133,6 +134,10 @@ func (c *OpenstackV1alpha1Client) Regions(namespace string) RegionInterface {
 
 func (c *OpenstackV1alpha1Client) RegisteredLimits(namespace string) RegisteredLimitInterface {
 	return newRegisteredLimits(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) ResourceClasses(namespace string) ResourceClassInterface {
+	return newResourceClasses(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Roles(namespace string) RoleInterface {

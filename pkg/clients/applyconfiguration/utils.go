@@ -340,6 +340,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.RegisteredLimitSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimitStatus"):
 		return &apiv1alpha1.RegisteredLimitStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ResourceClass"):
+		return &apiv1alpha1.ResourceClassApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ResourceClassFilter"):
+		return &apiv1alpha1.ResourceClassFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ResourceClassImport"):
+		return &apiv1alpha1.ResourceClassImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ResourceClassResourceSpec"):
+		return &apiv1alpha1.ResourceClassResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ResourceClassResourceStatus"):
+		return &apiv1alpha1.ResourceClassResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ResourceClassSpec"):
+		return &apiv1alpha1.ResourceClassSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ResourceClassStatus"):
+		return &apiv1alpha1.ResourceClassStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Role"):
 		return &apiv1alpha1.RoleApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignment"):

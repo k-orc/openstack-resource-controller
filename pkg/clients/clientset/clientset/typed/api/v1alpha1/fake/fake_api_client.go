@@ -96,6 +96,10 @@ func (c *FakeOpenstackV1alpha1) RegisteredLimits(namespace string) v1alpha1.Regi
 	return newFakeRegisteredLimits(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) ResourceClasses(namespace string) v1alpha1.ResourceClassInterface {
+	return newFakeResourceClasses(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Roles(namespace string) v1alpha1.RoleInterface {
 	return newFakeRoles(c, namespace)
 }

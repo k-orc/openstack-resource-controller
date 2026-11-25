@@ -27,6 +27,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [RecordSet](#recordset)
 - [Region](#region)
 - [RegisteredLimit](#registeredlimit)
+- [ResourceClass](#resourceclass)
 - [Role](#role)
 - [RoleAssignment](#roleassignment)
 - [Router](#router)
@@ -532,6 +533,7 @@ _Appears in:_
 - [RecordSetSpec](#recordsetspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
+- [ResourceClassSpec](#resourceclassspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
 - [RoleSpec](#rolespec)
 - [RouterSpec](#routerspec)
@@ -551,6 +553,22 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `secretName` _string_ | secretName is the name of a secret in the same namespace as the resource being provisioned.<br />The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.<br />The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `cloudName` _string_ | cloudName specifies the name of the entry in the clouds.yaml file to use. |  | MaxLength: 256 <br />MinLength: 1 <br />Required: \{\} <br /> |
+
+
+#### CustomResourceName
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+- Pattern: `^CUSTOM_[A-Z0-9_]+$`
+
+_Appears in:_
+- [ResourceClassResourceSpec](#resourceclassresourcespec)
+
 
 
 #### DNSDomain
@@ -2678,6 +2696,7 @@ _Appears in:_
 - [RecordSetSpec](#recordsetspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
+- [ResourceClassSpec](#resourceclassspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
 - [RoleSpec](#rolespec)
 - [RouterSpec](#routerspec)
@@ -2725,6 +2744,7 @@ _Appears in:_
 - [RecordSetSpec](#recordsetspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
+- [ResourceClassSpec](#resourceclassspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
 - [RoleSpec](#rolespec)
 - [RouterSpec](#routerspec)
@@ -3043,6 +3063,7 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [RegionFilter](#regionfilter)
 - [RegionResourceSpec](#regionresourcespec)
+- [ResourceClassFilter](#resourceclassfilter)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -3990,6 +4011,134 @@ _Appears in:_
 | `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[RegisteredLimitResourceStatus](#registeredlimitresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### ResourceClass
+
+
+
+ResourceClass is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ResourceClass` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[ResourceClassSpec](#resourceclassspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[ResourceClassStatus](#resourceclassstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### ResourceClassFilter
+
+
+
+ResourceClassFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ResourceClassImport](#resourceclassimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+
+
+#### ResourceClassImport
+
+
+
+ResourceClassImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ResourceClassSpec](#resourceclassspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the name of an existing resource. Note: This resource uses<br />the resource name as the unique identifier, not a UUID.<br />When specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `filter` _[ResourceClassFilter](#resourceclassfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### ResourceClassResourceSpec
+
+
+
+ResourceClassResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ResourceClassSpec](#resourceclassspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[CustomResourceName](#customresourcename)_ | name will be the name of the created resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^CUSTOM_[A-Z0-9_]+$` <br />Optional: \{\} <br /> |
+
+
+#### ResourceClassResourceStatus
+
+
+
+ResourceClassResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ResourceClassStatus](#resourceclassstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### ResourceClassSpec
+
+
+
+ResourceClassSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [ResourceClass](#resourceclass)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ResourceClassImport](#resourceclassimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[ResourceClassResourceSpec](#resourceclassresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### ResourceClassStatus
+
+
+
+ResourceClassStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [ResourceClass](#resourceclass)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[ResourceClassResourceStatus](#resourceclassresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 

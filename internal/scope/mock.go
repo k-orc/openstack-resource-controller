@@ -48,6 +48,7 @@ type MockScopeFactory struct {
 	NetworkClient               *mock.MockNetworkClient
 	RegionClient                *mock.MockRegionClient
 	RegisteredLimitClient       *mock.MockRegisteredLimitClient
+	ResourceClassClient         *mock.MockResourceClassClient
 	RoleClient                  *mock.MockRoleClient
 	RoleAssignmentClient        *mock.MockRoleAssignmentClient
 	ServiceClient               *mock.MockServiceClient
@@ -76,6 +77,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	regionClient := mock.NewMockRegionClient(mockCtrl)
 	registeredLimitClient := mock.NewMockRegisteredLimitClient(mockCtrl)
+	resourceClassClient := mock.NewMockResourceClassClient(mockCtrl)
 	roleClient := mock.NewMockRoleClient(mockCtrl)
 	roleassignmentClient := mock.NewMockRoleAssignmentClient(mockCtrl)
 	serviceClient := mock.NewMockServiceClient(mockCtrl)
@@ -101,6 +103,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		NetworkClient:               networkClient,
 		RegionClient:                regionClient,
 		RegisteredLimitClient:       registeredLimitClient,
+		ResourceClassClient:         resourceClassClient,
 		RoleClient:                  roleClient,
 		RoleAssignmentClient:        roleassignmentClient,
 		ServiceClient:               serviceClient,
@@ -182,6 +185,10 @@ func (f *MockScopeFactory) NewDNSZoneClient() (osclients.DNSZoneClient, error) {
 
 func (f *MockScopeFactory) NewRecordSetClient() (osclients.RecordSetClient, error) {
 	return f.RecordSetClient, nil
+}
+
+func (f *MockScopeFactory) NewResourceClassClient() (osclients.ResourceClassClient, error) {
+	return f.ResourceClassClient, nil
 }
 
 func (f *MockScopeFactory) NewGroupClient() (osclients.GroupClient, error) {

@@ -154,6 +154,14 @@ type RegisteredLimitListerExpansion interface{}
 // RegisteredLimitNamespaceLister.
 type RegisteredLimitNamespaceListerExpansion interface{}
 
+// ResourceClassListerExpansion allows custom methods to be added to
+// ResourceClassLister.
+type ResourceClassListerExpansion interface{}
+
+// ResourceClassNamespaceListerExpansion allows custom methods to be added to
+// ResourceClassNamespaceLister.
+type ResourceClassNamespaceListerExpansion interface{}
+
 // RoleListerExpansion allows custom methods to be added to
 // RoleLister.
 type RoleListerExpansion interface{}
