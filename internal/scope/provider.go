@@ -224,6 +224,12 @@ func (s *providerScope) NewUserClient() (clients.UserClient, error) {
 	return client, err
 }
 
+func (s *providerScope) NewSwiftContainerClient() (clients.SwiftContainerClient, error) {
+	client, err := clients.NewSwiftContainerClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
+}
+
 func (s *providerScope) NewVolumeClient() (clients.VolumeClient, error) {
 	client, err := clients.NewVolumeClient(s.providerClient, s.providerClientOpts)
 	s.checkNewClientError(err)

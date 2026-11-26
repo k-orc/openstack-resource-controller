@@ -258,6 +258,10 @@ var resources []templateFields = []templateFields{
 			},
 		},
 	},
+	{
+		Name:         "SwiftContainer",
+		UsesNameAsID: true,
+	},
 }
 
 // These resources won't be generated

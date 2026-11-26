@@ -56,6 +56,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/sharenetwork"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/subnet"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/subnetpool"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/swiftcontainer"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/trunk"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/user"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/volume"
@@ -130,6 +131,7 @@ func main() {
 		network.New(scopeFactory),
 		subnet.New(scopeFactory),
 		subnetpool.New(scopeFactory),
+		swiftcontainer.New(scopeFactory),
 		dnszonecontroller.New(scopeFactory),
 		recordsetcontroller.New(scopeFactory),
 		router.New(scopeFactory),

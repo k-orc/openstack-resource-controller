@@ -67,6 +67,7 @@ type Scope interface {
 	NewServiceClient() (osclients.ServiceClient, error)
 	NewShareNetworkClient() (osclients.ShareNetworkClient, error)
 	NewSubnetPoolClient() (osclients.SubnetPoolClient, error)
+	NewSwiftContainerClient() (osclients.SwiftContainerClient, error)
 	NewUserClient() (osclients.UserClient, error)
 	NewVolumeClient() (osclients.VolumeClient, error)
 	NewVolumeTypeClient() (osclients.VolumeTypeClient, error)

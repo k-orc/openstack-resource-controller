@@ -1,0 +1,10 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      set -eu
+      test_dir=$(mktemp -d)
+      trap 'rm -rf -- "$test_dir"' EXIT
+      cd "$test_dir"
+      printf '%s\n' 'test content' > test_file.txt
+      OS_CLIENT_CONFIG_FILE="$E2E_KUTTL_OSCLOUDS" openstack --os-cloud openstack object create swiftcontainer-safe-delete-nonempty test_file.txt

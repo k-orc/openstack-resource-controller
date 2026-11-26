@@ -1,0 +1,27 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-safe-delete-empty
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  managedOptions:
+    onDelete: delete
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-safe-delete-nonempty
+spec:
+  resyncPeriod: 10s
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  managedOptions:
+    onDelete: delete
+  resource: {}

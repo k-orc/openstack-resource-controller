@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: orc-swiftcontainer-create-full
+    readACL: ".r:-example.invalid"
+    writeACL: "orc-e2e-unused-role"
+    storagePolicy: Policy-0
+    metadata:
+      - name: Owner
+        value: orc-e2e

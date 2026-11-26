@@ -1,0 +1,14 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-import-error
+status:
+  conditions:
+    - type: Available
+      status: "False"
+      reason: UnrecoverableError
+      message: referenced resource does not exist in OpenStack
+    - type: Progressing
+      status: "False"
+      reason: UnrecoverableError
+      message: referenced resource does not exist in OpenStack

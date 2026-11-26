@@ -1,0 +1,12 @@
+---
+# This container's name starts with the name in the import filter, but must not be imported.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}

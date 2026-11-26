@@ -242,6 +242,14 @@ type SubnetPoolListerExpansion interface{}
 // SubnetPoolNamespaceLister.
 type SubnetPoolNamespaceListerExpansion interface{}
 
+// SwiftContainerListerExpansion allows custom methods to be added to
+// SwiftContainerLister.
+type SwiftContainerListerExpansion interface{}
+
+// SwiftContainerNamespaceListerExpansion allows custom methods to be added to
+// SwiftContainerNamespaceLister.
+type SwiftContainerNamespaceListerExpansion interface{}
+
 // TrunkListerExpansion allows custom methods to be added to
 // TrunkLister.
 type TrunkListerExpansion interface{}

@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: swiftcontainer-sample
+    readACL: "example-project-id:*"
+    writeACL: "example-project-id:example-user-id"
+    storagePolicy: Policy-0
+    metadata:
+      - name: Owner
+        value: example

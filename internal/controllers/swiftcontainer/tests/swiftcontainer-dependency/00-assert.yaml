@@ -1,0 +1,14 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-dependency
+status:
+  conditions:
+    - type: Available
+      status: "False"
+      reason: Progressing
+      message: Waiting for Secret/openstack-clouds to be created
+    - type: Progressing
+      status: "True"
+      reason: Progressing
+      message: Waiting for Secret/openstack-clouds to be created

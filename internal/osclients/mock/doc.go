@@ -83,6 +83,9 @@ import (
 //go:generate mockgen -package mock -destination=subnetpool.go -source=../subnetpool.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock SubnetPoolClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt subnetpool.go > _subnetpool.go && mv _subnetpool.go subnetpool.go"
 
+//go:generate mockgen -package mock -destination=swiftcontainer.go -source=../swiftcontainer.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock SwiftContainerClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt swiftcontainer.go > _swiftcontainer.go && mv _swiftcontainer.go swiftcontainer.go"
+
 //go:generate mockgen -package mock -destination=user.go -source=../user.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock UserClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt user.go > _user.go && mv _user.go user.go"
 

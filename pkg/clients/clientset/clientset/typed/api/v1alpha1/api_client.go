@@ -56,6 +56,7 @@ type OpenstackV1alpha1Interface interface {
 	ShareNetworksGetter
 	SubnetsGetter
 	SubnetPoolsGetter
+	SwiftContainersGetter
 	TrunksGetter
 	UsersGetter
 	VolumesGetter
@@ -177,6 +178,10 @@ func (c *OpenstackV1alpha1Client) Subnets(namespace string) SubnetInterface {
 
 func (c *OpenstackV1alpha1Client) SubnetPools(namespace string) SubnetPoolInterface {
 	return newSubnetPools(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) SwiftContainers(namespace string) SwiftContainerInterface {
+	return newSwiftContainers(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Trunks(namespace string) TrunkInterface {
