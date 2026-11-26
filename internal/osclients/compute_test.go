@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strings"
 	"sync/atomic"
 	"testing"
 
@@ -87,8 +88,16 @@ func TestListFlavors(t *testing.T) {
 			client := computeClient{client: newTestServiceClient(t, func(w http.ResponseWriter, r *http.Request) {
 				requests.Add(1)
 				if r.URL.Path != "/flavors/detail" {
-					t.Errorf("unexpected request: %s", r.URL)
-					w.WriteHeader(http.StatusNotFound)
+					if !strings.HasSuffix(r.URL.Path, "os-flavor-access") {
+						t.Errorf("unexpected request: %s", r.URL)
+						w.WriteHeader(http.StatusNotFound)
+					} else {
+						// Spoof the flavor access list
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusOK)
+						_, _ = fmt.Fprint(w, `{"flavor_access": [{"flavor_id": "10","tenant_id": "6f70656e737461636b20342065766572"}]}`)
+						requests.Add(-1)
+					}
 					return
 				}
 				w.Header().Set("Content-Type", "application/json")

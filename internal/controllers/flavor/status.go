@@ -18,7 +18,6 @@ package flavor
 
 import (
 	"github.com/go-logr/logr"
-	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
@@ -32,13 +31,13 @@ type flavorStatusWriter struct{}
 type objectApplyT = orcapplyconfigv1alpha1.FlavorApplyConfiguration
 type statusApplyT = orcapplyconfigv1alpha1.FlavorStatusApplyConfiguration
 
-var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Flavor, *flavors.Flavor, *objectApplyT, *statusApplyT] = flavorStatusWriter{}
+var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Flavor, *osResourceT, *objectApplyT, *statusApplyT] = flavorStatusWriter{}
 
 func (flavorStatusWriter) GetApplyConfig(name, namespace string) *objectApplyT {
 	return orcapplyconfigv1alpha1.Flavor(name, namespace)
 }
 
-func (flavorStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Flavor, osResource *flavors.Flavor) (metav1.ConditionStatus, progress.ReconcileStatus) {
+func (flavorStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Flavor, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
@@ -51,7 +50,7 @@ func (flavorStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Flavor,
 	return metav1.ConditionTrue, nil
 }
 
-func (flavorStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *flavors.Flavor, statusApply *statusApplyT) {
+func (flavorStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.FlavorResourceStatus().
 		WithName(osResource.Name).
 		WithRAM(int32(osResource.RAM)).
@@ -73,5 +72,9 @@ func (flavorStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *flavors
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
 	}
+	if osResource.ProjectIDs != nil {
+		resourceStatus.WithProjectIDs(osResource.ProjectIDs...)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

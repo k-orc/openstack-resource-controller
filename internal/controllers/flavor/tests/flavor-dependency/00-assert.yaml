@@ -13,3 +13,18 @@ status:
       message: Waiting for Secret/flavor-dependency to be created
       status: "True"
       reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: Waiting for Project/flavor-dependency to be created
+      status: "True"
+      reason: Progressing

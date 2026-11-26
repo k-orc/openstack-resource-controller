@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-import-with-project-external
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Flavor
+    name: flavor-import-with-project-external
+    ref: flavor
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Project
+    name: flavor-import-with-project-external
+    ref: project
+assertAll:
+  - celExpr: "flavor.status.id != ''"
+  - celExpr: "project.status.id in flavor.status.resource.projectIDs"
