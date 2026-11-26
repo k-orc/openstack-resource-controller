@@ -124,6 +124,11 @@ func IsInvalidError(err error) bool {
 	return gophercloud.ResponseCodeIs(err, http.StatusBadRequest)
 }
 
+// IsForbidden returns true if err is an HTTP 403 Forbidden response.
+func IsForbidden(err error) bool {
+	return gophercloud.ResponseCodeIs(err, http.StatusForbidden)
+}
+
 // IsConflict returns true if err is an HTTP 409 Conflict response.
 func IsConflict(err error) bool {
 	return gophercloud.ResponseCodeIs(err, http.StatusConflict)

@@ -29,6 +29,7 @@ type VolumeTypeResourceSpecApplyConfiguration struct {
 	Description *string                                 `json:"description,omitempty"`
 	ExtraSpecs  []VolumeTypeExtraSpecApplyConfiguration `json:"extraSpecs,omitempty"`
 	IsPublic    *bool                                   `json:"isPublic,omitempty"`
+	ProjectRefs []apiv1alpha1.KubernetesNameRef         `json:"projectRefs,omitempty"`
 }
 
 // VolumeTypeResourceSpecApplyConfiguration constructs a declarative configuration of the VolumeTypeResourceSpec type for use with
@@ -71,5 +72,15 @@ func (b *VolumeTypeResourceSpecApplyConfiguration) WithExtraSpecs(values ...*Vol
 // If called multiple times, the IsPublic field is set to the value of the last call.
 func (b *VolumeTypeResourceSpecApplyConfiguration) WithIsPublic(value bool) *VolumeTypeResourceSpecApplyConfiguration {
 	b.IsPublic = &value
+	return b
+}
+
+// WithProjectRefs adds the given value to the ProjectRefs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ProjectRefs field.
+func (b *VolumeTypeResourceSpecApplyConfiguration) WithProjectRefs(values ...apiv1alpha1.KubernetesNameRef) *VolumeTypeResourceSpecApplyConfiguration {
+	for i := range values {
+		b.ProjectRefs = append(b.ProjectRefs, values[i])
+	}
 	return b
 }
