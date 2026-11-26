@@ -42,11 +42,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
                 LDFLAGS=\"\$(version::ldflags)\" \
     "
 
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+# Use UBI minimal as the runtime base image
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 WORKDIR /
 COPY --from=builder /workspace/bin/manager .
+COPY LICENSE /licenses/LICENSE
 USER 65532:65532
 
 ARG BUILD_DATE
