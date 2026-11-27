@@ -68,6 +68,10 @@ func (c *FakeOpenstackV1alpha1) KeyPairs(namespace string) v1alpha1.KeyPairInter
 	return newFakeKeyPairs(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Leases(namespace string) v1alpha1.LeaseInterface {
+	return newFakeLeases(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Limits(namespace string) v1alpha1.LimitInterface {
 	return newFakeLimits(c, namespace)
 }

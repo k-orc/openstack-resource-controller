@@ -1,0 +1,19 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    startDate: "2097-01-01T10:00:00Z"
+    endDate: "2097-01-01T11:00:00Z"
+    reservations:
+      - instance:
+          amount: 1
+          vcpus: 1
+          memoryMB: 128
+          diskGB: 1

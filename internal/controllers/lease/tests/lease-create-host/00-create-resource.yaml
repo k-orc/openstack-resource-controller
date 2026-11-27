@@ -1,0 +1,22 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-create-host
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # A host reservation takes the whole DevStack host, so its window must not
+    # overlap any other lease test.
+    startDate: "2094-01-01T10:00:00Z"
+    endDate: "2094-01-01T11:00:00Z"
+    reservations:
+      - host:
+          min: 1
+          max: 1
+          hypervisorProperties: '[">=", "$vcpus", "1"]'
+          # The e2e workflow enrolls the DevStack host with this capability
+          resourceProperties: '["==", "$orc", "e2e"]'

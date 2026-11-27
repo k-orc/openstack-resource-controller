@@ -1,0 +1,25 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Lease
+      name: lease-import-external-not-this-one
+      ref: trap
+assertAll:
+    - celExpr: "trap.status.id != ''"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-import
+status:
+  conditions:
+    - type: Available
+      message: Waiting for OpenStack resource to be created externally
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be created externally
+      status: "True"
+      reason: Progressing
