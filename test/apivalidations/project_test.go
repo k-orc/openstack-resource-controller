@@ -18,6 +18,7 @@ package apivalidations
 
 import (
 	"context"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -104,6 +105,30 @@ var _ = Describe("ORC Project API validations", func() {
 		patch := baseProjectPatch(project)
 		patch.Spec.WithResource(applyconfigv1alpha1.ProjectResourceSpec().
 			WithTags("foo", "bar"))
+		Expect(applyObj(ctx, project, patch)).To(Succeed())
+	})
+
+	It("should reject a long metadata.name when resource.name is not set", func(ctx context.Context) {
+		project := projectStub(namespace)
+		project.Name = strings.Repeat("a", 65)
+		patch := baseProjectPatch(project)
+		patch.Spec.WithResource(testProjectResource())
+		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("metadata.name must be at most 64 characters when spec.resource.name is not set")))
+	})
+
+	It("should permit a long metadata.name when resource.name is set", func(ctx context.Context) {
+		project := projectStub(namespace)
+		project.Name = strings.Repeat("a", 65)
+		patch := baseProjectPatch(project)
+		patch.Spec.WithResource(testProjectResource().WithName("foo"))
+		Expect(applyObj(ctx, project, patch)).To(Succeed())
+	})
+
+	It("should permit a long metadata.name when importing", func(ctx context.Context) {
+		project := projectStub(namespace)
+		project.Name = strings.Repeat("a", 65)
+		patch := baseProjectPatch(project)
+		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).WithImport(testProjectImport())
 		Expect(applyObj(ctx, project, patch)).To(Succeed())
 	})
 

@@ -178,6 +178,9 @@ func (i *{{ .Name }}) GetConditions() []metav1.Condition {
 // +kubebuilder:printcolumn:name="{{ .Name }}",type="{{ .Type }}",JSONPath="{{ .JSONPath }}",description="{{ .Description }}"
 {{- end }}
 // +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".status.conditions[?(@.type=='Progressing')].message",description="Message describing current progress status"
+{{- if .ResourceNameMaxLength }}
+// +kubebuilder:validation:XValidation:rule="!has(self.spec.resource) || has(self.spec.resource.name) || size(self.metadata.name) <= {{ .ResourceNameMaxLength }}",message="metadata.name must be at most {{ .ResourceNameMaxLength }} characters when spec.resource.name is not set"
+{{- end }}
 
 // {{ .Name }} is the Schema for an ORC resource.
 type {{ .Name }} struct {

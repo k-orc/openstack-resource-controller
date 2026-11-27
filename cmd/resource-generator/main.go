@@ -83,11 +83,19 @@ type templateFields struct {
 	// ResourceIDValidations indicates the ID of this resource has special validation requirements instead of
 	// the default UUID format.
 	ResourceIDValidations []string
+
+	// ResourceNameMaxLength is the maximum length of the OpenStack
+	// resource name, if it is shorter than the maximum length of
+	// metadata.name. When set, metadata.name is validated against it if
+	// spec.resource.name is not set, because metadata.name is then used as
+	// the OpenStack resource name.
+	ResourceNameMaxLength int
 }
 
 var resources []templateFields = []templateFields{
 	{
-		Name: "Domain",
+		Name:                  "Domain",
+		ResourceNameMaxLength: 64,
 		ResourceIDValidations: []string{
 			"Pattern=`^[a-zA-Z0-9-]+$`",
 			"MinLength=1",
@@ -146,11 +154,13 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
-		Name:             "Project",
-		ExistingOSClient: true,
+		Name:                  "Project",
+		ResourceNameMaxLength: 64,
+		ExistingOSClient:      true,
 	},
 	{
-		Name: "Role",
+		Name:                  "Role",
+		ResourceNameMaxLength: 64,
 	},
 	{
 		Name:         "RoleAssignment",
@@ -204,7 +214,8 @@ var resources []templateFields = []templateFields{
 		UsesNameAsID: true, // Keypairs uses name as ID, not UUID
 	},
 	{
-		Name: "Group",
+		Name:                  "Group",
+		ResourceNameMaxLength: 64,
 	},
 	{
 		Name:       "Endpoint",
