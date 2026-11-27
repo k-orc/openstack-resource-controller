@@ -1,0 +1,59 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: ${E2E_KUTTL_CURRENT_TEST}-member
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: member
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: ${E2E_KUTTL_CURRENT_TEST}
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${E2E_KUTTL_CURRENT_TEST}-password
+type: Opaque
+stringData:
+  password: ${E2E_KUTTL_CURRENT_TEST}-Pa55
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: ${E2E_KUTTL_CURRENT_TEST}
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    passwordRef: ${E2E_KUTTL_CURRENT_TEST}-password
+    defaultProjectRef: ${E2E_KUTTL_CURRENT_TEST}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: ${E2E_KUTTL_CURRENT_TEST}
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    roleRef: ${E2E_KUTTL_CURRENT_TEST}-member
+    userRef: ${E2E_KUTTL_CURRENT_TEST}
+    projectRef: ${E2E_KUTTL_CURRENT_TEST}

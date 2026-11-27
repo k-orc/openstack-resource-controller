@@ -1,0 +1,31 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl create secret generic openstack-clouds --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
+  - script: |
+      export E2E_KUTTL_CURRENT_TEST=imagemember-update
+      cat ../templates/create-consumer.tmpl | envsubst | kubectl -n ${NAMESPACE} apply -f -
+      ../templates/create-consumer-clouds.sh
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: imagemember-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # Members change their status without changing the Image: resync to
+  # report it in status.resource.members.
+  resyncPeriod: 10s
+  resource:
+    visibility: shared
+    content:
+      diskFormat: raw
+      download:
+        url: https://github.com/k-orc/openstack-resource-controller/raw/690b760f49dfb61b173755e91cb51ed42472c7f3/internal/controllers/image/testdata/raw.img
+    members:
+      - projectRef: imagemember-update

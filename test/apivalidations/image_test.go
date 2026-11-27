@@ -298,4 +298,45 @@ var _ = Describe("ORC Image API validations", func() {
 			}, "https://example.com/image1.qcow2", "https://example.com/image2.qcow2", true,
 		)
 	})
+	It("should permit members with a projectRef", func(ctx context.Context) {
+		image := imageStub("image", namespace)
+		patch := minimalManagedPatch(image)
+		patch.Spec.Resource.WithMembers(
+			applyconfigv1alpha1.ImageMemberGrant().WithProjectRef("project-a"),
+			applyconfigv1alpha1.ImageMemberGrant().WithProjectRef("project-b"),
+		)
+		Expect(applyObj(ctx, image, patch)).To(Succeed())
+	})
+
+	It("should require exactly one of projectRef or userRef in members", func(ctx context.Context) {
+		image := imageStub("image", namespace)
+		patch := minimalManagedPatch(image)
+		patch.Spec.Resource.WithMembers(applyconfigv1alpha1.ImageMemberGrant())
+		Expect(applyObj(ctx, image, patch)).To(MatchError(ContainSubstring("exactly one of projectRef or userRef must be set")))
+
+		patch.Spec.Resource.Members = nil
+		patch.Spec.Resource.WithMembers(applyconfigv1alpha1.ImageMemberGrant().WithProjectRef("project").WithUserRef("user"))
+		Expect(applyObj(ctx, image, patch)).To(MatchError(ContainSubstring("exactly one of projectRef or userRef must be set")))
+	})
+
+	It("should not permit duplicate members", func(ctx context.Context) {
+		image := imageStub("image", namespace)
+		patch := minimalManagedPatch(image)
+		patch.Spec.Resource.WithMembers(
+			applyconfigv1alpha1.ImageMemberGrant().WithProjectRef("project"),
+			applyconfigv1alpha1.ImageMemberGrant().WithProjectRef("project"),
+		)
+		Expect(applyObj(ctx, image, patch)).To(MatchError(ContainSubstring("members must be unique")))
+	})
+
+	It("should permit modifying resource.members", func(ctx context.Context) {
+		image := imageStub("image", namespace)
+		patch := minimalManagedPatch(image)
+		patch.Spec.Resource.WithMembers(applyconfigv1alpha1.ImageMemberGrant().WithProjectRef("project-a"))
+		Expect(applyObj(ctx, image, patch)).To(Succeed())
+
+		patch.Spec.Resource.Members = nil
+		patch.Spec.Resource.WithMembers(applyconfigv1alpha1.ImageMemberGrant().WithProjectRef("project-b"))
+		Expect(applyObj(ctx, image, patch)).To(Succeed())
+	})
 })

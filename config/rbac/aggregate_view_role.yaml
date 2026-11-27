@@ -26,6 +26,7 @@ rules:
   - floatingips
   - groups
   - images
+  - imagemembers
   - keypairs
   - limits
   - networks
@@ -65,6 +66,7 @@ rules:
   - floatingips/status
   - groups/status
   - images/status
+  - imagemembers/status
   - keypairs/status
   - limits/status
   - networks/status

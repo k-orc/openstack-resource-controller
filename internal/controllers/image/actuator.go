@@ -24,6 +24,7 @@ import (
 	"slices"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
+	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/members"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
@@ -38,9 +39,16 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
-type (
-	osResourceT = images.Image
+// osResourceT is a Glance image and its members. Members are only fetched by
+// GetOSResourceByID, for shared images.
+type osResourceT struct {
+	images.Image
 
+	// Members is nil if the members were not fetched
+	Members []members.Member
+}
+
+type (
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
@@ -66,7 +74,42 @@ func (actuator imageActuator) GetOSResourceByID(ctx context.Context, id string) 
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
-	return image, nil
+	osResource := &osResourceT{Image: *image}
+
+	// Glance only allows listing the members of a shared image
+	if image.Visibility == images.ImageVisibilityShared {
+		imageMembers, err := actuator.listMembers(ctx, id)
+		if err != nil {
+			return nil, progress.WrapError(err)
+		}
+		osResource.Members = imageMembers
+	}
+	return osResource, nil
+}
+
+func (actuator imageActuator) listMembers(ctx context.Context, imageID string) ([]members.Member, error) {
+	imageMembers := []members.Member{}
+	for member, err := range actuator.osClient.ListImageMembers(ctx, imageID) {
+		if err != nil {
+			return nil, err
+		}
+		imageMembers = append(imageMembers, *member)
+	}
+	return imageMembers, nil
+}
+
+func wrapImages(imageIter iter.Seq2[*images.Image, error]) imageIterator {
+	return func(yield func(*osResourceT, error) bool) {
+		for image, err := range imageIter {
+			var osResource *osResourceT
+			if image != nil {
+				osResource = &osResourceT{Image: *image}
+			}
+			if !yield(osResource, err) {
+				return
+			}
+		}
+	}
 }
 
 func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (imageIterator, bool) {
@@ -122,7 +165,7 @@ func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, ob
 		},
 	)
 
-	return osclients.Filter(actuator.osClient.ListImages(ctx, listOpts), filters...), true
+	return osclients.Filter(wrapImages(actuator.osClient.ListImages(ctx, listOpts)), filters...), true
 }
 
 // contentHash returns the hash of the content stored in Glance, if the spec
@@ -165,7 +208,7 @@ func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		}
 	}
 
-	return actuator.osClient.ListImages(ctx, listOpts), nil
+	return wrapImages(actuator.osClient.ListImages(ctx, listOpts)), nil
 }
 
 func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) (*osResourceT, progress.ReconcileStatus) {
@@ -215,7 +258,7 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
-	return image, nil
+	return &osResourceT{Image: *image}, nil
 }
 
 func (actuator imageActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
@@ -396,6 +439,7 @@ func (actuator imageActuator) GetResourceReconcilers(ctx context.Context, orcObj
 	return []resourceReconciler{
 		actuator.handleUpload,
 		actuator.UpdateResource,
+		actuator.reconcileMembers,
 	}, nil
 }
 
@@ -455,7 +499,7 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 			// this happens due to the existing task. This is
 			// harmless.
 
-			err := actuator.webDownload(ctx, orcObject, osResource)
+			err := actuator.webDownload(ctx, orcObject, &osResource.Image)
 			if err != nil {
 				return progress.WrapError(err)
 			}
@@ -468,7 +512,7 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 
 			return progress.WaitingOnOpenStack(progress.WaitingOnReady, externalUpdatePollingPeriod)
 		} else {
-			err := actuator.uploadImageContent(ctx, orcObject, osResource)
+			err := actuator.uploadImageContent(ctx, orcObject, &osResource.Image)
 			if err != nil {
 				return progress.WrapError(err)
 			}

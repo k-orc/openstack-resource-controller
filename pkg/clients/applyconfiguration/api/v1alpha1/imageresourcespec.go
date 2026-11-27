@@ -25,12 +25,13 @@ import (
 // ImageResourceSpecApplyConfiguration represents a declarative configuration of the ImageResourceSpec type for use
 // with apply.
 type ImageResourceSpecApplyConfiguration struct {
-	Name       *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
-	Protected  *bool                              `json:"protected,omitempty"`
-	Tags       []apiv1alpha1.ImageTag             `json:"tags,omitempty"`
-	Visibility *apiv1alpha1.ImageVisibility       `json:"visibility,omitempty"`
-	Properties *ImagePropertiesApplyConfiguration `json:"properties,omitempty"`
-	Content    *ImageContentApplyConfiguration    `json:"content,omitempty"`
+	Name       *apiv1alpha1.OpenStackName           `json:"name,omitempty"`
+	Protected  *bool                                `json:"protected,omitempty"`
+	Tags       []apiv1alpha1.ImageTag               `json:"tags,omitempty"`
+	Visibility *apiv1alpha1.ImageVisibility         `json:"visibility,omitempty"`
+	Properties *ImagePropertiesApplyConfiguration   `json:"properties,omitempty"`
+	Members    []ImageMemberGrantApplyConfiguration `json:"members,omitempty"`
+	Content    *ImageContentApplyConfiguration      `json:"content,omitempty"`
 }
 
 // ImageResourceSpecApplyConfiguration constructs a declarative configuration of the ImageResourceSpec type for use with
@@ -78,6 +79,19 @@ func (b *ImageResourceSpecApplyConfiguration) WithVisibility(value apiv1alpha1.I
 // If called multiple times, the Properties field is set to the value of the last call.
 func (b *ImageResourceSpecApplyConfiguration) WithProperties(value *ImagePropertiesApplyConfiguration) *ImageResourceSpecApplyConfiguration {
 	b.Properties = value
+	return b
+}
+
+// WithMembers adds the given value to the Members field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Members field.
+func (b *ImageResourceSpecApplyConfiguration) WithMembers(values ...*ImageMemberGrantApplyConfiguration) *ImageResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMembers")
+		}
+		b.Members = append(b.Members, *values[i])
+	}
 	return b
 }
 

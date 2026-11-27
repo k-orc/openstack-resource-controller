@@ -36,6 +36,8 @@ type GroupExpansion interface{}
 
 type ImageExpansion interface{}
 
+type ImageMemberExpansion interface{}
+
 type KeyPairExpansion interface{}
 
 type LimitExpansion interface{}
