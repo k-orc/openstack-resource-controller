@@ -312,6 +312,11 @@ spec:
         required:
         - spec
         type: object
+        x-kubernetes-validations:
+        - message: metadata.name must be at most 64 characters when spec.resource.name
+            is not set
+          rule: '!has(self.spec.resource) || has(self.spec.resource.name) || size(self.metadata.name)
+            <= 64'
     served: true
     storage: true
     subresources:

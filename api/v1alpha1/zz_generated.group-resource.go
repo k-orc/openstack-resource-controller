@@ -142,6 +142,7 @@ func (i *Group) GetConditions() []metav1.Condition {
 // +kubebuilder:printcolumn:name="ID",type="string",JSONPath=".status.id",description="Resource ID"
 // +kubebuilder:printcolumn:name="Available",type="string",JSONPath=".status.conditions[?(@.type=='Available')].status",description="Availability status of resource"
 // +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".status.conditions[?(@.type=='Progressing')].message",description="Message describing current progress status"
+// +kubebuilder:validation:XValidation:rule="!has(self.spec.resource) || has(self.spec.resource.name) || size(self.metadata.name) <= 64",message="metadata.name must be at most 64 characters when spec.resource.name is not set"
 
 // Group is the Schema for an ORC resource.
 type Group struct {
