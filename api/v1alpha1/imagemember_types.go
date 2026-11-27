@@ -26,6 +26,11 @@ const (
 )
 
 // ImageMemberResourceSpec contains the desired state of the resource.
+//
+// The image owner can remove the member and add it again, which resets its
+// status to pending without changing the ImageMember. An ImageMember is
+// therefore resynced every 10 minutes even when periodic resync is disabled
+// globally. Set spec.resyncPeriod to change this.
 type ImageMemberResourceSpec struct {
 	// imageRef is a reference to the ORC Image shared with the project of
 	// this object's credentials. The Image's members must include that

@@ -53,7 +53,15 @@ func (imagememberReconcilerConstructor) GetName() string {
 	return controllerName
 }
 
+// defaultResyncPeriod is used when periodic resync is disabled globally. The
+// image owner can remove and add the member again without changing the
+// ImageMember, which only a resync notices.
+const defaultResyncPeriod = 10 * time.Minute
+
 func (c *imagememberReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	if d == 0 {
+		d = defaultResyncPeriod
+	}
 	c.defaultResyncPeriod = d
 }
 

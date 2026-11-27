@@ -2116,6 +2116,11 @@ _Appears in:_
 
 ImageMemberResourceSpec contains the desired state of the resource.
 
+The image owner can remove the member and add it again, which resets its
+status to pending without changing the ImageMember. An ImageMember is
+therefore resynced every 10 minutes even when periodic resync is disabled
+globally. Set spec.resyncPeriod to change this.
+
 
 
 _Appears in:_

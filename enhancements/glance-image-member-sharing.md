@@ -199,6 +199,9 @@ member-`DELETE` at all).
   identify the image.
 - A member changes its status without changing the `Image`, so `Image.status.resource.members`
   shows the change at the Image's next reconcile, e.g. a periodic resync.
+- For the same reason, the owner removing the member and adding it again resets its status to
+  `pending` without changing the `ImageMember`. An `ImageMember` is resynced every 10 minutes
+  when periodic resync is disabled globally; `spec.resyncPeriod` overrides it.
 
 ## Risks and Edge Cases
 

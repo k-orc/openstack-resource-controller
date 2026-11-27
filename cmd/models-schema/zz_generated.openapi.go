@@ -5291,7 +5291,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ImageMemberResourceSpe
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "ImageMemberResourceSpec contains the desired state of the resource.",
+				Description: "ImageMemberResourceSpec contains the desired state of the resource.\n\nThe image owner can remove the member and add it again, which resets its status to pending without changing the ImageMember. An ImageMember is therefore resynced every 10 minutes even when periodic resync is disabled globally. Set spec.resyncPeriod to change this.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"imageRef": {
